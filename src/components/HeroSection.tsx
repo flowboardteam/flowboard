@@ -15,22 +15,18 @@ import dashboardImg from "@/assets/dashboard.png";
 
 export function HeroSection() {
   return (
-    // w-full prevents horizontal scroll; min-h-screen ensures it fills the view
-    <section className="relative w-full min-h-screen overflow-hidden pt-28 pb-32 font-sans">
+    // ADJUSTED: Changed pt-28 to pt-40 (mobile) and lg:pt-48 (desktop)
+    <section className="relative w-full min-h-screen overflow-hidden pt-40 lg:pt-48 pb-32 font-sans">
       
       {/* ================= BACKGROUND ================= */}
       <div className="absolute inset-0 -z-10 bg-white">
-        {/* Main Brand Gradient */}
         <div 
           className="absolute inset-0" 
           style={{
             background: `linear-gradient(to bottom, #050B1E 0%, #0B2A52 40%, #3b82f6 85%)`
           }}
         />
-        {/* Bottom fade for a seamless transition to the next white section */}
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-white via-white/80 to-transparent" />
-        
-        {/* Depth & Grid Layers */}
         <div className="absolute inset-0 bg-black/10" />
         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:36px_36px] opacity-20" />
       </div>
@@ -38,10 +34,8 @@ export function HeroSection() {
       {/* ================= CONTENT ================= */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 flex flex-col lg:flex-row items-center gap-16">
 
-        {/* -------- LEFT COLUMN (Content) -------- */}
+        {/* -------- LEFT COLUMN -------- */}
         <div className="flex-1 text-center lg:text-left text-white max-w-full">
-
-          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -53,7 +47,6 @@ export function HeroSection() {
             </span>
           </motion.div>
 
-          {/* Headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
             <span className="text-blue-400 block h-[1.2em]">
               <Typewriter
@@ -68,7 +61,6 @@ export function HeroSection() {
             <span>pre-vetted global talents</span>
           </h1>
 
-          {/* Steps - Single line on mobile with horizontal swipe */}
           <div className="flex flex-nowrap lg:justify-start justify-center items-center gap-4 mb-8 overflow-x-auto pb-4 scrollbar-hide">
             {[
               { label: "Upload CV", icon: FileUp },
@@ -88,13 +80,11 @@ export function HeroSection() {
             ))}
           </div>
 
-          {/* Description */}
           <p className="text-lg text-blue-100/80 max-w-2xl mb-10 font-medium mx-auto lg:mx-0">
             Custom-engineered talent hiring and management platform to deliver
             enterprise-level projects at scale — powered by advanced AI.
           </p>
 
-          {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <Button className="bg-blue-600 hover:bg-blue-700 h-14 px-12 rounded-xl font-bold shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
               Schedule a Demo
@@ -109,8 +99,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* -------- RIGHT COLUMN (Image) -------- */}
-        {/* FIXED: 'hidden lg:block' removes the entire column on mobile */}
+        {/* -------- RIGHT COLUMN -------- */}
         <div className="hidden lg:block flex-1 w-full max-w-2xl relative">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -125,13 +114,10 @@ export function HeroSection() {
                 className="rounded-[2rem] w-full h-auto"
               />
             </div>
-
-            {/* Radiant Glow Accents */}
             <div className="absolute -top-6 -right-6 w-48 h-48 bg-blue-500/40 blur-[80px] -z-10" />
             <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-indigo-500/40 blur-[80px] -z-10" />
           </motion.div>
         </div>
-
       </div>
     </section>
   );
