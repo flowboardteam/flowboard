@@ -1,99 +1,169 @@
-import { Shield, Zap, Globe, Sparkles } from "lucide-react";
+import { Brain, Users, Rocket, GraduationCap, Clock, CheckCircle2 } from "lucide-react";
+import { motion, Variants } from "framer-motion";
 
-const features = [
+// 1. IMPORT LOCAL ASSETS CORRECTLY
+// This tells Vite/React to process the file and provide a valid URL
+import agiImg from "@/assets/agi.avif"; 
+import teamImg from "@/assets/team.jpg"; 
+import globalImg from "@/assets/global.jpg"; 
+
+// --- Configuration ---
+const cycleSteps = [
   {
-    icon: Shield,
-    title: "Pre-Vetted Talent",
-    description:
-      "Every professional is rigorously assessed for technical depth, communication skills, and reliability before joining FlowBoard.",
+    step: 1,
+    label: "AGI Advancement",
+    icon: Brain,
+    description: "LLM Reasoning, Model Evaluation, Agentic Workflow, and Advanced Data Labelling for enterprise needs.",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50",
+    image: agiImg, // Use the variable directly (no quotes)
   },
   {
-    icon: Zap,
-    title: "Faster Hiring",
-    description:
-      "Get matched with qualified talent in as little as 48 hours — without endless screening or interviews.",
+    step: 2,
+    label: "Smart Recruiting",
+    icon: Users,
+    description: "Streamline your hiring process with intelligent candidate matching and predictive talent analytics.",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50",
+    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=800",
   },
   {
-    icon: Globe,
-    title: "Global Reach",
-    description:
-      "Hire top engineers and business professionals from emerging and established markets worldwide.",
+    step: 3,
+    label: "Team Collaboration",
+    icon: GraduationCap,
+    description: "Enhanced team workflows and communication tools integrated directly into your global talent stack.",
+    color: "text-orange-600",
+    bgColor: "bg-orange-50",
+    image: teamImg,
   },
   {
-    icon: Sparkles,
-    title: "AI-Driven Matching",
-    description:
-      "Our AI evaluates skills, experience, and team fit to connect you with the right talent — faster and smarter.",
+    step: 4,
+    label: "Global Compliance",
+    icon: Rocket,
+    description: "Stay compliant across multiple jurisdictions effortlessly with automated payroll and legal safeguards.",
+    color: "text-purple-600",
+    bgColor: "bg-purple-50",
+    image: globalImg,
   },
 ];
 
+// --- Animation Variants ---
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { 
+      duration: 0.8, 
+      ease: [0.16, 1, 0.3, 1]
+    } 
+  },
+};
+
 export function WhyFlowboardSection() {
   return (
-    <section className="section-padding relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="blob blob-1 w-72 h-72 top-20 -left-32" />
-      <div className="blob blob-2 w-72 h-72 bottom-20 -right-32 animation-delay-2000" />
-
-      <div className="container-custom relative z-10">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider mb-4">
-            Why FlowBoard
-          </span>
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 text-balance">
-            Hiring made{" "}
-            <span className="gradient-text">simple, fast & reliable</span>
-          </h2>
-
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            FlowBoard is an AI-powered talent platform that helps companies hire, manage, and scale elite global teams — faster and smarter.
-          </p>
+    <section id="why-flowboard" className="py-24 bg-slate-50/50">
+      <div className="container mx-auto px-4">
+        
+        {/* Header Content */}
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1 rounded-full border border-blue-100 mb-6"
+          >
+            <span className="text-xs font-bold uppercase tracking-widest">Why Flowboard</span>
+          </motion.div>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight"
+          >
+            Your Best Talents Work 24/7
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="text-lg text-slate-600 leading-relaxed"
+          >
+            Build and train enterprise-level agentic AGI with our Haraka-o1 model. 
+            Replicate your best performing talents and put them on autopilot.
+          </motion.p>
         </div>
 
-        {/* Feature cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={feature.title}
-              className="
-                group
-                relative
-                rounded-2xl
-                border
-                border-border
-                bg-background
-                p-6
-                transition-all
-                duration-300
-                hover:-translate-y-1
-                hover:shadow-lg
-              "
-              style={{ animationDelay: `${index * 0.08}s` }}
+        {/* The Card Grid */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {cycleSteps.map((step) => (
+            <motion.div
+              key={step.step}
+              variants={cardVariants}
+              className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col group"
             >
-              {/* Category label (like Andela) */}
-              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Flowboard
-              </span>
-
-              {/* Title */}
-              <h3 className="text-xl font-semibold mb-3 leading-snug">
-                {feature.title}
-              </h3>
-
-              {/* Description */}
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                {feature.description}
-              </p>
-
-              {/* Icon (subtle, bottom-right like Andela cards) */}
-              <div className="absolute bottom-5 right-5 opacity-10 group-hover:opacity-20 transition-opacity">
-                <feature.icon className="w-12 h-12" />
+              {/* Image Container */}
+              <div className="h-48 overflow-hidden relative">
+                <img 
+                  src={step.image} // Corrected: Using curly braces to reference the variable
+                  alt={step.label} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute top-4 left-4">
+                  <div className={`${step.bgColor} p-2 rounded-lg backdrop-blur-md border border-white/20 shadow-sm`}>
+                    <step.icon className={`w-5 h-5 ${step.color}`} />
+                  </div>
+                </div>
               </div>
-            </div>
+
+              {/* Text Content */}
+              <div className="p-6 flex flex-col flex-grow">
+                <h3 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">
+                  {step.label}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed mb-6">
+                  {step.description}
+                </p>
+                
+                {/* Visual Indicator */}
+                <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
+                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Capability 0{step.step}</span>
+                   <CheckCircle2 className="w-4 h-4 text-slate-200 group-hover:text-emerald-500 transition-colors" />
+                </div>
+              </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* Footer Accent */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6 }}
+          className="mt-20 text-center"
+        >
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-6 py-2 rounded-full">
+            <Clock className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-semibold text-blue-700 tracking-tight">Enterprise velocity at startup scale</span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

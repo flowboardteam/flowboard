@@ -10,13 +10,13 @@ import { Footer } from "@/components/Footer";
 const Index = () => {
   return (
     <>
-      <title>FlowBoard - Hire Pre-Vetted Global Engineering & Business Talent</title>
+      <title>Flowboard Team - Hire Pre-Vetted Talent From Emerging Markets</title>
       <meta
         name="description"
         content="Scale your engineering and business teams globally with FlowBoard. Access pre-vetted talent from 50+ countries. Faster hiring, smarter matching, better results."
       />
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <Navbar />
         <main>
           <HeroSection />

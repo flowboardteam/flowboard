@@ -1,75 +1,138 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import {
+  ArrowRight,
+  Play,
+  FileUp,
+  Sparkles,
+  Rocket,
+  Globe,
+  Zap,
+} from "lucide-react";
+import Typewriter from "typewriter-effect";
+import { motion } from "framer-motion";
+
 import dashboardImg from "@/assets/dashboard.png";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-white 
-      pt-[calc(5rem+20px)] lg:pt-[calc(8rem+32px)]
-      pb-24 lg:pb-32">
-      {/* Background Blobs & Grid */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        {/* Gradient blobs */}
-        <div className="absolute top-[-12rem] left-[-10rem] w-[520px] h-[520px] rounded-full bg-gradient-to-r from-[#6C5DD3]/30 via-[#9B51E0]/30 to-[#BB6BD9]/30 blur-3xl animate-blob" />
-        <div className="absolute bottom-[-10rem] right-[-8rem] w-[420px] h-[420px] rounded-full bg-gradient-to-r from-[#4BC0F7]/25 via-[#3A6FF7]/25 to-[#6C5DD3]/25 blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute top-[35%] left-[45%] w-[300px] h-[300px] rounded-full bg-gradient-to-r from-[#FF7EB3]/20 via-[#FF758C]/20 to-[#FF5C7C]/20 blur-3xl animate-blob animation-delay-4000" />
-
-        {/* Soft grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.04)_1px,transparent_1px)] bg-[size:60px_60px]" />
+    // w-full prevents horizontal scroll; min-h-screen ensures it fills the view
+    <section className="relative w-full min-h-screen overflow-hidden pt-28 pb-32 font-sans">
+      
+      {/* ================= BACKGROUND ================= */}
+      <div className="absolute inset-0 -z-10 bg-white">
+        {/* Main Brand Gradient */}
+        <div 
+          className="absolute inset-0" 
+          style={{
+            background: `linear-gradient(to bottom, #050B1E 0%, #0B2A52 40%, #3b82f6 85%)`
+          }}
+        />
+        {/* Bottom fade for a seamless transition to the next white section */}
+        <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-white via-white/80 to-transparent" />
+        
+        {/* Depth & Grid Layers */}
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:36px_36px] opacity-20" />
       </div>
 
-      {/* Container */}
-      <div className="container-custom relative z-10 flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
-        {/* Left Content */}
-        <div className="flex-1 text-center lg:text-left space-y-6">
-          <span className="inline-block text-sm font-semibold text-primary uppercase tracking-wider">
-            Global Hiring Platform
-          </span>
+      {/* ================= CONTENT ================= */}
+      <div className="relative z-10 mx-auto max-w-7xl px-6 flex flex-col lg:flex-row items-center gap-16">
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-tight text-balance">
-            Scale your{" "}
-            <span className="gradient-text">engineering</span> &{" "}
-            <span className="gradient-text">business</span> teams globally
+        {/* -------- LEFT COLUMN (Content) -------- */}
+        <div className="flex-1 text-center lg:text-left text-white max-w-full">
+
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-sm mb-8 shadow-lg"
+          >
+            <Zap className="w-3 h-3 fill-white" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-blue-200">
+              AI-Powered Recruiting/Staffing Platform
+            </span>
+          </motion.div>
+
+          {/* Headline */}
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
+            <span className="text-blue-400 block h-[1.2em]">
+              <Typewriter
+                options={{
+                  strings: ["Recruit", "Pay", "Manage"],
+                  autoStart: true,
+                  loop: true,
+                  deleteSpeed: 50,
+                }}
+              />
+            </span>
+            <span>pre-vetted global talents</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 text-balance">
-            Hire pre-vetted professionals from emerging markets. Build
-            world-class teams faster — without the world-class overhead.
+          {/* Steps - Single line on mobile with horizontal swipe */}
+          <div className="flex flex-nowrap lg:justify-start justify-center items-center gap-4 mb-8 overflow-x-auto pb-4 scrollbar-hide">
+            {[
+              { label: "Upload CV", icon: FileUp },
+              { label: "Instant Feedback", icon: Sparkles },
+              { label: "Test Projects", icon: Rocket },
+              { label: "Get Hired", icon: Globe },
+            ].map((step, i, arr) => (
+              <div key={step.label} className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">
+                  <step.icon className="w-4 h-4 text-blue-400" />
+                  {step.label}
+                </div>
+                {i !== arr.length - 1 && (
+                  <ArrowRight className="w-3 h-3 text-white/30 hidden md:block" />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Description */}
+          <p className="text-lg text-blue-100/80 max-w-2xl mb-10 font-medium mx-auto lg:mx-0">
+            Custom-engineered talent hiring and management platform to deliver
+            enterprise-level projects at scale — powered by advanced AI.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-6">
-            <Button className="gradient-primary text-white flex items-center gap-2 shadow-lg hover:brightness-110 transition h-12 px-8 w-full sm:w-auto">
-              Get Started Free <ArrowRight className="w-5 h-5" />
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <Button className="bg-blue-600 hover:bg-blue-700 h-14 px-12 rounded-xl font-bold shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
+              Schedule a Demo
             </Button>
-
             <Button
               variant="outline"
-              className="border-border flex items-center gap-2 hover:bg-muted transition h-12 px-8 w-full sm:w-[200px]"
+              className="h-14 px-10 rounded-xl bg-white/5 text-white border-white/20 hover:bg-white/10 backdrop-blur-sm"
             >
-              <Play className="w-5 h-5" /> Watch Demo
+              <Play className="w-4 h-4 mr-2 fill-white" />
+              Watch Demo
             </Button>
           </div>
         </div>
 
-        {/* Right Illustration */}
-        <div className="flex-1 flex justify-center lg:justify-end relative">
-          <div className="relative w-full max-w-md lg:max-w-lg h-96 lg:h-[28rem]">
-            <img
-              src={dashboardImg}
-              alt="FlowBoard Dashboard"
-              className="w-full h-full object-contain rounded-3xl shadow-2xl shadow-primary/20 transform rotate-[-6deg] hover:rotate-0 transition-all duration-500 ease-out"
-            />
+        {/* -------- RIGHT COLUMN (Image) -------- */}
+        {/* FIXED: 'hidden lg:block' removes the entire column on mobile */}
+        <div className="hidden lg:block flex-1 w-full max-w-2xl relative">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+            className="relative"
+          >
+            <div className="p-2 bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden">
+              <img
+                src={dashboardImg}
+                alt="FlowBoard dashboard"
+                className="rounded-[2rem] w-full h-auto"
+              />
+            </div>
 
-            {/* Floating accents */}
-            <div className="absolute -top-10 -left-8 w-24 h-24 rounded-2xl bg-gradient-to-r from-primary/15 to-transparent blur-xl animate-fade-up" />
-            <div className="absolute bottom-5 right-5 w-28 h-28 rounded-2xl bg-gradient-to-r from-secondary/20 to-transparent blur-xl animate-fade-up animation-delay-200" />
-          </div>
+            {/* Radiant Glow Accents */}
+            <div className="absolute -top-6 -right-6 w-48 h-48 bg-blue-500/40 blur-[80px] -z-10" />
+            <div className="absolute -bottom-6 -left-6 w-48 h-48 bg-indigo-500/40 blur-[80px] -z-10" />
+          </motion.div>
         </div>
-      </div>
 
-      {/* Bottom fade into next section */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
+      </div>
     </section>
   );
 }
