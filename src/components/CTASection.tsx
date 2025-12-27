@@ -3,11 +3,13 @@ import { ArrowRight, Users, Check } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function CTASection() {
-  const trustIndicators = [
-    "No upfront fees",
-    "Cancel anytime",
-    "24/7 support",
-  ];
+  const trustIndicators = ["No upfront fees", "Cancel anytime", "24/7 support"];
+
+  // Safe navigation function
+  const navigateToSignup = () => {
+    const url = "/signup";
+    window.location.href = url;
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.98 },
@@ -19,9 +21,7 @@ export function CTASection() {
   };
 
   return (
-    <section 
-      className="py-24 relative overflow-hidden bg-gray-50 text-gray-900"
-    >
+    <section className="py-24 relative overflow-hidden bg-gray-50 text-gray-900">
       {/* Background Blobs */}
       <div className="absolute inset-0 overflow-hidden opacity-20 pointer-events-none">
         <div className="absolute top-[-10rem] left-[-10rem] w-[500px] h-[500px] rounded-full bg-gradient-to-r from-purple-200 via-pink-200 to-yellow-200 animate-blob" />
@@ -43,7 +43,6 @@ export function CTASection() {
 
             {/* Inner Content */}
             <div className="relative bg-white rounded-[2rem] p-8 md:p-12 lg:p-16 text-center border border-gray-200">
-              
               {/* Badge */}
               <div className="inline-flex items-center gap-2 bg-purple-100 rounded-full px-5 py-2 mb-8 border border-purple-200">
                 <Users className="w-5 h-5 text-purple-600" />
@@ -60,23 +59,25 @@ export function CTASection() {
 
               {/* Subheadline */}
               <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto mb-10">
-                Whether you're looking to hire elite global talent or find your next
-                opportunity, Flowboard connects you with the world's best.
+                Whether you're looking to hire elite global talent or find your
+                next opportunity, Flowboard connects you with the world's best.
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button 
+                <Button
+                  onClick={() => navigateToSignup()}
                   variant="custom-gradient"
-                  size="xl" 
+                  size="xl"
                   className="w-full sm:w-auto font-semibold h-14 px-10"
                 >
                   Hire Top Talent Now
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="xl" 
+                <Button
+                  onClick={() => navigateToSignup()}
+                  variant="outline"
+                  size="xl"
                   className="w-full sm:w-auto font-semibold h-14 px-10 border-gray-300 text-gray-900 hover:bg-gray-100"
                 >
                   Join as Talent
@@ -94,7 +95,6 @@ export function CTASection() {
                   </div>
                 ))}
               </div>
-
             </div>
           </motion.div>
         </div>

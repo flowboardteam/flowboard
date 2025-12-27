@@ -145,6 +145,10 @@
   animation-play-state: paused;
 }
 
+.input {
+  @apply w-full rounded-lg border px-4 py-2.5 focus:outline-none focus:ring focus:ring-black/10;
+}
+
 
 @layer components {
   .gradient-primary {
