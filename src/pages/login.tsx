@@ -36,7 +36,7 @@ export default function Login() {
     });
 
     if (error) {
-      toast.error("Authentication Failed", {
+      toast.error("Authentication Failed, Consider Checking your network connection", {
         description: error.message,
       });
       setIsLoading(false);

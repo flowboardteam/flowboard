@@ -9,23 +9,30 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (!user) {
         navigate("/login");
         return;
       }
 
-      // Check if profile exists and if user_type is set
+      if (window.location.pathname === "/onboarding") {
+        setLoading(false);
+        return;
+      }
+
+      // Check if profile exists and if role_type is set
       const { data: profile } = await supabase
         .from("profiles")
-        .select("user_type")
+        .select("onboarding_completed, role_type")
         .eq("id", user.id)
         .single();
 
-      // If no user_type (Social Login case), send them to onboarding
-      if (!profile?.user_type) {
+      if (!profile || !profile.onboarding_completed) {
         navigate("/onboarding");
+        return;
       }
 
       setLoading(false);

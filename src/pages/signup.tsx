@@ -50,7 +50,7 @@ export default function SignUp() {
       options: {
         data: {
           full_name: nameOrCompany,
-          user_type: role,
+          role_type: role,
         },
         emailRedirectTo: `${window.location.origin}/dashboard`,
       },
@@ -176,7 +176,7 @@ export default function SignUp() {
               Create Account
             </h1>
             <p className="text-slate-500 font-medium">
-              Join Flowboard-Team to start your journey.
+              Join Flowboard to start your journey.
             </p>
           </div>
 
@@ -364,7 +364,7 @@ export default function SignUp() {
           </form>
 
           <p className="mt-8 text-center text-xs text-slate-400 font-medium tracking-wide">
-            FLOWBOARD-TEAM &copy; 2025. ALL RIGHTS RESERVED.
+            FLOWBOARD &copy; 2025. ALL RIGHTS RESERVED.
           </p>
         </div>
       </div>

@@ -76,7 +76,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
             <div className={`hidden lg:block w-px h-6 ${isOverHero ? "bg-white/30" : "bg-gray-300"}`} />
 
             <div className="hidden lg:flex items-center gap-6">
-              {["Talent Cloud", "Companies", "How It Works", "Pricing"].map((label) => (
+              {["Talent Cloud", "Job Board", "How It Works", "Pricing"].map((label) => (
                 <a
                   key={label}
                   href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
@@ -145,7 +145,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
         {/* MOBILE MENU */}
         <div className={`lg:hidden transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}`}>
           <div className="bg-white rounded-xl shadow-lg p-4 mb-4 space-y-4">
-            {["Talent Cloud", "Companies", "How It Works", "Pricing"].map((label) => (
+            {["Talent Cloud", "Job Board", "How It Works", "Pricing"].map((label) => (
               <a key={label} href="#" className="block text-slate-800 font-medium py-1" onClick={() => setIsMobileMenuOpen(false)}>
                 {label}
               </a>
