@@ -1,26 +1,29 @@
-import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
 
-// Auth & Public Pages
+// Public Pages
 import Index from "./pages/Index";
-import Signup from "./pages/signup";
 import NotFound from "./pages/NotFound";
-import Login from "./pages/login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Onboarding from "./pages/onboarding";
 
-// Dashboard Components
-import { ProtectedRoute } from "./components/ProtectedRoutes";
-import DashboardLayout from "./pages/dashboard/layout";
-import DashboardPage from "./pages/dashboard/page";
+// Talent Auth Pages
+import TalentSignup from "./pages/talent/auth/Signup";
+import TalentLogin from "./pages/talent/auth/Login";
 
-// New Feature Pages
+// Talent Pages & Layouts
+import TalentOnboarding from "./pages/talent/onboarding/index";
+import DashboardLayout from "./pages/talent/dashboard/Layout";
+import DashboardIndex from "./pages/talent/dashboard/Index";
+import ProfileSettings from "./pages/talent/dashboard/Profile"; // Import the real page
+import ContractsDiscovery from './pages/talent/contracts/page';
+
+// Dashboard / Other Pages
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
-// import { SearchJobs } from "./pages/dashboard/search/SearchJobs";
+import ComingSoon from "./pages/dashboard/ComingSoon";
+
+// Components
+import { ProtectedRoute } from "./components/ProtectedRoutes";
 
 const queryClient = new QueryClient();
 
@@ -28,37 +31,51 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ShadcnToaster />
-      <Sonner position="top-center" richColors closeButton />
 
       <BrowserRouter>
         <Routes>
-          {/* Public Routes */}
+          {/* --- 1. Public Routes --- */}
           <Route path="/" element={<Index />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/talent/signup" element={<TalentSignup />} />
+          <Route path="/talent/login" element={<TalentLogin />} />
 
-          {/* Protected Dashboard Routes */}
+          {/* --- 2. Independent Onboarding Path --- */}
           <Route
-            path="/dashboard"
+            path="/talent/onboarding"
+            element={
+              <ProtectedRoute>
+                <TalentOnboarding />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* --- 3. Protected Talent Dashboard System --- */}
+          <Route
+            path="/talent"
             element={
               <ProtectedRoute>
                 <DashboardLayout />
               </ProtectedRoute>
             }
           >
-            {/* These render inside the DashboardLayout's <Outlet /> or children prop */}
-            <Route index element={<DashboardPage />} />
-            <Route path="applications" element={<ApplicationsPage />} />
-            {/* <Route path="search" element={<SearchJobs />} /> */}
+            {/* Redirects /talent directly to the dashboard */}
+            <Route index element={<Navigate to="/talent/dashboard" replace />} />
+
+            <Route path="contracts" element={<ContractsDiscovery />} />
             
-            {/* Add placeholders for your other sidebar menus as you build them */}
-            <Route path="jobs" element={<ApplicationsPage />} /> 
-            <Route path="profile" element={<div className="text-white p-10">Profile Page Coming Soon</div>} />
+            <Route path="dashboard" element={<DashboardIndex />} />
+            <Route path="jobs" element={<ApplicationsPage />} />
+            <Route path="applications" element={<ApplicationsPage />} />
+            <Route path="coming-soon" element={<ComingSoon />} />
+            
+            {/* --- THE REAL PROFILE PAGE --- */}
+            <Route path="profile" element={<ProfileSettings />} />
+
+            {/* If you need a separate settings page later, you can add it here */}
+            <Route path="settings" element={<div className="p-10 text-[var(--text-main)] font-black italic uppercase tracking-tighter text-2xl">App Preferences Coming Soon</div>} />
           </Route>
 
+          {/* --- 4. Fallback Route --- */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

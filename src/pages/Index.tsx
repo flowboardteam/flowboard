@@ -1,11 +1,11 @@
-import { Navbar } from "@/components/Navbar";
-import { HeroSection } from "@/components/HeroSection";
-import { TrustedBySection } from "@/components/TrustedBySection";
-import { WhyFlowboardSection } from "@/components/WhyFlowboardSection";
-import { TalentCategoriesSection } from "@/components/TalentCategoriesSection";
-import { HowItWorksSection } from "@/components/HowItWorksSection";
-import { CTASection } from "@/components/CTASection";
-import { Footer } from "@/components/Footer";
+import { Navbar } from "@/components/landing/Navbar";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { TrustedBySection } from "@/components/landing/TrustedBySection";
+import { WhyFlowboardSection } from "@/components/landing/WhyFlowboardSection";
+import { TalentCategoriesSection } from "@/components/landing/TalentCategoriesSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { CTASection } from "@/components/landing/CTASection";
+import { Footer } from "@/components/landing/Footer";
 
 const Index = () => {
   return (

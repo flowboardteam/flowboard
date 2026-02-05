@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Upload,
   Link as LinkIcon,
+  ChevronDown,
   Github,
   Search,
   Briefcase,
@@ -81,7 +82,7 @@ export default function Onboarding() {
     titleOrCompany: "",
     experienceOrSize: "",
     primarySkillOrIndustry: "",
-    englishLevel: "",
+    language: "",
     location: "",
     linkedin: "",
     github: "",
@@ -104,7 +105,7 @@ export default function Onboarding() {
         common &&
         details.experienceOrSize !== "" &&
         details.primarySkillOrIndustry !== "" &&
-        details.englishLevel !== ""
+        details.language !== ""
       );
     } else {
       // Recruiters don't need English level or specific skills to pass step 2
@@ -121,7 +122,7 @@ export default function Onboarding() {
     return ROLE_GROUPS.map((g) => ({
       ...g,
       roles: g.roles.filter((r) =>
-        r.toLowerCase().includes(searchQuery.toLowerCase())
+        r.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     })).filter((g) => g.roles.length > 0);
   }, [searchQuery]);
@@ -129,91 +130,96 @@ export default function Onboarding() {
   const filteredLocations = useMemo(() => {
     if (locSearch.length < 2) return [];
     return WORLD_CITIES.filter((c) =>
-      c.toLowerCase().includes(locSearch.toLowerCase())
+      c.toLowerCase().includes(locSearch.toLowerCase()),
     );
   }, [locSearch]);
 
   const handleFinish = async () => {
-  setIsLoading(true);
-  try {
-    // 1. Get the current Auth user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("No authenticated user found");
+    setIsLoading(true);
+    try {
+      // 1. Get the current Auth user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user found");
 
-    let resumePublicUrl = "";
+      let resumePublicUrl = "";
 
-    // 2. Handle File Upload (Talent only)
-    if (userRole === "talent" && details.resumeFile) {
-      const fileExt = details.resumeFile.name.split(".").pop();
-      const filePath = `${user.id}/${Math.random()}.${fileExt}`;
+      // 2. Handle File Upload (Talent only)
+      if (userRole === "talent" && details.resumeFile) {
+        const fileExt = details.resumeFile.name.split(".").pop();
+        const filePath = `${user.id}/${Math.random()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("resumes")
-        .upload(filePath, details.resumeFile);
+        const { error: uploadError } = await supabase.storage
+          .from("resumes")
+          .upload(filePath, details.resumeFile);
 
-      if (uploadError) throw uploadError;
+        if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("resumes")
-        .getPublicUrl(filePath);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("resumes").getPublicUrl(filePath);
 
-      resumePublicUrl = publicUrl;
+        resumePublicUrl = publicUrl;
+      }
+
+      // 3. Extract Identity from Google/Auth Metadata
+      // Supabase stores Google info in user_metadata
+      const fullName =
+        user.user_metadata?.full_name || user.user_metadata?.name || "";
+      const avatarUrl = user.user_metadata?.avatar_url || "";
+      const userEmail = user.email || "";
+
+      // 4. Build the Final Profile Object
+      const profileUpdate = {
+        id: user.id,
+        email: userEmail,
+        full_name: fullName,
+        avatar_url: avatarUrl,
+        role_type: userRole,
+        onboarding_completed: true, // Crucial for your ProtectedRoute
+        location: details.location,
+
+        // Talent Mapping
+        primary_role: userRole === "talent" ? details.titleOrCompany : null,
+        experience_level:
+          userRole === "talent" ? details.experienceOrSize : null,
+        primary_skill:
+          userRole === "talent" ? details.primarySkillOrIndustry : null,
+        github_url: details.github,
+        linkedin_url: details.linkedin,
+        english_level: details.language,
+        resume_url: resumePublicUrl,
+
+        // Recruiter Mapping
+        company_name: userRole === "recruiter" ? details.titleOrCompany : null,
+        company_size:
+          userRole === "recruiter" ? details.experienceOrSize : null,
+        website_url: details.website, // Ensure this exists in your 'details' state
+
+        updated_at: new Date().toISOString(),
+      };
+
+      // 5. Upsert to Supabase
+      const { error } = await supabase
+        .from("profiles")
+        .upsert(profileUpdate, { onConflict: "id" });
+
+      if (error) throw error;
+
+      toast.success("Profile updated successfully!");
+
+      // 6. Redirect to Dashboard
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1500);
+    } catch (error: any) {
+      console.error("Onboarding Error:", error);
+      toast.error(error.message || "Failed to save profile");
+    } finally {
+      setIsLoading(false);
     }
-
-    // 3. Extract Identity from Google/Auth Metadata
-    // Supabase stores Google info in user_metadata
-    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || "";
-    const avatarUrl = user.user_metadata?.avatar_url || "";
-    const userEmail = user.email || "";
-
-    // 4. Build the Final Profile Object
-    const profileUpdate = {
-      id: user.id,
-      email: userEmail,
-      full_name: fullName,
-      avatar_url: avatarUrl,
-      role_type: userRole,
-      onboarding_completed: true, // Crucial for your ProtectedRoute
-      location: details.location,
-      
-      // Talent Mapping
-      primary_role: userRole === "talent" ? details.titleOrCompany : null,
-      experience_level: userRole === "talent" ? details.experienceOrSize : null,
-      primary_skill: userRole === "talent" ? details.primarySkillOrIndustry : null,
-      github_url: details.github,
-      linkedin_url: details.linkedin,
-      english_level: details.englishLevel,
-      resume_url: resumePublicUrl,
-
-      // Recruiter Mapping
-      company_name: userRole === "recruiter" ? details.titleOrCompany : null,
-      company_size: userRole === "recruiter" ? details.experienceOrSize : null,
-      website_url: details.website, // Ensure this exists in your 'details' state
-      
-      updated_at: new Date().toISOString(),
-    };
-
-    // 5. Upsert to Supabase
-    const { error } = await supabase
-      .from("profiles")
-      .upsert(profileUpdate, { onConflict: 'id' });
-
-    if (error) throw error;
-
-    toast.success("Profile updated successfully!");
-    
-    // 6. Redirect to Dashboard
-    setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1500);
-
-  } catch (error: any) {
-    console.error("Onboarding Error:", error);
-    toast.error(error.message || "Failed to save profile");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen bg-[#050B1E] flex flex-col items-center justify-center p-4 md:p-10 text-white relative overflow-x-hidden">
@@ -283,6 +289,8 @@ export default function Onboarding() {
           {step === 1 ? (
             <motion.div
               key="s1"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
               className="text-center space-y-8"
             >
@@ -317,6 +325,7 @@ export default function Onboarding() {
                     </p>
                   </div>
                 </button>
+
                 <button
                   onClick={() => setUserRole("recruiter")}
                   className={`group flex items-center gap-6 p-7 rounded-[2rem] border-2 transition-all ${
@@ -353,8 +362,9 @@ export default function Onboarding() {
           ) : step === 2 ? (
             <motion.div
               key="s2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
               className="space-y-8"
             >
               <div>
@@ -376,7 +386,7 @@ export default function Onboarding() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Dynamic Title Input */}
+                {/* Primary Role / Company Name - Now purely editable text */}
                 <div className="md:col-span-2 space-y-2 relative">
                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
                     {userRole === "recruiter" ? "Company Name" : "Primary Role"}{" "}
@@ -386,56 +396,27 @@ export default function Onboarding() {
                     {userRole === "recruiter" ? (
                       <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     ) : (
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     )}
                     <input
                       placeholder={
                         userRole === "recruiter"
                           ? "e.g. Acme Corp"
-                          : "e.g. Software Engineer"
+                          : "e.g. Fullstack Developer"
                       }
-                      value={searchQuery}
-                      onFocus={() =>
-                        userRole === "talent" && setShowSuggestions(true)
-                      }
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setDetails((prev) => ({
-                          ...prev,
+                      value={details.titleOrCompany}
+                      onChange={(e) =>
+                        setDetails({
+                          ...details,
                           titleOrCompany: e.target.value,
-                        }));
-                        if (userRole === "talent") setShowSuggestions(true);
-                      }}
+                        })
+                      }
                       className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 outline-none focus:border-emerald-500 transition-all text-sm"
                     />
                   </div>
-                  {showSuggestions && userRole === "talent" && (
-                    <div className="absolute z-50 w-full mt-2 bg-[#0A1229] border border-white/10 rounded-2xl shadow-2xl max-h-60 overflow-y-auto p-2 backdrop-blur-xl">
-                      {filteredRoles.map((g) => (
-                        <div key={g.group} className="mb-2">
-                          <div className="px-3 py-1 text-[10px] font-black text-emerald-500 uppercase">
-                            {g.group}
-                          </div>
-                          {g.roles.map((r) => (
-                            <button
-                              key={r}
-                              onClick={() => {
-                                setDetails({ ...details, titleOrCompany: r });
-                                setSearchQuery(r);
-                                setShowSuggestions(false);
-                              }}
-                              className="w-full text-left px-3 py-3 rounded-xl hover:bg-white/5 text-sm transition-colors"
-                            >
-                              {r}
-                            </button>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
 
-                {/* Left Col */}
+                {/* Left Column */}
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
@@ -484,6 +465,7 @@ export default function Onboarding() {
                       )}
                     </select>
                   </div>
+
                   <div className="space-y-2 relative">
                     <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
                       Location <span className="text-rose-500">*</span>
@@ -492,44 +474,21 @@ export default function Onboarding() {
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                       <input
                         placeholder="Accra, Ghana"
-                        value={locSearch}
-                        onChange={(e) => {
-                          setLocSearch(e.target.value);
-                          setDetails((prev) => ({
-                            ...prev,
-                            location: e.target.value,
-                          }));
-                          setShowLocSuggestions(true);
-                        }}
+                        value={details.location}
+                        onChange={(e) =>
+                          setDetails({ ...details, location: e.target.value })
+                        }
                         className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 outline-none focus:border-emerald-500 transition-all text-sm"
                       />
                     </div>
-                    {showLocSuggestions && filteredLocations.length > 0 && (
-                      <div className="absolute z-50 w-full mt-2 bg-[#0A1229] border border-white/10 rounded-2xl shadow-2xl p-2">
-                        {filteredLocations.map((l) => (
-                          <button
-                            key={l}
-                            onClick={() => {
-                              setDetails({ ...details, location: l });
-                              setLocSearch(l);
-                              setShowLocSuggestions(false);
-                            }}
-                            className="w-full text-left px-4 py-3 rounded-xl hover:bg-emerald-500/10 text-sm"
-                          >
-                            {l}
-                          </button>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
 
-                {/* Right Col */}
+                {/* Right Column */}
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                      {userRole === "recruiter" ? "Industry" : "Primary Skill"}{" "}
-                      <span className="text-rose-500">*</span>
+                      Industry <span className="text-rose-500">*</span>
                     </label>
                     <select
                       value={details.primarySkillOrIndustry}
@@ -542,66 +501,75 @@ export default function Onboarding() {
                       className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-500 appearance-none text-sm cursor-pointer"
                     >
                       <option value="" className="bg-[#050B1E]">
-                        Select option
+                        Select Industry
                       </option>
-                      {userRole === "talent" ? (
-                        <>
-                          <option value="react" className="bg-[#050B1E]">
-                            React / Next.js
-                          </option>
-                          <option value="ai" className="bg-[#050B1E]">
-                            AI / ML Models
-                          </option>
-                          <option value="node" className="bg-[#050B1E]">
-                            Node.js Backend
-                          </option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="fintech" className="bg-[#050B1E]">
-                            Fintech
-                          </option>
-                          <option value="saas" className="bg-[#050B1E]">
-                            SaaS
-                          </option>
-                          <option value="health" className="bg-[#050B1E]">
-                            Healthtech
-                          </option>
-                        </>
-                      )}
+                      <option value="fintech" className="bg-[#050B1E]">
+                        Fintech
+                      </option>
+                      <option value="saas" className="bg-[#050B1E]">
+                        SaaS
+                      </option>
+                      <option value="health" className="bg-[#050B1E]">
+                        Healthtech
+                      </option>
+                      <option value="ecommerce" className="bg-[#050B1E]">
+                        E-commerce
+                      </option>
+                      <option value="ai" className="bg-[#050B1E]">
+                        Artificial Intelligence
+                      </option>
                     </select>
                   </div>
-                  {userRole === "talent" && (
+
+                  {userRole === "talent" ? (
                     <div className="space-y-2">
                       <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
-                        English Level <span className="text-rose-500">*</span>
+                        Primary Language{" "}
+                        <span className="text-rose-500">*</span>
                       </label>
-                      <select
-                        value={details.englishLevel}
-                        onChange={(e) =>
-                          setDetails({
-                            ...details,
-                            englishLevel: e.target.value,
-                          })
-                        }
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-500 appearance-none text-sm cursor-pointer"
-                      >
-                        <option value="" className="bg-[#050B1E]">
-                          Select proficiency
-                        </option>
-                        {ENGLISH_LEVELS.map((l) => (
-                          <option
-                            key={l.value}
-                            value={l.value}
-                            className="bg-[#050B1E]"
-                          >
-                            {l.label}
+                      <div className="relative">
+                        <select
+                          value={details.language}
+                          onChange={(e) =>
+                            setDetails({
+                              ...details,
+                              language: e.target.value,
+                            })
+                          }
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 outline-none focus:border-emerald-500 appearance-none text-sm cursor-pointer"
+                        >
+                          <option value="" className="bg-[#050B1E]">
+                            Select Language
                           </option>
-                        ))}
-                      </select>
+                          <option value="english" className="bg-[#050B1E]">
+                            English
+                          </option>
+                          <option value="french" className="bg-[#050B1E]">
+                            French
+                          </option>
+                          <option value="spanish" className="bg-[#050B1E]">
+                            Spanish
+                          </option>
+                          <option value="german" className="bg-[#050B1E]">
+                            German
+                          </option>
+                          <option value="portuguese" className="bg-[#050B1E]">
+                            Portuguese
+                          </option>
+                          <option value="arabic" className="bg-[#050B1E]">
+                            Arabic
+                          </option>
+                          <option value="chinese" className="bg-[#050B1E]">
+                            Chinese
+                          </option>
+                        </select>
+                        {/* Chevron icon for better UX since appearance-none is used */}
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <ChevronDown className="w-4 h-4 text-slate-500" />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  {userRole === "recruiter" && (
+                  ) : (
                     <div className="space-y-2">
                       <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">
                         Company Website
@@ -609,47 +577,17 @@ export default function Onboarding() {
                       <div className="relative">
                         <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                         <input
-                          placeholder="https://..."
+                          placeholder="https://acme.com"
+                          value={details.website}
+                          onChange={(e) =>
+                            setDetails({ ...details, website: e.target.value })
+                          }
                           className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 outline-none focus:border-blue-500 transition-all text-sm"
                         />
                       </div>
                     </div>
                   )}
                 </div>
-                {userRole === "talent" && (
-                  <div className="md:col-span-2 space-y-3 pt-6 border-t border-white/5 mt-2">
-                    <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">
-                      Online Presence{" "}
-                      <span className="text-[9px] lowercase font-medium opacity-50">
-                        (Optional)
-                      </span>
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="relative group">
-                        <Github className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-emerald-500" />
-                        <input
-                          placeholder="GitHub URL"
-                          value={details.github}
-                          onChange={(e) =>
-                            setDetails({ ...details, github: e.target.value })
-                          }
-                          className="w-full bg-white/[0.02] border border-white/10 rounded-2xl p-4 pl-12 text-sm outline-none focus:border-emerald-500/50 transition-all"
-                        />
-                      </div>
-                      <div className="relative group">
-                        <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-emerald-500" />
-                        <input
-                          placeholder="LinkedIn URL"
-                          value={details.linkedin}
-                          onChange={(e) =>
-                            setDetails({ ...details, linkedin: e.target.value })
-                          }
-                          className="w-full bg-white/[0.02] border border-white/10 rounded-2xl p-4 pl-12 text-sm outline-none focus:border-emerald-500/50 transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="flex gap-4 pt-4">
@@ -661,7 +599,7 @@ export default function Onboarding() {
                   Back
                 </Button>
                 <Button
-                  onClick={() => setStep(userRole === "recruiter" ? 3 : 3)} // Both go to 3, but 3 will look different
+                  onClick={() => setStep(3)}
                   disabled={!isStep2Complete}
                   className={`flex-[2] h-16 rounded-2xl font-black text-lg transition-all ${
                     isStep2Complete

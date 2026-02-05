@@ -42,9 +42,9 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
 
   const handleProfileClick = () => {
     if (user) {
-      navigateTo("/dashboard");
+      navigateTo("/talent/dashboard");
     } else {
-      navigateTo("/login");
+      navigateTo("/talent/login");
     }
   };
 
@@ -65,8 +65,8 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
           {/* LEFT */}
           <div className="flex items-center gap-6">
             <a href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                <img src="/logo.png" alt="FlowBoard Logo" className="w-8 h-8 object-contain" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
+                <img src="/flowboardlogo.png" alt="FlowBoard Logo" className="w-20 h-20 object-contain" />
               </div>
               <span className={`text-xl font-bold hidden lg:block ${textColor}`}>
                 Flowboard Team

@@ -217,3 +217,36 @@
     scrollbar-width: none;
   }
 }
+
+
+/* Custom Scrollbar Logic */
+@border-color: var(--border-color);
+
+/* 1. Target the scrollbar itself */
+::-webkit-scrollbar {
+  width: 6px; /* Very thin */
+  height: 6px;
+}
+
+/* 2. The Track (background of the scrollbar) */
+::-webkit-scrollbar-track {
+  background: transparent; /* Makes it invisible when not scrolling */
+}
+
+/* 3. The Handle (the part you grab) */
+::-webkit-scrollbar-thumb {
+  background: var(--border-color); /* Uses your theme's border color */
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+/* 4. Handle on hover - make it slightly more visible */
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981; /* Flowboard Emerald color on hover */
+}
+
+/* Firefox Support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
