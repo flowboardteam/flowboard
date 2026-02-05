@@ -31,7 +31,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ShadcnToaster />
-
       <BrowserRouter>
         <Routes>
           {/* --- 1. Public Routes --- */}
@@ -39,15 +38,13 @@ const App = () => (
           <Route path="/talent/signup" element={<TalentSignup />} />
           <Route path="/talent/login" element={<TalentLogin />} />
 
+          {/* --- NEW: Client Redirects to Coming Soon --- */}
+          <Route path="/client/login" element={<ComingSoon />} />
+          <Route path="/client/signup" element={<ComingSoon />} />
+          <Route path="/talent/pay" element={<ComingSoon />} />
+
           {/* --- 2. Independent Onboarding Path --- */}
-          <Route
-            path="/talent/onboarding"
-            element={
-              <ProtectedRoute>
-                <TalentOnboarding />
-              </ProtectedRoute>
-            }
-          />
+          {/* ... existing code */}
 
           {/* --- 3. Protected Talent Dashboard System --- */}
           <Route
@@ -58,21 +55,17 @@ const App = () => (
               </ProtectedRoute>
             }
           >
-            {/* Redirects /talent directly to the dashboard */}
             <Route index element={<Navigate to="/talent/dashboard" replace />} />
-
             <Route path="contracts" element={<ContractsDiscovery />} />
-            
             <Route path="dashboard" element={<DashboardIndex />} />
             <Route path="jobs" element={<ApplicationsPage />} />
             <Route path="applications" element={<ApplicationsPage />} />
+            
+            {/* Within the dashboard, any "Coming Soon" feature uses this element */}
             <Route path="coming-soon" element={<ComingSoon />} />
             
-            {/* --- THE REAL PROFILE PAGE --- */}
             <Route path="profile" element={<ProfileSettings />} />
-
-            {/* If you need a separate settings page later, you can add it here */}
-            <Route path="settings" element={<div className="p-10 text-[var(--text-main)] font-black italic uppercase tracking-tighter text-2xl">App Preferences Coming Soon</div>} />
+            <Route path="settings" element={<ComingSoon />} />
           </Route>
 
           {/* --- 4. Fallback Route --- */}

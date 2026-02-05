@@ -79,13 +79,29 @@ useEffect(() => {
     }
   };
 
-  const handleSocialLogin = async (provider: "google" | "github") => {
-    await supabase.auth.signInWithOAuth({
+const handleSocialLogin = async (provider: "google" | "github") => {
+    const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        // Redirect to the talent dashboard system
+        redirectTo: `${window.location.origin}/talent/dashboard`,
+        // This ensures the user is prompted to select an account 
+        // every time (good for testing)
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account',
+        },
       },
     });
+
+    if (error) {
+      setNotification({
+        open: true,
+        type: "error",
+        title: "Social Login Failed",
+        description: error.message,
+      });
+    }
   };
 
   return (
