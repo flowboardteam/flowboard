@@ -43,8 +43,15 @@ const App = () => (
           <Route path="/client/signup" element={<ComingSoon />} />
           <Route path="/talent/pay" element={<ComingSoon />} />
 
-          {/* --- 2. Independent Onboarding Path --- */}
-          {/* ... existing code */}
+         {/* --- 2. Independent Onboarding Path --- */}
+          <Route
+            path="/talent/onboarding"
+            element={
+              <ProtectedRoute>
+                <TalentOnboarding />
+              </ProtectedRoute>
+            }
+          />
 
           {/* --- 3. Protected Talent Dashboard System --- */}
           <Route
