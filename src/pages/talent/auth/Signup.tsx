@@ -62,7 +62,7 @@ export default function TalentSignUp() {
   await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${window.location.origin}/dashboard`,
+      redirectTo: `${window.location.origin}/talent/dashboard`,
       data: { role_type: 'talent' } // pass role_type
     },
   });
@@ -110,7 +110,7 @@ const handleDuplicateRedirect = () => {
           full_name: fullName,
           role_type: "talent",
         },
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${window.location.origin}/talent/dashboard`,
       },
     });
 
