@@ -41,6 +41,41 @@ export default function DashboardLayout() {
     }
   };
 
+  // Put this in a place that runs when the Dashboard loads (e.g., DashboardLayout.tsx)
+useEffect(() => {
+  const syncProfile = async () => {
+    // 1. Get the current session
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+
+    if (user) {
+      // 2. Extract social image from metadata
+      const socialImage = user.user_metadata?.picture || user.user_metadata?.avatar_url;
+
+      if (socialImage) {
+        // 3. Check if they already have an avatar in your 'profiles' table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', user.id)
+          .single();
+
+        // 4. If empty, sync it!
+        if (!profile?.avatar_url) {
+          await supabase
+            .from('profiles')
+            .update({ avatar_url: socialImage })
+            .eq('id', user.id);
+          
+          console.log("✅ Social profile picture synced to database!");
+        }
+      }
+    }
+  };
+
+  syncProfile();
+}, []);
+
   const themeStyles = theme === "light"
   ? {
       "--bg-main": "#F8FAFC",
