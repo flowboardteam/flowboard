@@ -16,21 +16,8 @@ import {
   Briefcase,
   FileText,
 } from "lucide-react";
+import { Country, City } from "country-state-city";
 
-const WORLD_CITIES = [
-  "Accra, Ghana",
-  "Lagos, Nigeria",
-  "Nairobi, Kenya",
-  "London, UK",
-  "New York, USA",
-  "San Francisco, USA",
-  "Berlin, Germany",
-  "Toronto, Canada",
-  "Dubai, UAE",
-  "Cape Town, South Africa",
-  "Kumasi, Ghana",
-  "Abuja, Nigeria",
-];
 const LANGUAGE_OPTIONS = [
   "English",
   "French",
@@ -63,6 +50,37 @@ export default function TalentOnboarding() {
   const [showLocSuggestions, setShowLocSuggestions] = useState(false);
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const [allCountries] = useState(Country.getAllCountries());
+  const [cities, setCities] = useState<any[]>([]);
+  const [countrySearch, setCountrySearch] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState<any>(null);
+  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+  // Filter countries based on search
+  const filteredCountries = useMemo(() => {
+    if (!countrySearch) return [];
+    return allCountries
+      .filter((c) => c.name.toLowerCase().includes(countrySearch.toLowerCase()))
+      .slice(0, 8); // Limit to 8 for performance
+  }, [countrySearch, allCountries]);
+
+  // Filter cities based on search
+  const filteredCities = useMemo(() => {
+    if (!citySearch) return [];
+    return cities
+      .filter((c) => c.name.toLowerCase().includes(citySearch.toLowerCase()))
+      .slice(0, 8);
+  }, [citySearch, cities]);
+
+  // When country changes, load cities for that country
+  useEffect(() => {
+    if (selectedCountry) {
+      const countryCities = City.getCitiesOfCountry(selectedCountry.isoCode);
+      setCities(countryCities || []);
+    }
+  }, [selectedCountry]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -80,13 +98,6 @@ export default function TalentOnboarding() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const filteredLocations = useMemo(() => {
-    if (locInput.length < 2) return [];
-    return WORLD_CITIES.filter((city) =>
-      city.toLowerCase().includes(locInput.toLowerCase()),
-    ).slice(0, 5);
-  }, [locInput]);
 
   const toggleLanguage = (lang: string) => {
     setDetails((prev) => ({
@@ -124,7 +135,9 @@ export default function TalentOnboarding() {
         resumePublicUrl = publicUrl;
       }
 
-        const { data: { user: authUser } } = await supabase.auth.getUser();
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
       const { error } = await supabase.from("profiles").upsert({
         id: authUser.id,
         full_name: authUser.user_metadata?.full_name || "Anonymous User", // Add this line!
@@ -218,42 +231,98 @@ export default function TalentOnboarding() {
                     />
                   </div>
 
-                  <div className="space-y-2 relative">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                      Location
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                      <input
-                        value={locInput}
-                        onChange={(e) => {
-                          setLocInput(e.target.value);
-                          setShowLocSuggestions(true);
-                        }}
-                        placeholder="Search city..."
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600"
-                      />
-                    </div>
-                    {showLocSuggestions && filteredLocations.length > 0 && (
-                      <div className="absolute z-[100] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
-                        {filteredLocations.map((loc) => (
-                          <div
-                            key={loc}
-                            onClick={() => {
-                              setDetails({ ...details, location: loc });
-                              setLocInput(loc);
-                              setShowLocSuggestions(false);
-                            }}
-                            className="p-3 hover:bg-emerald-500/10 cursor-pointer text-sm transition-colors border-b border-white/5 last:border-none"
-                          >
-                            {loc}
-                          </div>
-                        ))}
+                  <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {/* COUNTRY SELECT */}
+                    <div className="space-y-2 relative">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                        Country
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                          value={countrySearch}
+                          onChange={(e) => {
+                            setCountrySearch(e.target.value);
+                            setShowCountrySuggestions(true);
+                          }}
+                          onFocus={() => setShowCountrySuggestions(true)}
+                          placeholder="Search country..."
+                          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all"
+                        />
                       </div>
-                    )}
+
+                      {showCountrySuggestions &&
+                        filteredCountries.length > 0 && (
+                          <div className="absolute z-[110] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                            {filteredCountries.map((c) => (
+                              <div
+                                key={c.isoCode}
+                                onClick={() => {
+                                  setSelectedCountry(c);
+                                  setCountrySearch(c.name);
+                                  setShowCountrySuggestions(false);
+                                  setCitySearch(""); // Reset city when country changes
+                                }}
+                                className="p-3 hover:bg-emerald-500/10 cursor-pointer text-sm transition-colors border-b border-white/5 last:border-none"
+                              >
+                                {c.flag} {c.name}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                    </div>
+
+                    {/* CITY SELECT */}
+                    <div
+                      className={`space-y-2 relative ${!selectedCountry ? "opacity-50" : ""}`}
+                    >
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                        City
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                          disabled={!selectedCountry}
+                          value={citySearch}
+                          onChange={(e) => {
+                            setCitySearch(e.target.value);
+                            setShowCitySuggestions(true);
+                          }}
+                          onFocus={() => setShowCitySuggestions(true)}
+                          placeholder={
+                            selectedCountry
+                              ? "Search city..."
+                              : "Select country first"
+                          }
+                          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all"
+                        />
+                      </div>
+
+                      {showCitySuggestions && filteredCities.length > 0 && (
+                        <div className="absolute z-[110] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                          {filteredCities.map((city) => (
+                            <div
+                              key={`${city.name}-${city.latitude}`}
+                              onClick={() => {
+                                const fullLocation = `${city.name}, ${selectedCountry.name}`;
+                                setCitySearch(city.name);
+                                setDetails({
+                                  ...details,
+                                  location: fullLocation,
+                                });
+                                setShowCitySuggestions(false);
+                              }}
+                              className="p-3 hover:bg-emerald-500/10 cursor-pointer text-sm transition-colors border-b border-white/5 last:border-none"
+                            >
+                              {city.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="md:col-span-2 space-y-2 relative">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
                       Experience Level
                     </label>
