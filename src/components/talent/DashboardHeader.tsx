@@ -25,53 +25,40 @@ export default function DashboardHeader({
   const navigate = useNavigate();
 
   useEffect(() => {
-  let userGuid: string;
-
-  const fetchAndListen = async () => {
+  const syncAndFetch = async () => {
+    // 1. Get the Auth User (Source of Truth for Social Pic)
     const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      userGuid = user.id;
+    if (!user) return;
 
-      // 1. Initial Fetch
-      const { data } = await supabase
+    // 2. Get the Profile (Your Database)
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("full_name, role_type, avatar_url")
+      .eq("id", user.id)
+      .single();
+
+    const socialPic = user.user_metadata?.picture || user.user_metadata?.avatar_url;
+
+    // CHECK: Do we have a social pic but NO database pic?
+    if (socialPic && !profileData?.avatar_url) {
+      // 3. Update the database
+      await supabase
         .from("profiles")
-        .select("full_name, role_type, avatar_url")
-        .eq("id", user.id)
-        .single();
-      setProfile(data);
+        .update({ avatar_url: socialPic })
+        .eq("id", user.id);
 
-      // 2. Realtime Listener: Watch for changes to THIS specific user's profile
-      const channel = supabase
-        .channel(`profile-changes-${user.id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "profiles",
-            filter: `id=eq.${user.id}`,
-          },
-          (payload) => {
-            // When the sync logic updates the database, this triggers!
-            console.log("Profile updated in realtime:", payload.new);
-            setProfile(payload.new);
-          }
-        )
-        .subscribe();
-
-      return channel;
+      // 4. THE MAGIC: Force a reload so the header and everything else is fresh
+      // We use a small timeout to ensure the DB write finishes
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } else {
+      // Otherwise, just set the profile state normally
+      setProfile(profileData);
     }
   };
 
-  const subscriptionPromise = fetchAndListen();
-
-  // Cleanup subscription on unmount
-  return () => {
-    subscriptionPromise.then((channel) => {
-      if (channel) supabase.removeChannel(channel);
-    });
-  };
+  syncAndFetch();
 }, []);
 
   const handleLogout = async () => {
