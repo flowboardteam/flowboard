@@ -17,6 +17,7 @@ import DashboardLayout from "./pages/talent/dashboard/Layout";
 import DashboardIndex from "./pages/talent/dashboard/Index";
 import ProfileSettings from "./pages/talent/dashboard/Profile"; // Import the real page
 import ContractsDiscovery from './pages/talent/contracts/page';
+import SystemPrefs from "./pages/talent/dashboard/SystemPrefs";
 
 // Dashboard / Other Pages
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
@@ -24,6 +25,8 @@ import ComingSoon from "./pages/dashboard/ComingSoon";
 
 // Components
 import { ProtectedRoute } from "./components/ProtectedRoutes";
+import ForgotPassword from "./pages/talent/auth/ForgotPassword";
+import ResetPassword from "./pages/talent/auth/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/talent/signup" element={<TalentSignup />} />
           <Route path="/talent/login" element={<TalentLogin />} />
+          <Route path="/talent/forgot-password" element={<ForgotPassword />} />
+          <Route path="/talent/reset-password" element={<ResetPassword />} />
 
           {/* --- NEW: Client Redirects to Coming Soon --- */}
           <Route path="/client/login" element={<ComingSoon />} />
@@ -72,7 +77,7 @@ const App = () => (
             <Route path="coming-soon" element={<ComingSoon />} />
             
             <Route path="profile" element={<ProfileSettings />} />
-            <Route path="settings" element={<ComingSoon />} />
+            <Route path="settings" element={<SystemPrefs />} />
           </Route>
 
           {/* --- 4. Fallback Route --- */}

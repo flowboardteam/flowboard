@@ -197,7 +197,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="password">Password</Label>
-                  <Link to="/forgot-password" size="sm" className="text-xs font-bold text-blue-600 hover:underline">Reset Password?</Link>
+                  <Link to="/talent/forgot-password" size="sm" className="text-xs font-bold text-blue-600 hover:underline">Reset Password?</Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />

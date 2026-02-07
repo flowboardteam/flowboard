@@ -18,9 +18,11 @@ import {
   EyeOff,
   Sparkles,
   Rocket,
-  ShieldCheck
+  ShieldCheck,
+  Check,
+  X
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function TalentSignUp() {
   const [email, setEmail] = useState("");
@@ -36,7 +38,6 @@ export default function TalentSignUp() {
     type: "success" | "error";
     title: string;
     description?: string;
-    showLoginButton?: boolean;
     primaryAction?: string;
     onPrimaryClick?: () => void;
   }>({
@@ -45,123 +46,121 @@ export default function TalentSignUp() {
     title: "",
   });
 
-  const passwordScore = useMemo(() => {
-    if (!password) return 0;
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-    return score;
-  }, [password]);
+  // --- NEW: Password Requirements Logic ---
+  const requirements = [
+    { label: "At least 8 characters", test: password.length >= 8 },
+    { label: "Contains a number", test: /[0-9]/.test(password) },
+    { label: "Contains a capital letter", test: /[A-Z]/.test(password) },
+    { label: "Special character", test: /[^A-Za-z0-9]/.test(password) },
+  ];
 
-  const strengthLabels = ["Weak", "Fair", "Good", "Strong", "Very Strong"];
+  const passwordScore = requirements.filter(r => r.test).length;
+  const isPasswordValid = requirements.every(r => r.test);
+
   const strengthColors = ["bg-slate-200", "bg-rose-500", "bg-orange-400", "bg-amber-400", "bg-emerald-500"];
 
-  const handleSocialLogin = async (provider: "google" | "github") => {
-  await supabase.auth.signInWithOAuth({
+const handleSocialLogin = async (provider: "google" | "github") => {
+  const { error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
+      // Use window.location.origin to support both local and prod automatically
       redirectTo: `${window.location.origin}/talent/dashboard`,
-      data: { role_type: 'talent' } // pass role_type
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'select_account',
+      },
     },
   });
+  if (error) console.error("Social Auth Error:", error.message);
 };
 
-const handleDuplicateRedirect = () => {
-  // Pass the email as a query parameter
-  navigate(`/talent/login?email=${encodeURIComponent(email)}`);
-};
+  const handleDuplicateRedirect = () => {
+    navigate(`/talent/login?email=${encodeURIComponent(email)}`);
+  };
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!agreed) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreed || !isPasswordValid) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    // 1️⃣ Pre-check: Does this user already exist in our profiles?
-    const { data: existingUser, error: checkError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email.trim())
-      .maybeSingle();
+    try {
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email.trim())
+        .maybeSingle();
 
-    if (existingUser) {
-  setNotification({
-    open: true,
-    type: "error",
-    title: "Account Already Exists",
-    description: "You've already joined the cloud! Sign in to access your dashboard.",
-    // These two trigger the blend
-    primaryAction: "Login Now",
-    onPrimaryClick: handleDuplicateRedirect 
-  });
-  setIsLoading(false);
-  return;
-}
+      if (existingUser) {
+        setNotification({
+          open: true,
+          type: "error",
+          title: "Account Already Exists",
+          description: "You've already joined the cloud! Sign in to access your dashboard.",
+          primaryAction: "Login Now",
+          onPrimaryClick: handleDuplicateRedirect 
+        });
+        setIsLoading(false);
+        return;
+      }
 
-    // 2️⃣ Proceed with Signup if no user found
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role_type: "talent",
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role_type: "talent",
+          },
+          emailRedirectTo: `${window.location.origin}/talent/dashboard`,
         },
-        emailRedirectTo: `${window.location.origin}/talent/dashboard`,
-      },
-    });
+      });
 
-    if (authError) throw authError;
+      if (authError) throw authError;
 
-    // Supabase specific: if user exists but is unconfirmed, it might not return an error
-    // but data.user.identities will be empty
-    if (authData?.user && authData.user.identities?.length === 0) {
+      if (authData?.user && authData.user.identities?.length === 0) {
+        setNotification({
+          open: true,
+          type: "error",
+          title: "Account Pending",
+          description: "This email is already registered. Try logging in or resetting your password.",
+        });
+      } else {
+        setNotification({
+          open: true,
+          type: "success",
+          title: "Verification Sent",
+          description: "Check your email for the activation link to join the Talent Cloud.",
+        });
+        
+        setEmail("");
+        setPassword("");
+        setFullName("");
+      }
+    } catch (error: any) {
       setNotification({
         open: true,
         type: "error",
-        title: "Account Pending",
-        description: "This email is already registered. Try logging in or resetting your password.",
+        title: "Registration Failed",
+        description: error.message || "An unexpected error occurred.",
       });
-    } else {
-      setNotification({
-        open: true,
-        type: "success",
-        title: "Verification Sent",
-        description: "Check your email for the activation link to join the Talent Cloud.",
-      });
-      
-      // Clear form on success
-      setEmail("");
-      setPassword("");
-      setFullName("");
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error: any) {
-    setNotification({
-      open: true,
-      type: "error",
-      title: "Registration Failed",
-      description: error.message || "An unexpected error occurred.",
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
-        {/* --- LEFT SIDE: Brand Experience (Exclusive to Talents) --- */}
+        {/* LEFT SIDE: Brand Experience */}
         <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
           
           <div className="relative z-10">
-            <a href="/" className="flex items-center gap-2 mb-20 group">
-              <img src="/flowboardlogo.png" alt="L" className="w-10 h-10 object-contain" />
+            <Link to="/" className="flex items-center gap-2 mb-20 group">
+              <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black tracking-tighter uppercase italic">FLOWBOARD</span>
-            </a>
+            </Link>
 
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
               <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
@@ -174,7 +173,7 @@ const handleDuplicateRedirect = () => {
                   { text: "Access exclusive high-ticket AI roles", icon: Sparkles },
                   { text: "Automated profile matching with Top Orgs", icon: Zap },
                   { text: "Secure payments & contract compliance", icon: ShieldCheck },
-                ].map((item, i) => (
+                ].map((item) => (
                   <div key={item.text} className="flex items-center gap-4 group">
                     <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                       <CheckCircle2 className="w-4 h-4 text-blue-400" />
@@ -191,9 +190,7 @@ const handleDuplicateRedirect = () => {
               "Flowboard isn't just a job board; it's a career accelerator for engineers in the AI era."
             </p>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold">
-                AK
-              </div>
+              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold">AK</div>
               <div>
                 <p className="font-bold text-white">Amara K.</p>
                 <p className="text-sm text-blue-400/80 font-medium font-mono">Senior AI Engineer</p>
@@ -202,10 +199,10 @@ const handleDuplicateRedirect = () => {
           </div>
         </div>
 
-        {/* --- RIGHT SIDE: Signup Form --- */}
+        {/* RIGHT SIDE: Signup Form */}
         <div className="flex flex-col justify-center px-6 py-12 lg:px-24 bg-white relative">
           <div className="absolute top-8 right-8 text-sm font-medium text-slate-500">
-            Already have an account? <a href="/talent/login" className="text-blue-600 font-bold hover:text-blue-700 ml-1">Log in</a>
+            Already have an account? <Link to="/talent/login" className="text-blue-600 font-bold hover:text-blue-700 ml-1">Log in</Link>
           </div>
 
           <div className="max-w-[420px] mx-auto w-full">
@@ -234,39 +231,56 @@ const handleDuplicateRedirect = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider" htmlFor="name">Full Name</Label>
-                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" className="h-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm" required />
+                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" className="h-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider" htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@email.com" className="h-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm" required />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@email.com" className="h-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Password</Label>
-                <div className="relative">
-                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white shadow-sm" required />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                <div className="relative group">
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                
+                {/* --- Password Requirements Checklist --- */}
                 {password && (
-                  <div className="flex gap-1 h-1 pt-1">
-                    {[1, 2, 3, 4].map((step) => (
-                      <div key={step} className={`h-full flex-1 rounded-full transition-colors duration-500 ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-100"}`} />
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    className="p-4 bg-slate-50 rounded-2xl space-y-2 border border-slate-100 shadow-inner mt-2"
+                  >
+                    <div className="flex gap-1 h-1.5 mb-3">
+                      {[1, 2, 3, 4].map((step) => (
+                        <div key={step} className={`h-full flex-1 rounded-full transition-colors duration-500 ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`} />
+                      ))}
+                    </div>
+                    {requirements.map((req, i) => (
+                      <div key={i} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-tight">
+                        {req.test ? <Check className="w-3 h-3 text-emerald-500" /> : <X className="w-3 h-3 text-slate-300" />}
+                        <span className={req.test ? "text-emerald-600" : "text-slate-400"}>{req.label}</span>
+                      </div>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
               </div>
 
               <div className="flex items-start space-x-3 py-2">
                 <Checkbox id="terms" checked={agreed} onCheckedChange={(checked) => setAgreed(checked as boolean)} className="mt-1 border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
                 <Label htmlFor="terms" className="text-xs text-slate-500 leading-relaxed cursor-pointer select-none">
-                  By signing up, I agree to the <a href="/terms" className="text-blue-600 font-bold">Terms of Service</a> and <a href="/privacy" className="text-blue-600 font-bold">Privacy Policy</a>.
+                  By signing up, I agree to the <a href="/terms" className="text-blue-600 font-bold hover:underline">Terms of Service</a> and <a href="/privacy" className="text-blue-600 font-bold hover:underline">Privacy Policy</a>.
                 </Label>
               </div>
 
-              <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" disabled={isLoading || !agreed}>
+              <Button 
+                className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" 
+                disabled={isLoading || !agreed || !isPasswordValid}
+              >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Account <ArrowRight size={18} /></>}
               </Button>
             </form>
@@ -274,15 +288,15 @@ const handleDuplicateRedirect = () => {
         </div>
       </div>
 
-<NotificationModal 
-  open={notification.open} 
-  type={notification.type} 
-  title={notification.title} 
-  description={notification.description || ""} 
-  onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
-  // 👈 Add these two lines:
-  primaryAction={notification.primaryAction}
-  onPrimaryClick={notification.onPrimaryClick}
-/>    </>
+      <NotificationModal 
+        open={notification.open} 
+        type={notification.type} 
+        title={notification.title} 
+        description={notification.description || ""} 
+        onClose={() => setNotification((prev) => ({ ...prev, open: false }))}
+        primaryAction={notification.primaryAction}
+        onPrimaryClick={notification.onPrimaryClick}
+      />
+    </>
   );
 }

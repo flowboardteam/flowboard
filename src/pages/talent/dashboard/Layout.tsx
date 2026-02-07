@@ -57,6 +57,7 @@ export default function DashboardLayout() {
       "--border-color": "#1E293B",
       "--card-bg": "#0F172A",
       "--brand-primary": "#3b82f6", // Electric Blue
+      "--card-backdrop": "blur(12px)",      // The magic "glass" effect
     };
 
   return (
@@ -84,7 +85,7 @@ export default function DashboardLayout() {
         />
         <main className="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
           <div className="max-w-6xl mx-auto">
-            <Outlet />
+            <Outlet context={{ theme, toggleTheme }} />
           </div>
         </main>
       </div>
