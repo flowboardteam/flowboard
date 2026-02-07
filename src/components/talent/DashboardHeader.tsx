@@ -25,22 +25,54 @@ export default function DashboardHeader({
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        // FETCH AVATAR_URL ALSO
-        const { data } = await supabase
-          .from("profiles")
-          .select("full_name, role_type, avatar_url")
-          .eq("id", user.id)
-          .single();
-        setProfile(data);
-      }
-    };
-    fetchProfile();
-  }, []);
+  let userGuid: string;
+
+  const fetchAndListen = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      userGuid = user.id;
+
+      // 1. Initial Fetch
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name, role_type, avatar_url")
+        .eq("id", user.id)
+        .single();
+      setProfile(data);
+
+      // 2. Realtime Listener: Watch for changes to THIS specific user's profile
+      const channel = supabase
+        .channel(`profile-changes-${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "profiles",
+            filter: `id=eq.${user.id}`,
+          },
+          (payload) => {
+            // When the sync logic updates the database, this triggers!
+            console.log("Profile updated in realtime:", payload.new);
+            setProfile(payload.new);
+          }
+        )
+        .subscribe();
+
+      return channel;
+    }
+  };
+
+  const subscriptionPromise = fetchAndListen();
+
+  // Cleanup subscription on unmount
+  return () => {
+    subscriptionPromise.then((channel) => {
+      if (channel) supabase.removeChannel(channel);
+    });
+  };
+}, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
