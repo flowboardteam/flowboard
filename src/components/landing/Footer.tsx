@@ -4,8 +4,8 @@ const footerLinks = {
   platform: {
     title: "Platform",
     links: [
-      { label: "For Companies", href: "#" },
-      { label: "For Talent", href: "#" },
+      { label: "For Companies", href: "client/login" },
+      { label: "For Talent", href: "talent/login" },
       { label: "Pricing", href: "#" },
       { label: "Case Studies", href: "#" },
     ],
@@ -61,7 +61,7 @@ export function Footer() {
             <a href="/" className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
                 <img
-                  src="/logo.png"
+                  src="/flowboardlogo.png"
                   alt="FlowBoard Logo"
                   className="w-8 h-8 object-contain"
                 />

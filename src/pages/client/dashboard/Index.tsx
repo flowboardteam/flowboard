@@ -5,8 +5,8 @@ export default function DashboardIndex() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <header>
-        <h1 className="text-3xl font-black uppercase tracking-tighter">
-          Command Center
+        <h1 className="text-3xl font-black tracking-tighter">
+          Dashboard
         </h1>
         <p className="text-slate-500 font-medium">
           Monitoring your global workforce & AI performance.

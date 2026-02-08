@@ -29,7 +29,6 @@ const MENU_GROUPS = [
     group: "Workforce & AI",
     items: [
       { name: "Active Contracts", path: "/talent/contracts", icon: Layers },
-      { name: "FlowAI Matcher", path: "/talent/ai-matcher", icon: Cpu },
       { name: "Time Tracker", path: "/talent/tracker", icon: Clock },
       { name: "My Teams", path: "/talent/teams", icon: Users },
     ],
@@ -37,7 +36,7 @@ const MENU_GROUPS = [
   {
     group: "Finance & Admin",
     items: [
-      { name: "Payroll & Perks", path: "/talent/payroll", icon: Wallet },
+      { name: "Invoice & Payments", path: "/talent/payroll", icon: Wallet },
       { name: "Compliance", path: "/talent/compliance", icon: ShieldCheck },
       { name: "Apps & Tools", path: "/talent/apps", icon: Grid },
     ],
@@ -55,8 +54,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             className="w-20 h-20 object-contain"
           />
         </div>
-        <span className="text-xl font-black italic uppercase tracking-tighter text-[var(--text-main)]">
-          Flow<span className="text-blue-600">board</span>
+        <span className="text-xl font-black tracking-tighter text-[var(--text-main)]">
+          Flowboard
         </span>
       </div>
 

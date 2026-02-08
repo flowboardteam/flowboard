@@ -6,8 +6,12 @@ export function CTASection() {
   const trustIndicators = ["No upfront fees", "Cancel anytime", "24/7 support"];
 
   // Safe navigation function
-  const navigateToSignup = () => {
-    const url = "/signup";
+  const navigateToClientSignup = () => {
+    const url = "/client/signup";
+    window.location.href = url;
+  };
+  const navigateToTalentSignup = () => {
+    const url = "/talent/signup";
     window.location.href = url;
   };
 
@@ -66,7 +70,7 @@ export function CTASection() {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button
-                  onClick={() => navigateToSignup()}
+                  onClick={() => navigateToClientSignup()}
                   variant="custom-gradient"
                   size="xl"
                   className="w-full sm:w-auto font-semibold h-14 px-10"
@@ -75,7 +79,7 @@ export function CTASection() {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
                 <Button
-                  onClick={() => navigateToSignup()}
+                  onClick={() => navigateToTalentSignup()}
                   variant="outline"
                   size="xl"
                   className="w-full sm:w-auto font-semibold h-14 px-10 border-gray-300 text-gray-900 hover:bg-gray-100"

@@ -159,13 +159,13 @@ const handleSocialLogin = async (provider: "google" | "github") => {
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-black tracking-tighter uppercase italic">FLOWBOARD</span>
+              <span className="text-2xl font-black tracking-tighter">Flowboard</span>
             </Link>
 
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
               <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
                 Join the global <br />
-                <span className="text-blue-400 text-6xl">AI Talent Cloud.</span>
+                <span className="text-blue-400 text-6xl">Talent Cloud.</span>
               </h2>
 
               <div className="space-y-6">
@@ -208,7 +208,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
           <div className="max-w-[420px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest mb-4">
-                <Rocket size={12} /> Talent Registration
+                <Rocket size={12} /> Talent Signup
               </div>
               <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Get Started</h1>
               <p className="text-slate-500 font-medium">Apply to join the Flowboard talent network.</p>

@@ -3,30 +3,43 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as ShadcnToaster } from "@/components/ui/toaster";
 
-// Public Pages
+// --- 1. CORE & AUTH ---
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoutes";
+import { TalentPublicProfile } from "./pages/TalentPublicProfile";
 
-// Talent Auth Pages
+// Talent Auth
 import TalentSignup from "./pages/talent/auth/Signup";
 import TalentLogin from "./pages/talent/auth/Login";
+import ForgotPassword from "./pages/talent/auth/ForgotPassword";
+import ResetPassword from "./pages/talent/auth/ResetPassword";
 
-// Talent Pages & Layouts
+// Client Auth
+import ClientSignup from "./pages/client/auth/Signup";
+import ClientLogin from "./pages/client/auth/Login";
+import ClientForgotPassword from "./pages/client/auth/ForgotPassword";
+import ClientResetPassword from "./pages/client/auth/ResetPassword";
+
+// --- 2. TALENT PAGES ---
 import TalentOnboarding from "./pages/talent/onboarding/index";
 import DashboardLayout from "./pages/talent/dashboard/Layout";
 import DashboardIndex from "./pages/talent/dashboard/Index";
-import ProfileSettings from "./pages/talent/dashboard/Profile"; // Import the real page
-import ContractsDiscovery from './pages/talent/contracts/page';
+import ProfileSettings from "./pages/talent/dashboard/Profile";
+import ContractsDiscovery from "./pages/talent/contracts/page";
 import SystemPrefs from "./pages/talent/dashboard/SystemPrefs";
 
-// Dashboard / Other Pages
+// --- 3. CLIENT PAGES ---
+import ClientOnboarding from "./pages/client/onboarding/index";
+import ClientDashboardLayout from "./pages/client/dashboard/Layout";
+import ClientDashboardIndex from "./pages/client/dashboard/Index";
+import ClientProfileSettings from "./pages/client/dashboard/Profile";
+import ClientTalentPool from "./pages/client/talent-pool/index";
+import ClientSystemPrefs from "./pages/client/dashboard/SystemPrefs";
+
+// Shared Dash Components
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
 import ComingSoon from "./pages/dashboard/ComingSoon";
-
-// Components
-import { ProtectedRoute } from "./components/ProtectedRoutes";
-import ForgotPassword from "./pages/talent/auth/ForgotPassword";
-import ResetPassword from "./pages/talent/auth/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -36,19 +49,28 @@ const App = () => (
       <ShadcnToaster />
       <BrowserRouter>
         <Routes>
-          {/* --- 1. Public Routes --- */}
+          {/* ================= PUBLIC ROUTES ================= */}
           <Route path="/" element={<Index />} />
+
+          {/* Talent Auth Group */}
           <Route path="/talent/signup" element={<TalentSignup />} />
           <Route path="/talent/login" element={<TalentLogin />} />
           <Route path="/talent/forgot-password" element={<ForgotPassword />} />
           <Route path="/talent/reset-password" element={<ResetPassword />} />
 
-          {/* --- NEW: Client Redirects to Coming Soon --- */}
-          <Route path="/client/login" element={<ComingSoon />} />
-          <Route path="/client/signup" element={<ComingSoon />} />
-          <Route path="/talent/pay" element={<ComingSoon />} />
+          {/* Client Auth Group */}
+          <Route path="/client/signup" element={<ClientSignup />} />
+          <Route path="/client/login" element={<ClientLogin />} />
+          <Route
+            path="/client/forgot-password"
+            element={<ClientForgotPassword />}
+          />
+          <Route
+            path="/client/reset-password"
+            element={<ClientResetPassword />}
+          />
 
-         {/* --- 2. Independent Onboarding Path --- */}
+          {/* ================= ONBOARDING (Force-Protected) ================= */}
           <Route
             path="/talent/onboarding"
             element={
@@ -57,8 +79,16 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/client/onboarding"
+            element={
+              <ProtectedRoute>
+                <ClientOnboarding />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* --- 3. Protected Talent Dashboard System --- */}
+          {/* ================= TALENT PORTAL ================= */}
           <Route
             path="/talent"
             element={
@@ -67,20 +97,42 @@ const App = () => (
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="/talent/dashboard" replace />} />
-            <Route path="contracts" element={<ContractsDiscovery />} />
+            <Route
+              index
+              element={<Navigate to="/talent/dashboard" replace />}
+            />
             <Route path="dashboard" element={<DashboardIndex />} />
-            <Route path="jobs" element={<ApplicationsPage />} />
+            <Route path="contracts" element={<ContractsDiscovery />} />
             <Route path="applications" element={<ApplicationsPage />} />
-            
-            {/* Within the dashboard, any "Coming Soon" feature uses this element */}
-            <Route path="coming-soon" element={<ComingSoon />} />
-            
             <Route path="profile" element={<ProfileSettings />} />
             <Route path="settings" element={<SystemPrefs />} />
+            <Route path="pay" element={<ComingSoon />} />
+            <Route path="coming-soon" element={<ComingSoon />} />
           </Route>
 
-          {/* --- 4. Fallback Route --- */}
+          {/* ================= CLIENT PORTAL ================= */}
+          <Route
+            path="/client"
+            element={
+              <ProtectedRoute>
+                <ClientDashboardLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route
+              index
+              element={<Navigate to="/client/dashboard" replace />}
+            />
+            <Route path="dashboard" element={<ClientDashboardIndex />} />
+            <Route path="talent-pool" element={<ClientTalentPool />} />
+            <Route path="applications" element={<ApplicationsPage />} />
+            <Route path="profile" element={<ClientProfileSettings />} />
+            <Route path="settings" element={<ClientSystemPrefs />} />
+            <Route path="coming-soon" element={<ComingSoon />} />
+          </Route>
+
+              <Route path="/:username" element={<TalentPublicProfile />} />
+          {/* ================= FALLBACK ================= */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

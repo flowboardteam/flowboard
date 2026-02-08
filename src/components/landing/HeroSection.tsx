@@ -17,13 +17,12 @@ export function HeroSection() {
   return (
     // ADJUSTED: Changed pt-28 to pt-40 (mobile) and lg:pt-48 (desktop)
     <section className="relative w-full min-h-screen overflow-hidden pt-40 lg:pt-48 pb-32 font-sans">
-      
       {/* ================= BACKGROUND ================= */}
       <div className="absolute inset-0 -z-10 bg-white">
-        <div 
-          className="absolute inset-0" 
+        <div
+          className="absolute inset-0"
           style={{
-            background: `linear-gradient(to bottom, #050B1E 0%, #0B2A52 40%, #3b82f6 85%)`
+            background: `linear-gradient(to bottom, #050B1E 0%, #0B2A52 40%, #3b82f6 85%)`,
           }}
         />
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-white via-white/80 to-transparent" />
@@ -33,7 +32,6 @@ export function HeroSection() {
 
       {/* ================= CONTENT ================= */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 flex flex-col lg:flex-row items-center gap-16">
-
         {/* -------- LEFT COLUMN -------- */}
         <div className="flex-1 text-center lg:text-left text-white max-w-full">
           <motion.div
@@ -68,7 +66,10 @@ export function HeroSection() {
               { label: "Test Projects", icon: Rocket },
               { label: "Get Hired", icon: Globe },
             ].map((step, i, arr) => (
-              <div key={step.label} className="flex items-center gap-2 flex-shrink-0">
+              <div
+                key={step.label}
+                className="flex items-center gap-2 flex-shrink-0"
+              >
                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">
                   <step.icon className="w-4 h-4 text-blue-400" />
                   {step.label}
@@ -86,9 +87,15 @@ export function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            <Button className="bg-blue-600 hover:bg-blue-700 h-14 px-12 rounded-xl font-bold shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
-              Schedule a Demo
-            </Button>
+            <a
+              href="https://cal.com/flowboard/demo"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button className="bg-blue-600 hover:bg-blue-700 h-14 px-12 rounded-xl font-bold shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
+                Schedule a Demo
+              </Button>
+            </a>
             <Button
               variant="outline"
               className="h-14 px-10 rounded-xl bg-white/5 text-white border-white/20 hover:bg-white/10 backdrop-blur-sm"

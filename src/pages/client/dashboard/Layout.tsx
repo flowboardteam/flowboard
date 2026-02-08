@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import Sidebar from "@/components/talent/Sidebar";
-import DashboardHeader from "@/components/talent/DashboardHeader";
-import MobileSidebar from "@/components/talent/MobileSidebar";
-import { useToast } from "@/components/ui/use-toast";
+import Sidebar from "@/components/client/Sidebar";
+import DashboardHeader from "@/components/client/DashboardHeader";
+import MobileSidebar from "@/components/client/MobileSidebar";
 
 export default function DashboardLayout() {
   const [theme, setTheme] = useState("light");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { toast } = useToast();
-  const [unreadCount, setUnreadCount] = useState(0);
 
   // Sync with Database
   useEffect(() => {
@@ -28,40 +25,7 @@ export default function DashboardLayout() {
       }
     };
     syncTheme();
-
-    let channel: any;
-
-    const setupRealtime = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // 1. Listen for new notifications
-      channel = supabase
-        .channel(`user-notifications-${user.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            // 2. Trigger the Toast (In-site popup)
-            toast({
-              title: payload.new.title,
-              description: payload.new.message,
-            });
-            // 3. Update the Bell Count
-            setUnreadCount(prev => prev + 1);
-          }
-        )
-        .subscribe();
-    };
-
-    setupRealtime();
-    return () => { if (channel) supabase.removeChannel(channel); };
-  }, [toast]);
+  }, []);
 
   const toggleTheme = async () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -150,7 +114,6 @@ useEffect(() => {
 
       <div className="flex-grow flex flex-col min-w-0">
         <DashboardHeader
-          unreadCount={unreadCount}
           onMenuClick={() => setIsMobileMenuOpen(true)}
           theme={theme}
           toggleTheme={toggleTheme}

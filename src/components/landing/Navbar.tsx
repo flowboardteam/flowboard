@@ -105,7 +105,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
                 />
               </div>
               <span
-                className={`text-xl font-black italic uppercase tracking-tighter hidden md:block ${textColor}`}
+                className={`text-xl font-black tracking-tighter hidden md:block ${textColor}`}
               >
                 Flowboard
               </span>
@@ -192,7 +192,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
                           onClick={() => navigateTo("/talent/login")}
                         />
                         <AuthLink
-                          label="Join Registry"
+                          label="Join Talent Cloud"
                           icon={UserPlus}
                           onClick={() => navigateTo("/talent/signup")}
                         />
