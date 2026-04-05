@@ -34,16 +34,7 @@ export function HeroSection() {
       <div className="relative z-10 mx-auto max-w-7xl px-6 flex flex-col lg:flex-row items-center gap-16">
         {/* -------- LEFT COLUMN -------- */}
         <div className="flex-1 text-center lg:text-left text-white max-w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-sm mb-8 shadow-lg"
-          >
-            <Zap className="w-3 h-3 fill-white" />
-            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-blue-200">
-              AI-Powered Recruiting/Staffing Platform
-            </span>
-          </motion.div>
+          
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
             <span className="text-blue-400 block h-[1.2em]">
@@ -59,6 +50,17 @@ export function HeroSection() {
             <span>pre-vetted global talents</span>
           </h1>
 
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-sm mb-8 shadow-lg"
+          >
+            <Zap className="w-3 h-3 fill-white" />
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-blue-200">
+              AI-Powered
+            </span>
+          </motion.div>
+          
           <div className="flex flex-nowrap lg:justify-start justify-center items-center gap-4 mb-8 overflow-x-auto pb-4 scrollbar-hide">
             {[
               { label: "Upload CV", icon: FileUp },

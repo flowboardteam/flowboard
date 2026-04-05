@@ -18,13 +18,14 @@ import { supabase } from "@/lib/supabase";
 
 interface NavbarProps {
   heroHeight?: number;
+  forceOpaque?: boolean;  // ← new: forces opaque style regardless of scroll
 }
 
-export function Navbar({ heroHeight = 700 }: NavbarProps) {
+export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isOverHero, setIsOverHero] = useState(true);
+  const [isOverHero, setIsOverHero] = useState(!forceOpaque); // false when forceOpaque
   const [isAuthDropdownOpen, setIsAuthDropdownOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -42,6 +43,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
     checkUser();
 
     const handleScroll = () => {
+      if (forceOpaque) return; // never change when forced opaque
       const scrollY = window.scrollY;
       setIsScrolled(scrollY > 20);
       setIsOverHero(scrollY < heroHeight);
@@ -62,7 +64,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [heroHeight]);
+  }, [heroHeight, forceOpaque]);
 
   const navigateTo = (path: string) => {
     window.location.href = path;
@@ -207,8 +209,8 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
                     {user && (
                       <div className="pt-4 border-t border-slate-100">
                         <AuthLink
-                          label={`${firstName}'s Profile`} // Dynamically shows "Oscar's Profile"
-                          icon={User} // Changed from LayoutDashboard to User for a "Profile" feel
+                          label={`${firstName}'s Profile`}
+                          icon={User}
                           onClick={() => navigateTo("/talent/dashboard")}
                         />
                       </div>
@@ -220,7 +222,7 @@ export function Navbar({ heroHeight = 700 }: NavbarProps) {
           </div>
         </div>
 
-        {/* MOBILE MENU (Links ONLY) */}
+        {/* MOBILE MENU */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
