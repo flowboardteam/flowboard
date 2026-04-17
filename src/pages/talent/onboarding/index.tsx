@@ -166,7 +166,7 @@ export default function TalentOnboarding() {
     <div className="flex flex-col min-h-screen bg-[#050B1E] text-white selection:bg-emerald-500/30">
       {/* Background Glow - Fixed positioning to stay centered regardless of scroll */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[500px] blur-[120px] rounded-full bg-emerald-500/10 opacity-50" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[500px] blur-[120px] rounded-none bg-emerald-500/10 opacity-50" />
       </div>
 
       {/* Content wrapper with flex-grow to push footer/bottom if needed */}
@@ -175,12 +175,12 @@ export default function TalentOnboarding() {
           layout
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-[700px] bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-12 shadow-2xl"
+          className="w-full max-w-[700px] bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-none md:rounded-none p-6 md:p-12 shadow-2xl"
         >
           {/* Progress Stepper */}
           <div className="flex items-center justify-center gap-3 md:gap-4 mb-8 md:mb-12">
             <div
-              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-full border transition-all ${step === 1 ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" : "bg-white/5 border-white/10 text-slate-500"}`}
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-none border transition-all ${step === 1 ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" : "bg-white/5 border-white/10 text-slate-500"}`}
             >
               <Briefcase className="w-3 h-3 md:w-4 md:h-4" />
               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">
@@ -189,7 +189,7 @@ export default function TalentOnboarding() {
             </div>
             <div className="w-6 md:w-8 h-[1px] bg-white/10" />
             <div
-              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-full border transition-all ${step === 2 ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" : "bg-white/5 border-white/10 text-slate-500"}`}
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 rounded-none border transition-all ${step === 2 ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" : "bg-white/5 border-white/10 text-slate-500"}`}
             >
               <FileText className="w-3 h-3 md:w-4 md:h-4" />
               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">
@@ -227,7 +227,7 @@ export default function TalentOnboarding() {
                         setDetails({ ...details, primaryRole: e.target.value })
                       }
                       placeholder="e.g. Lead Software Engineer"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600"
+                      className="w-full bg-white/5 border border-white/10 rounded-none p-4 text-sm outline-none focus:border-emerald-500 transition-all placeholder:text-slate-600"
                     />
                   </div>
 
@@ -247,13 +247,13 @@ export default function TalentOnboarding() {
                           }}
                           onFocus={() => setShowCountrySuggestions(true)}
                           placeholder="Search country..."
-                          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-none p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all"
                         />
                       </div>
 
                       {showCountrySuggestions &&
                         filteredCountries.length > 0 && (
-                          <div className="absolute z-[110] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                          <div className="absolute z-[110] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-none shadow-2xl overflow-hidden">
                             {filteredCountries.map((c) => (
                               <div
                                 key={c.isoCode}
@@ -294,12 +294,12 @@ export default function TalentOnboarding() {
                               ? "Search city..."
                               : "Select country first"
                           }
-                          className="w-full bg-white/5 border border-white/10 rounded-xl p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all"
+                          className="w-full bg-white/5 border border-white/10 rounded-none p-4 pl-12 text-sm outline-none focus:border-emerald-500 transition-all"
                         />
                       </div>
 
                       {showCitySuggestions && filteredCities.length > 0 && (
-                        <div className="absolute z-[110] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-xl shadow-2xl overflow-hidden">
+                        <div className="absolute z-[110] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-none shadow-2xl overflow-hidden">
                           {filteredCities.map((city) => (
                             <div
                               key={`${city.name}-${city.latitude}`}
@@ -335,7 +335,7 @@ export default function TalentOnboarding() {
                             experienceLevel: e.target.value,
                           })
                         }
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none appearance-none cursor-pointer focus:border-emerald-500"
+                        className="w-full bg-white/5 border border-white/10 rounded-none p-4 text-sm outline-none appearance-none cursor-pointer focus:border-emerald-500"
                       >
                         <option value="" className="bg-[#050B1E]">
                           Select Level
@@ -363,7 +363,7 @@ export default function TalentOnboarding() {
                     </label>
                     <div
                       onClick={() => setShowLangDropdown(!showLangDropdown)}
-                      className="min-h-[56px] w-full bg-white/5 border border-white/10 rounded-xl p-3 flex flex-wrap gap-2 cursor-pointer hover:border-emerald-500/30 transition-all"
+                      className="min-h-[56px] w-full bg-white/5 border border-white/10 rounded-none p-3 flex flex-wrap gap-2 cursor-pointer hover:border-emerald-500/30 transition-all"
                     >
                       {details.languages.length === 0 && (
                         <span className="text-slate-500 text-sm ml-2 mt-1">
@@ -373,7 +373,7 @@ export default function TalentOnboarding() {
                       {details.languages.map((lang) => (
                         <span
                           key={lang}
-                          className="bg-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold px-3 py-1 rounded-lg flex items-center gap-2 border border-emerald-500/30 animate-in zoom-in-95"
+                          className="bg-emerald-500/20 text-emerald-400 text-[10px] md:text-xs font-bold px-3 py-1 rounded-none flex items-center gap-2 border border-emerald-500/30 animate-in zoom-in-95"
                         >
                           {lang}{" "}
                           <X
@@ -389,12 +389,12 @@ export default function TalentOnboarding() {
                     </div>
 
                     {showLangDropdown && (
-                      <div className="absolute z-[100] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-xl shadow-2xl p-2 grid grid-cols-2 gap-1 max-h-[160px] overflow-y-auto custom-scrollbar">
+                      <div className="absolute z-[100] w-full mt-2 bg-[#0A1229] border border-white/10 rounded-none shadow-2xl p-2 grid grid-cols-2 gap-1 max-h-[160px] overflow-y-auto custom-scrollbar">
                         {LANGUAGE_OPTIONS.map((lang) => (
                           <div
                             key={lang}
                             onClick={() => toggleLanguage(lang)}
-                            className={`flex items-center justify-between p-2.5 rounded-lg cursor-pointer text-xs md:text-sm transition-all ${details.languages.includes(lang) ? "bg-emerald-500/10 text-emerald-400" : "hover:bg-white/5 text-slate-300"}`}
+                            className={`flex items-center justify-between p-2.5 rounded-none cursor-pointer text-xs md:text-sm transition-all ${details.languages.includes(lang) ? "bg-emerald-500/10 text-emerald-400" : "hover:bg-white/5 text-slate-300"}`}
                           >
                             {lang}
                             {details.languages.includes(lang) && (
@@ -410,7 +410,7 @@ export default function TalentOnboarding() {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!isStep1Complete}
-                  className="w-full h-14 md:h-16 bg-emerald-600 hover:bg-emerald-500 text-[#050B1E] rounded-xl md:rounded-2xl font-black text-base md:text-lg disabled:opacity-20 transition-all shadow-xl shadow-emerald-500/10 uppercase italic tracking-widest"
+                  className="w-full h-14 md:h-16 bg-emerald-600 hover:bg-emerald-500 text-[#050B1E] rounded-none md:rounded-none font-black text-base md:text-lg disabled:opacity-20 transition-all shadow-xl shadow-emerald-500/10 uppercase italic tracking-widest"
                 >
                   Continue to Resume
                 </Button>
@@ -424,7 +424,7 @@ export default function TalentOnboarding() {
                 className="space-y-6 md:space-y-8 text-center"
               >
                 <div>
-                  <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+                  <div className="w-16 h-16 bg-emerald-500/10 rounded-none flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
                     <Upload className="w-8 h-8 text-emerald-500" />
                   </div>
                   <h2 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase">
@@ -437,7 +437,7 @@ export default function TalentOnboarding() {
 
                 <div className="group relative">
                   <div
-                    className={`border-2 border-dashed rounded-[1.5rem] md:rounded-[2rem] p-8 md:p-12 transition-all duration-300 ${details.resumeFile ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 bg-white/[0.01] hover:bg-white/[0.03]"}`}
+                    className={`border-2 border-dashed rounded-none md:rounded-none p-8 md:p-12 transition-all duration-300 ${details.resumeFile ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 bg-white/[0.01] hover:bg-white/[0.03]"}`}
                   >
                     <input
                       type="file"
@@ -477,7 +477,7 @@ export default function TalentOnboarding() {
                   <Button
                     onClick={handleFinish}
                     disabled={isLoading || !details.resumeFile}
-                    className={`h-14 md:h-16 rounded-xl md:rounded-2xl font-black text-base md:text-lg transition-all ${details.resumeFile ? "bg-emerald-600 hover:bg-emerald-500 text-[#050B1E] shadow-xl shadow-emerald-500/20" : "bg-white/5 text-slate-600"}`}
+                    className={`h-14 md:h-16 rounded-none md:rounded-none font-black text-base md:text-lg transition-all ${details.resumeFile ? "bg-emerald-600 hover:bg-emerald-500 text-[#050B1E] shadow-xl shadow-emerald-500/20" : "bg-white/5 text-slate-600"}`}
                   >
                     {isLoading ? (
                       <Loader2 className="animate-spin" />
@@ -488,7 +488,7 @@ export default function TalentOnboarding() {
                   <Button
                     variant="ghost"
                     onClick={() => setStep(1)}
-                    className="h-14 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 transition-all text-sm font-bold"
+                    className="h-14 rounded-none text-slate-500 hover:text-white hover:bg-white/5 transition-all text-sm font-bold"
                   >
                     Go back to info
                   </Button>

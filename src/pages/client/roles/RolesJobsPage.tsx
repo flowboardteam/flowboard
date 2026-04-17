@@ -34,19 +34,19 @@ function ConfirmDialog({ title, message, confirmLabel = "Delete", onConfirm, onC
         <motion.div initial={{ opacity: 0, scale: 0.95, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 16 }}
           onClick={e => e.stopPropagation()}
-          className="w-full max-w-sm bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[2rem] p-6 shadow-2xl">
-          <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4">
+          className="w-full max-w-sm bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-6 shadow-2xl">
+          <div className="w-10 h-10 rounded-none bg-red-500/10 flex items-center justify-center mb-4">
             <Trash2 className="w-5 h-5 text-red-500" />
           </div>
           <h3 className="text-base font-black dark:text-white tracking-tight mb-2">{title}</h3>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-6">{message}</p>
           <div className="flex gap-3">
             <button onClick={onCancel}
-              className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">
+              className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all">
               Cancel
             </button>
             <button onClick={onConfirm}
-              className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-400 transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/20">
+              className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-red-400 transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/20">
               <Trash2 className="w-3.5 h-3.5" />{confirmLabel}
             </button>
           </div>
@@ -73,19 +73,19 @@ function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) 
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className="p-6 rounded-[2rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between group hover:border-blue-500/40 transition-all relative"
+      className="p-6 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between group hover:border-blue-500/40 transition-all relative"
     >
       {/* Status + menu */}
       <div className="flex items-center justify-between mb-5">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${status.className}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border ${status.className}`}>
+          <span className={`w-1.5 h-1.5 rounded-none ${status.dot}`} />
           {status.label}
         </span>
 
         <div className="relative">
           <button
             onClick={() => setMenuOpen(v => !v)}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-500/10 transition-colors"
+            className="p-1.5 rounded-none text-slate-400 hover:bg-slate-500/10 transition-colors"
           >
             <MoreHorizontal className="w-4 h-4" />
           </button>
@@ -95,7 +95,7 @@ function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) 
                 initial={{ opacity: 0, scale: 0.95, y: -4 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                className="absolute right-0 top-8 z-30 w-44 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl shadow-xl overflow-hidden"
+                className="absolute right-0 top-8 z-30 w-44 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none shadow-xl overflow-hidden"
               >
                 <button onClick={() => { onView(role); setMenuOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-bold hover:bg-slate-500/5 transition-colors">
                   <Eye className="w-3.5 h-3.5" /> View details
@@ -145,7 +145,7 @@ function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) 
       {role.skills?.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-5">
           {role.skills.slice(0, 4).map(s => (
-            <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full">{s}</span>
+            <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-none">{s}</span>
           ))}
           {role.skills.length > 4 && <span className="text-[10px] font-black text-slate-400">+{role.skills.length - 4}</span>}
         </div>
@@ -166,18 +166,18 @@ function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) 
         {role.status === "open" && (
           <button
             onClick={() => navigate(`/client/roles/${role.id}/source`)}
-            className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all flex items-center gap-1.5 shadow-md shadow-blue-600/20"
+            className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all flex items-center gap-1.5 shadow-md shadow-blue-600/20"
           >
             <Zap className="w-3 h-3 fill-current" /> Source talent
           </button>
         )}
         {role.status === "draft" && (
-          <button onClick={() => onStatusChange(role.id, "open")} className="px-4 py-2 bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-amber-500/20 transition-all border border-amber-500/20">
+          <button onClick={() => onStatusChange(role.id, "open")} className="px-4 py-2 bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-amber-500/20 transition-all border border-amber-500/20">
             Publish
           </button>
         )}
         {role.status === "closed" && (
-          <button onClick={() => onStatusChange(role.id, "open")} className="px-4 py-2 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all">
+          <button onClick={() => onStatusChange(role.id, "open")} className="px-4 py-2 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-slate-500/20 transition-all">
             Reopen
           </button>
         )}
@@ -206,13 +206,13 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
         <div className="p-8">
           <div className="flex items-start justify-between mb-8">
             <div>
-              <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border mb-3 ${status.className}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} /> {status.label}
+              <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border mb-3 ${status.className}`}>
+                <span className={`w-1.5 h-1.5 rounded-none ${status.dot}`} /> {status.label}
               </span>
               <h2 className="text-2xl font-black tracking-tight dark:text-white">{role.title}</h2>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{role.department} · {role.type}</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors">
+            <button onClick={onClose} className="p-2 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors">
               <XCircle className="w-5 h-5" />
             </button>
           </div>
@@ -224,7 +224,7 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
               { label: "Applicants", value: role.applicants_count ?? 0 },
               { label: "Posted",     value: fmtDate(role.created_at) },
             ].map(m => (
-              <div key={m.label} className="bg-slate-500/5 rounded-2xl p-4">
+              <div key={m.label} className="bg-slate-500/5 rounded-none p-4">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{m.label}</p>
                 <p className="text-sm font-black dark:text-white">{m.value}</p>
               </div>
@@ -242,7 +242,7 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Responsibilities</p>
               <div className="flex flex-wrap gap-2">
-                {role.responsibilities.map(r => <span key={r} className="text-[11px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 dark:text-slate-400 px-3 py-1 rounded-full">{r}</span>)}
+                {role.responsibilities.map(r => <span key={r} className="text-[11px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 dark:text-slate-400 px-3 py-1 rounded-none">{r}</span>)}
               </div>
             </div>
           )}
@@ -251,7 +251,7 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Skills & Requirements</p>
               <div className="flex flex-wrap gap-2">
-                {role.skills.map(s => <span key={s} className="text-[11px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full">{s}</span>)}
+                {role.skills.map(s => <span key={s} className="text-[11px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-500 px-3 py-1 rounded-none">{s}</span>)}
               </div>
             </div>
           )}
@@ -260,7 +260,7 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
             <div className="mb-8">
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Benefits</p>
               <div className="flex flex-wrap gap-2">
-                {role.benefits.map(b => <span key={b} className="text-[11px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full">{b}</span>)}
+                {role.benefits.map(b => <span key={b} className="text-[11px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-none">{b}</span>)}
               </div>
             </div>
           )}
@@ -268,13 +268,13 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
           <div className="flex gap-3">
             <button
               onClick={() => { navigate(`/client/roles/${role.id}/source`); onClose(); }}
-              className="flex-1 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+              className="flex-1 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
             >
               <Zap className="w-3.5 h-3.5 fill-current" /> Source talent
             </button>
             <button
               onClick={() => { onEdit(role); onClose(); }}
-              className="px-5 py-3.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all flex items-center gap-2"
+              className="px-5 py-3.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-slate-500/20 transition-all flex items-center gap-2"
             >
               <Pencil className="w-3.5 h-3.5" /> Edit
             </button>
@@ -387,7 +387,7 @@ export default function RolesJobsPage() {
         <p className="text-sm font-bold text-red-500">{error}</p>
         <button
           onClick={fetchRoles}
-          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all"
+          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Retry
         </button>
@@ -412,14 +412,14 @@ export default function RolesJobsPage() {
         </div>
         <button
           onClick={() => navigate("/client/roles/create")}
-          className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
+          className="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" /> Create role
         </button>
       </div>
 
       {/* ── Search + Filters ── */}
-      <div className="p-5 rounded-[2rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm space-y-4">
+      <div className="p-5 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -427,12 +427,12 @@ export default function RolesJobsPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search roles by title..."
-              className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-xl text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+              className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-none text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
             />
           </div>
           <button
             onClick={() => setFiltersOpen(v => !v)}
-            className={`flex items-center gap-2 px-5 py-3 border rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+            className={`flex items-center gap-2 px-5 py-3 border rounded-none text-xs font-black uppercase tracking-widest transition-all ${
               filtersOpen
                 ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
                 : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
@@ -460,7 +460,7 @@ export default function RolesJobsPage() {
                     <select
                       value={f.value}
                       onChange={e => f.setter(e.target.value)}
-                      className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none focus:ring-2 ring-blue-500/20 cursor-pointer"
+                      className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none focus:ring-2 ring-blue-500/20 cursor-pointer"
                     >
                       {f.options.map(o => <option key={o}>{o}</option>)}
                     </select>
@@ -474,12 +474,12 @@ export default function RolesJobsPage() {
       </div>
 
       {/* ── Tabs ── */}
-      <div className="flex gap-1 bg-slate-500/5 p-1 rounded-2xl w-fit">
+      <div className="flex gap-1 bg-slate-500/5 p-1 rounded-none w-fit">
         {TABS.map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+            className={`px-5 py-2 rounded-none text-[11px] font-black uppercase tracking-widest transition-all ${
               activeTab === tab
                 ? "bg-[var(--card-bg)] text-blue-600 shadow-sm"
                 : "text-slate-400 hover:text-slate-600"
@@ -512,7 +512,7 @@ export default function RolesJobsPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-[2.5rem] border border-dashed border-[var(--border-color)]"
+            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]"
           >
             <FileText className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">
@@ -524,7 +524,7 @@ export default function RolesJobsPage() {
             {!search && (
               <button
                 onClick={() => navigate("/client/roles/create")}
-                className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20"
+                className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20"
               >
                 <Plus className="w-3.5 h-3.5" /> Create role
               </button>

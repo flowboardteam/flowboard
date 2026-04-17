@@ -154,7 +154,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
         {/* LEFT SIDE: Brand Experience */}
         <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
           
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
@@ -175,7 +175,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                   { text: "Secure payments & contract compliance", icon: ShieldCheck },
                 ].map((item) => (
                   <div key={item.text} className="flex items-center gap-4 group">
-                    <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                       <CheckCircle2 className="w-4 h-4 text-blue-400" />
                     </div>
                     <span className="text-gray-300 text-lg font-medium">{item.text}</span>
@@ -185,12 +185,12 @@ const handleSocialLogin = async (provider: "google" | "github") => {
             </motion.div>
           </div>
 
-          <div className="relative z-10 p-8 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10">
+          <div className="relative z-10 p-8 bg-white/5 backdrop-blur-xl rounded-none border border-white/10">
             <p className="text-lg text-blue-100/90 leading-relaxed mb-6 font-medium italic">
               "Flowboard isn't just a job board; it's a career accelerator for engineers in the AI era."
             </p>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold">AK</div>
+              <div className="w-12 h-12 rounded-none bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold">AK</div>
               <div>
                 <p className="font-bold text-white">Amara K.</p>
                 <p className="text-sm text-blue-400/80 font-medium font-mono">Senior AI Engineer</p>
@@ -207,7 +207,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
 
           <div className="max-w-[420px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest mb-4">
                 <Rocket size={12} /> Talent Signup
               </div>
               <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Get Started</h1>
@@ -215,10 +215,10 @@ const handleSocialLogin = async (provider: "google" | "github") => {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button variant="outline" onClick={() => handleSocialLogin("google")} className="h-12 border-slate-200 rounded-xl font-bold shadow-sm hover:bg-slate-50 transition-all">
+              <Button variant="outline" onClick={() => handleSocialLogin("google")} className="h-12 border-slate-200 rounded-none font-bold shadow-sm hover:bg-slate-50 transition-all">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
               </Button>
-              <Button variant="outline" onClick={() => handleSocialLogin("github")} className="h-12 border-slate-200 rounded-xl font-bold shadow-sm hover:bg-slate-50 transition-all">
+              <Button variant="outline" onClick={() => handleSocialLogin("github")} className="h-12 border-slate-200 rounded-none font-bold shadow-sm hover:bg-slate-50 transition-all">
                 <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
               </Button>
             </div>
@@ -231,18 +231,18 @@ const handleSocialLogin = async (provider: "google" | "github") => {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider" htmlFor="name">Full Name</Label>
-                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" className="h-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
+                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your full name" className="h-12 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider" htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@email.com" className="h-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@email.com" className="h-12 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Password</Label>
                 <div className="relative group">
-                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none" required />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -253,11 +253,11 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }} 
                     animate={{ opacity: 1, y: 0 }} 
-                    className="p-4 bg-slate-50 rounded-2xl space-y-2 border border-slate-100 shadow-inner mt-2"
+                    className="p-4 bg-slate-50 rounded-none space-y-2 border border-slate-100 shadow-inner mt-2"
                   >
                     <div className="flex gap-1 h-1.5 mb-3">
                       {[1, 2, 3, 4].map((step) => (
-                        <div key={step} className={`h-full flex-1 rounded-full transition-colors duration-500 ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`} />
+                        <div key={step} className={`h-full flex-1 rounded-none transition-colors duration-500 ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`} />
                       ))}
                     </div>
                     {requirements.map((req, i) => (
@@ -278,7 +278,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
               </div>
 
               <Button 
-                className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" 
+                className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" 
                 disabled={isLoading || !agreed || !isPasswordValid}
               >
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Account <ArrowRight size={18} /></>}

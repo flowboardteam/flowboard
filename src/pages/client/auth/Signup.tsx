@@ -142,7 +142,7 @@ export default function ClientSignUp() {
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
         {/* LEFT SIDE: Brand Experience (Hiring Focused) */}
         <div className="hidden lg:flex flex-col justify-between bg-[#0A1229] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
           
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20">
@@ -163,7 +163,7 @@ export default function ClientSignUp() {
                   { text: "Scale your engineering team in days", icon: Briefcase },
                 ].map((item) => (
                   <div key={item.text} className="flex items-center gap-4">
-                    <div className="w-6 h-6 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-none bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
                       <CheckCircle2 className="w-4 h-4 text-indigo-400" />
                     </div>
                     <span className="text-gray-300 text-lg font-medium">{item.text}</span>
@@ -173,12 +173,12 @@ export default function ClientSignUp() {
             </motion.div>
           </div>
 
-          <div className="relative z-10 p-8 bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white/10">
+          <div className="relative z-10 p-8 bg-white/5 backdrop-blur-xl rounded-none border border-white/10">
             <p className="text-lg text-indigo-100/90 leading-relaxed mb-6 font-medium italic">
               "Flowboard is the first platform that actually understands the specific technical needs of AI startups."
             </p>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold">JD</div>
+              <div className="w-12 h-12 rounded-none bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold">JD</div>
               <div>
                 <p className="font-bold text-white">James D.</p>
                 <p className="text-sm text-indigo-400/80 font-medium font-mono">CTO, NeuralSync</p>
@@ -195,7 +195,7 @@ export default function ClientSignUp() {
 
           <div className="max-w-[420px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-4">
                 <Building2 size={12} /> Partner Signup
               </div>
               <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Join as a Client</h1>
@@ -203,10 +203,10 @@ export default function ClientSignUp() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button variant="outline" onClick={() => handleSocialLogin("google")} className="h-12 border-slate-200 rounded-xl font-bold hover:bg-slate-50">
+              <Button variant="outline" onClick={() => handleSocialLogin("google")} className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
               </Button>
-              <Button variant="outline" onClick={() => handleSocialLogin("github")} className="h-12 border-slate-200 rounded-xl font-bold hover:bg-slate-50">
+              <Button variant="outline" onClick={() => handleSocialLogin("github")} className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50">
                 <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
               </Button>
             </div>
@@ -219,28 +219,28 @@ export default function ClientSignUp() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Hiring Manager Name</Label>
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" className="h-12 rounded-xl border-slate-200 shadow-sm" required />
+                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" className="h-12 rounded-none border-slate-200 shadow-sm" required />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Work Email Address</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="h-12 rounded-xl border-slate-200 shadow-sm" required />
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="h-12 rounded-none border-slate-200 shadow-sm" required />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Create Password</Label>
                 <div className="relative group">
-                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-xl border-slate-200 shadow-sm" required />
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-none border-slate-200 shadow-sm" required />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
                 
                 {password && (
-                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mt-2">
+                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-slate-50 rounded-none border border-slate-100 mt-2">
                     <div className="flex gap-1 h-1 mb-3">
                       {[1, 2, 3, 4].map((step) => (
-                        <div key={step} className={`h-full flex-1 rounded-full transition-colors ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`} />
+                        <div key={step} className={`h-full flex-1 rounded-none transition-colors ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`} />
                       ))}
                     </div>
                     {requirements.map((req, i) => (
@@ -260,7 +260,7 @@ export default function ClientSignUp() {
                 </Label>
               </div>
 
-              <Button className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl shadow-xl shadow-indigo-900/10 gap-2 transition-all" disabled={isLoading || !agreed || !isPasswordValid}>
+              <Button className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-none shadow-xl shadow-indigo-900/10 gap-2 transition-all" disabled={isLoading || !agreed || !isPasswordValid}>
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Partner Account <ArrowRight size={18} /></>}
               </Button>
             </form>

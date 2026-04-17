@@ -25,10 +25,10 @@ export function LegalLayout({ title, subtitle, lastUpdated, badge, children }: L
           }}
         />
         {/* Ink bleed */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-[120px] opacity-10 bg-blue-600 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-none blur-[120px] opacity-10 bg-blue-600 pointer-events-none" />
 
         <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <span className="inline-block text-[10px] font-black uppercase tracking-[0.25em] text-blue-600 border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/50 px-4 py-1.5 rounded-full mb-6">
+          <span className="inline-block text-[10px] font-black uppercase tracking-[0.25em] text-blue-600 border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/50 px-4 py-1.5 rounded-none mb-6">
             {badge}
           </span>
           <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.05] mb-5">

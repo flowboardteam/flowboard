@@ -94,14 +94,14 @@ export function HowItWorksSection() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border border-blue-100 shadow-inner"
+              className="absolute inset-0 rounded-none border border-blue-100 shadow-inner"
             />
             
             {/* Center Core */}
             <motion.div
               animate={{ scale: [1, 1.03, 1] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-1/4 rounded-full bg-blue-50/50 border border-blue-100 backdrop-blur-sm flex flex-col items-center justify-center text-center shadow-xl p-4"
+              className="absolute inset-1/4 rounded-none bg-blue-50/50 border border-blue-100 backdrop-blur-sm flex flex-col items-center justify-center text-center shadow-xl p-4"
             >
               <Brain className="w-10 h-10 text-blue-600 mb-2" />
               <p className="text-lg font-bold text-slate-900 leading-tight">
@@ -120,11 +120,11 @@ export function HowItWorksSection() {
                 className={`absolute ${positions[node.step]} flex flex-col items-center w-32`}
                 style={{ zIndex: 10 }}
               >
-                <div className="w-16 h-16 rounded-full bg-white border-2 border-blue-100 flex items-center justify-center shadow-md transition-all duration-300 hover:border-blue-400 hover:scale-110">
+                <div className="w-16 h-16 rounded-none bg-white border-2 border-blue-100 flex items-center justify-center shadow-md transition-all duration-300 hover:border-blue-400 hover:scale-110">
                   <node.icon className="w-7 h-7 text-blue-600" />
                 </div>
                 {/* Number Badge stays here */}
-                <div className="absolute -top-1 -left-1 w-6 h-6 rounded-full bg-blue-600 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
+                <div className="absolute -top-1 -left-1 w-6 h-6 rounded-none bg-blue-600 text-[10px] font-bold text-white flex items-center justify-center border-2 border-white">
                     {node.step}
                 </div>
                 <span className="mt-3 text-sm font-bold text-slate-700 text-center">
@@ -148,7 +148,7 @@ export function HowItWorksSection() {
                 variants={itemVariants}
                 className="flex items-start space-x-6 group"
               >
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center transition-all duration-300 group-hover:bg-blue-600 group-hover:shadow-lg group-hover:shadow-blue-200">
+                <div className="flex-shrink-0 w-14 h-14 rounded-none bg-blue-50 border border-blue-100 flex items-center justify-center transition-all duration-300 group-hover:bg-blue-600 group-hover:shadow-lg group-hover:shadow-blue-200">
                   <step.icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors" />
                 </div>
                 <div>
@@ -167,7 +167,7 @@ export function HowItWorksSection() {
                 variants={itemVariants}
                 className="flex items-start space-x-6 mt-10 border-t pt-8 border-slate-100"
             >
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center">
+                <div className="flex-shrink-0 w-14 h-14 rounded-none bg-slate-50 border border-slate-200 flex items-center justify-center">
                     <Clock className="w-6 h-6 text-slate-400" />
                 </div>
                 <div>

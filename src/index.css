@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&family=Inter:wght@300;400;500;600;700;800;900&family=Lancelot&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -15,7 +15,7 @@
   --popover: 0 0% 100%;
   --popover-foreground: 230 15% 10%;
 
-  --primary: 210 80% 30%;              /* Dark Blue */
+  --primary: 257 100% 74%;             /* #A079FF Vibrant Lavender */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 210 20% 96%;            /* Subtle background elements */
@@ -24,7 +24,7 @@
   --muted: 210 15% 95%;
   --muted-foreground: 230 10% 45%;
 
-  --accent: 210 80% 30%;               /* Same as primary for simplicity */
+  --accent: 257 100% 74%;              /* Matches primary */
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
@@ -34,12 +34,12 @@
   --input: 210 15% 90%;
   --ring: 210 80% 30%;                 /* Matches primary */
 
-  --radius: 1rem;
+  --radius: 0;
 
   /* Gradient for buttons / hero */
-  --gradient-start: 210 80% 30%;       /* Dark Blue */
-  --gradient-mid: 210 70% 40%;         /* Lighter blue */
-  --gradient-end: 210 60% 50%;         /* Even lighter blue */
+  --gradient-start: 257 100% 74%;       /* #A079FF */
+  --gradient-mid: 260 70% 64%;          /* Slightly deeper */
+  --gradient-end: 260 60% 54%;          /* Even deeper */
 
   --glass-bg: 0 0% 100% / 0.7;
   --glass-border: 0 0% 100% / 0.3;
@@ -72,7 +72,7 @@
   --popover: 230 20% 14%;
   --popover-foreground: 0 0% 98%;
 
-  --primary: 210 80% 50%;               /* Dark Blue, slightly brighter for contrast */
+  --primary: 257 100% 80%;              /* Brighter for dark mode */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 230 20% 18%;
@@ -81,7 +81,7 @@
   --muted: 230 15% 20%;
   --muted-foreground: 230 10% 60%;
 
-  --accent: 210 80% 50%;                 /* Same as primary */
+  --accent: 257 100% 80%;                /* Matches primary */
   --accent-foreground: 0 0% 100%;
 
   --destructive: 0 84% 60%;
@@ -114,6 +114,10 @@
     @apply border-border;
   }
   
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lancelot', serif;
+  }
+  
   body {
     @apply bg-background text-foreground font-sans antialiased;
     text-rendering: optimizeLegibility;
@@ -122,7 +126,7 @@
   
   html {
     scroll-behavior: smooth;
-    font-family: Inter, system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
@@ -146,7 +150,7 @@
 }
 
 .input {
-  @apply w-full rounded-lg border px-4 py-2.5 focus:outline-none focus:ring focus:ring-black/10;
+  @apply w-full rounded-none border px-4 py-2.5 focus:outline-none focus:ring focus:ring-black/10;
 }
 
 
@@ -164,11 +168,11 @@
   }
   
   .glass-card {
-    @apply bg-[hsl(var(--glass-bg))] backdrop-blur-xl border border-[hsl(var(--glass-border))] rounded-2xl shadow-xl;
+    @apply bg-[hsl(var(--glass-bg))] backdrop-blur-xl border border-[hsl(var(--glass-border))] shadow-xl;
   }
   
   .blob {
-    @apply absolute rounded-full filter blur-3xl opacity-30 animate-blob;
+    @apply absolute rounded-none filter blur-3xl opacity-30 animate-blob;
   }
   
   .blob-1 {
@@ -184,7 +188,7 @@
   }
   
   .section-padding {
-    @apply py-20 md:py-28 lg:py-32;
+    @apply py-16 md:py-20 lg:py-24;
   }
   
   .container-custom {
@@ -236,7 +240,7 @@
 /* 3. The Handle (the part you grab) */
 ::-webkit-scrollbar-thumb {
   background: var(--border-color); /* Uses your theme's border color */
-  border-radius: 10px;
+  border-radius: 0;
   transition: background 0.3s ease;
 }
 
@@ -249,4 +253,55 @@
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
+}
+
+/* Prepared 911 Styles */
+@layer base {
+  :root {
+    --prep-bg: #F0EFE9;
+    --prep-border: #E8E6DF;
+    --prep-text: #272522;
+    --prep-dark: #1B1A18;
+    --prep-orange: #FC5C3A;
+    --prep-beige: #F9F8F5;
+    --prep-light-blue: #DDE2EE;
+  }
+}
+
+.bg-prep-light-blue { background-color: var(--prep-light-blue); }
+
+.bg-prep-bg { background-color: var(--prep-bg); }
+.bg-prep-dark { background-color: var(--prep-dark); }
+.bg-prep-orange { background-color: var(--prep-orange); }
+.bg-prep-beige { background-color: var(--prep-beige); }
+
+.text-prep-text { color: var(--prep-text); }
+.text-prep-orange { color: var(--prep-orange); }
+
+.border-prep-border { border-color: var(--prep-border); }
+.border-prep-orange { border-color: var(--prep-orange); }
+
+.has-noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  mix-blend-mode: soft-light;
+  z-index: 10;
+}
+
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+  z-index: 10;
 }

@@ -114,7 +114,7 @@ const COLOR_MAP: Record<string, { bg: string; border: string; icon: string; dot:
 function AccordionItem({ q, a, index }: { q: string; a: string; index: number }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className={`border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden transition-all ${open ? "bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-900" : "bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700"}`}>
+    <div className={`border border-slate-200 dark:border-slate-800 rounded-none overflow-hidden transition-all ${open ? "bg-blue-50/50 dark:bg-blue-950/10 border-blue-200 dark:border-blue-900" : "bg-white dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700"}`}>
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
@@ -125,7 +125,7 @@ function AccordionItem({ q, a, index }: { q: string; a: string; index: number })
           </span>
           <span className="text-base font-bold text-slate-900 dark:text-white leading-snug">{q}</span>
         </div>
-        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all ${open ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
+        <div className={`w-8 h-8 rounded-none flex items-center justify-center shrink-0 transition-all ${open ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"}`}>
           <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
         </div>
       </button>
@@ -169,7 +169,7 @@ export default function FAQPage() {
               <button
                 key={cat.label}
                 onClick={() => setActiveCategory(cat.label)}
-                className={`flex-shrink-0 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                className={`flex-shrink-0 px-5 py-2.5 rounded-none text-xs font-black uppercase tracking-widest transition-all ${
                   activeCategory === cat.label
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
                     : "bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
@@ -209,7 +209,7 @@ export default function FAQPage() {
               const Icon = sec.icon;
               const colors = COLOR_MAP[sec.color];
               return (
-                <div key={sec.title} className={`p-6 rounded-2xl border ${colors.bg} ${colors.border}`}>
+                <div key={sec.title} className={`p-6 rounded-none border ${colors.bg} ${colors.border}`}>
                   <div className="flex items-center gap-3 mb-4">
                     <Icon className={`w-5 h-5 ${colors.icon}`} />
                     <h3 className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">{sec.title}</h3>
@@ -217,7 +217,7 @@ export default function FAQPage() {
                   <ul className="space-y-2.5">
                     {sec.items.map((item, i) => (
                       <li key={i} className="flex items-start gap-3">
-                        <span className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 ${colors.dot}`} />
+                        <span className={`mt-2 w-1.5 h-1.5 rounded-none shrink-0 ${colors.dot}`} />
                         <span className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{item}</span>
                       </li>
                     ))}
@@ -229,18 +229,18 @@ export default function FAQPage() {
         </section>
 
         {/* Contact CTA */}
-        <div className="mt-20 p-8 rounded-3xl bg-blue-600 text-center text-white">
+        <div className="mt-20 p-8 rounded-none bg-blue-600 text-center text-white">
           <h3 className="text-2xl font-extrabold tracking-tight mb-3">Still have questions?</h3>
           <p className="text-blue-200 font-medium mb-6">
             Our team responds to all inquiries within one business day.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="mailto:info@flowboard.team"
-              className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-black text-sm uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+              className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-black text-sm uppercase tracking-widest px-6 py-3 rounded-none hover:bg-blue-50 transition-colors">
               Email us
             </a>
             {/* <a href="/contact"
-              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-black text-sm uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-white/20 transition-colors border border-white/20">
+              className="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-black text-sm uppercase tracking-widest px-6 py-3 rounded-none hover:bg-white/20 transition-colors border border-white/20">
               Book a call
             </a> */}
           </div>

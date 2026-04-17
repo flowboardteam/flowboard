@@ -53,7 +53,7 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-sm mb-8 shadow-lg"
+            className="inline-flex items-center gap-2 bg-blue-600/20 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-none mb-8 shadow-lg"
           >
             <Zap className="w-3 h-3 fill-white" />
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-blue-200">
@@ -72,7 +72,7 @@ export function HeroSection() {
                 key={step.label}
                 className="flex items-center gap-2 flex-shrink-0"
               >
-                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/10 text-white px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/10 text-white px-3 py-1.5 rounded-none text-xs font-semibold whitespace-nowrap">
                   <step.icon className="w-4 h-4 text-blue-400" />
                   {step.label}
                 </div>
@@ -94,13 +94,13 @@ export function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button className="bg-blue-600 hover:bg-blue-700 h-14 px-12 rounded-xl font-bold shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
+              <Button className="bg-blue-600 hover:bg-blue-700 h-14 px-12 rounded-none font-bold shadow-2xl shadow-blue-500/20 transition-all hover:scale-105 active:scale-95">
                 Schedule a Demo
               </Button>
             </a>
             <Button
               variant="outline"
-              className="h-14 px-10 rounded-xl bg-white/5 text-white border-white/20 hover:bg-white/10 backdrop-blur-sm"
+              className="h-14 px-10 rounded-none bg-white/5 text-white border-white/20 hover:bg-white/10 backdrop-blur-sm"
             >
               <Play className="w-4 h-4 mr-2 fill-white" />
               Watch Demo
@@ -116,11 +116,11 @@ export function HeroSection() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="p-2 bg-white/10 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 shadow-2xl overflow-hidden">
+            <div className="p-2 bg-white/10 backdrop-blur-2xl rounded-none border border-white/20 shadow-2xl overflow-hidden">
               <img
                 src={dashboardImg}
                 alt="FlowBoard dashboard"
-                className="rounded-[2rem] w-full h-auto"
+                className="rounded-none w-full h-auto"
               />
             </div>
             <div className="absolute -top-6 -right-6 w-48 h-48 bg-blue-500/40 blur-[80px] -z-10" />

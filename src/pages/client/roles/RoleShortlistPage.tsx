@@ -33,15 +33,15 @@ function ConfirmDialog({title,message,confirmLabel="Delete",onConfirm,onCancel}:
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
         <motion.div initial={{opacity:0,scale:0.95,y:16}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:0.95,y:16}}
           onClick={e=>e.stopPropagation()}
-          className="w-full max-w-sm bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[2rem] p-6 shadow-2xl">
-          <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4">
+          className="w-full max-w-sm bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-6 shadow-2xl">
+          <div className="w-10 h-10 rounded-none bg-red-500/10 flex items-center justify-center mb-4">
             <Trash2 className="w-5 h-5 text-red-500"/>
           </div>
           <h3 className="text-base font-black dark:text-white tracking-tight mb-2">{title}</h3>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-6">{message}</p>
           <div className="flex gap-3">
-            <button onClick={onCancel} className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">Cancel</button>
-            <button onClick={onConfirm} className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-400 transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/20">
+            <button onClick={onCancel} className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all">Cancel</button>
+            <button onClick={onConfirm} className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-red-400 transition-all flex items-center justify-center gap-2 shadow-md shadow-red-500/20">
               <Trash2 className="w-3.5 h-3.5"/>{confirmLabel}
             </button>
           </div>
@@ -86,13 +86,13 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95 }}
           onClick={e => e.stopPropagation()}
-          className="w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[2.5rem] shadow-2xl overflow-hidden"
+          className="w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none shadow-2xl overflow-hidden"
         >
           {/* Header */}
           <div className="p-8 pb-0">
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-slate-500/10 border border-[var(--border-color)] overflow-hidden flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-none bg-slate-500/10 border border-[var(--border-color)] overflow-hidden flex items-center justify-center shrink-0">
                   {candidate.talent_avatar
                     ? <img src={candidate.talent_avatar} alt={candidate.talent_name} className="w-full h-full object-cover" />
                     : <span className="text-sm font-black text-slate-400 uppercase">{candidate.talent_name?.charAt(0)}</span>
@@ -106,13 +106,13 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                   <p className="text-xs font-medium text-slate-400 mt-0.5">{candidate.talent_role}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors">
+              <button onClick={onClose} className="p-2 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Info banner */}
-            <div className="flex items-start gap-3 p-3 rounded-2xl bg-blue-500/5 border border-blue-500/10 mb-6">
+            <div className="flex items-start gap-3 p-3 rounded-none bg-blue-500/5 border border-blue-500/10 mb-6">
               <AlertCircle className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
               <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
                 This will send a formal hire offer to {candidate.talent_name?.split(" ")[0]}. They will receive a notification and can accept or decline from their dashboard.
@@ -129,7 +129,7 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                 value={form.role_title}
                 onChange={e => update("role_title", e.target.value)}
                 placeholder="e.g. Senior Frontend Engineer"
-                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
               />
             </div>
 
@@ -143,7 +143,7 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                   { value: "part_time",  label: "Part-time"  },
                 ].map(t => (
                   <button key={t.value} type="button" onClick={() => update("role_type", t.value)}
-                    className={`py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+                    className={`py-2.5 rounded-none text-[10px] font-black uppercase tracking-wider transition-all border ${
                       form.role_type === t.value
                         ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
                         : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
@@ -165,7 +165,7 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                   onChange={e => update("salary_monthly", e.target.value)}
                   placeholder="e.g. 5000"
                   type="number"
-                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
                 />
               </div>
               <div>
@@ -176,7 +176,7 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                   type="date"
                   value={form.start_date}
                   onChange={e => update("start_date", e.target.value)}
-                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
                 />
               </div>
             </div>
@@ -191,7 +191,7 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                   <select
                     value={form.contract_length}
                     onChange={e => update("contract_length", e.target.value)}
-                    className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all cursor-pointer"
+                    className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all cursor-pointer"
                   >
                     {["1 month","3 months","6 months","1 year","2 years","Indefinite"].map(l => (
                       <option key={l}>{l}</option>
@@ -212,7 +212,7 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                 onChange={e => update("offer_message", e.target.value)}
                 rows={4}
                 placeholder="Dear [Name], we are excited to offer you this position. Describe the role, team, expectations and why you want them..."
-                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
               />
             </div>
           </div>
@@ -220,13 +220,13 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
           {/* Footer actions */}
           <div className="p-8 pt-5 flex gap-3">
             <button onClick={onClose}
-              className="flex-1 py-3.5 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">
+              className="flex-1 py-3.5 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all">
               Cancel
             </button>
             <button
               onClick={() => onConfirm(form)}
               disabled={!isValid || sending}
-              className="flex-1 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {sending
                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -254,21 +254,21 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className="p-5 rounded-[1.8rem] bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-4 hover:border-blue-500/30 transition-all relative"
+      className="p-5 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-4 hover:border-blue-500/30 transition-all relative"
     >
       {/* Stage + menu */}
       <div className="flex items-center justify-between">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${stage.bg}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${stage.color}`} />
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border ${stage.bg}`}>
+          <span className={`w-1.5 h-1.5 rounded-none ${stage.color}`} />
           {stage.label}
         </span>
         <div className="flex items-center gap-2">
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${sLabel.bg} ${sLabel.color}`}>
+          <span className={`text-[10px] font-black px-2 py-0.5 rounded-none border ${sLabel.bg} ${sLabel.color}`}>
             {candidate.overall_score ?? 0}% match
           </span>
           <div className="relative">
             <button onClick={() => setMenuOpen(v => !v)}
-              className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-500/10 transition-colors">
+              className="p-1.5 rounded-none text-slate-400 hover:bg-slate-500/10 transition-colors">
               <MoreHorizontal className="w-4 h-4" />
             </button>
             <AnimatePresence>
@@ -277,15 +277,15 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
                   initial={{ opacity: 0, scale: 0.95, y: -4 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  className="absolute right-0 top-8 z-30 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl shadow-xl overflow-hidden"
+                  className="absolute right-0 top-8 z-30 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none shadow-xl overflow-hidden"
                 >
                   <div className="px-3 py-2">
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Move to stage</p>
                     {PIPELINE_STAGES.filter(s => s.key !== candidate.status).map(s => (
                       <button key={s.key}
                         onClick={() => { onStageChange(candidate.id, s.key); setMenuOpen(false); }}
-                        className={`flex items-center gap-2 w-full px-2 py-2 text-[11px] font-bold rounded-xl hover:bg-slate-500/5 transition-colors ${s.text}`}>
-                        <span className={`w-2 h-2 rounded-full ${s.color}`} /> {s.label}
+                        className={`flex items-center gap-2 w-full px-2 py-2 text-[11px] font-bold rounded-none hover:bg-slate-500/5 transition-colors ${s.text}`}>
+                        <span className={`w-2 h-2 rounded-none ${s.color}`} /> {s.label}
                       </button>
                     ))}
                   </div>
@@ -303,7 +303,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
 
       {/* Talent info */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
           {candidate.talent_avatar
             ? <img src={candidate.talent_avatar} alt={candidate.talent_name} className="w-full h-full object-cover" />
             : <span className="text-sm font-black text-slate-400 uppercase">{candidate.talent_name?.charAt(0)}</span>
@@ -333,7 +333,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
       {candidate.talent_skills?.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {candidate.talent_skills.slice(0, 4).map(s => (
-            <span key={s} className="text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">{s}</span>
+            <span key={s} className="text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-none">{s}</span>
           ))}
           {candidate.talent_skills.length > 4 && (
             <span className="text-[9px] font-black text-slate-400">+{candidate.talent_skills.length - 4}</span>
@@ -342,9 +342,9 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
       )}
 
       {/* Score bar */}
-      <div className="h-1 w-full bg-slate-500/10 rounded-full overflow-hidden">
+      <div className="h-1 w-full bg-slate-500/10 rounded-none overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all"
+          className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-none transition-all"
           style={{ width: `${candidate.overall_score ?? 0}%` }}
         />
       </div>
@@ -352,20 +352,20 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
       {/* Actions */}
       <div className="flex gap-2 pt-2 border-t border-[var(--border-color)]">
         <button onClick={() => onView(candidate)}
-          className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all">
+          className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-slate-500/20 transition-all">
           Profile
         </button>
         {candidate.status === "hired" ? (
-          <span className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-500/20">
+          <span className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-none border border-emerald-500/20">
             <CheckCircle2 className="w-3 h-3" /> Hired
           </span>
         ) : candidate.status === "rejected" ? (
-          <span className="flex items-center gap-1.5 px-4 py-2.5 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-red-500/20">
+          <span className="flex items-center gap-1.5 px-4 py-2.5 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-none border border-red-500/20">
             Declined
           </span>
         ) : (
           <button onClick={() => onHire(candidate)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
             <Zap className="w-3 h-3 fill-current" /> Send offer
           </button>
         )}
@@ -529,7 +529,7 @@ export default function RoleShortlistPage() {
           </p>
         </div>
         <Link to={`/client/roles/${roleId}/source`}
-          className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+          className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
           <Users className="w-3.5 h-3.5" /> Source more talent
         </Link>
       </div>
@@ -537,13 +537,13 @@ export default function RoleShortlistPage() {
       {/* Stage tabs */}
       <div className="flex flex-wrap gap-2">
         <button onClick={() => setActiveStage("all")}
-          className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === "all" ? "bg-[var(--card-bg)] text-blue-600 border-blue-500/30 shadow-sm" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
+          className={`px-4 py-2 rounded-none text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === "all" ? "bg-[var(--card-bg)] text-blue-600 border-blue-500/30 shadow-sm" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
           All <span className="ml-1.5 text-[9px] opacity-60">{candidates.length}</span>
         </button>
         {PIPELINE_STAGES.map(s => (
           <button key={s.key} onClick={() => setActiveStage(s.key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === s.key ? `bg-[var(--card-bg)] ${s.text} border-current shadow-sm` : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${s.color}`} />
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-none text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === s.key ? `bg-[var(--card-bg)] ${s.text} border-current shadow-sm` : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
+            <span className={`w-1.5 h-1.5 rounded-none ${s.color}`} />
             {s.label}
             <span className="text-[9px] opacity-60">{stageCounts[s.key] ?? 0}</span>
           </button>
@@ -551,7 +551,7 @@ export default function RoleShortlistPage() {
       </div>
 
       {/* Pipeline summary strip */}
-      <div className="flex gap-0 rounded-2xl overflow-hidden border border-[var(--border-color)]">
+      <div className="flex gap-0 rounded-none overflow-hidden border border-[var(--border-color)]">
         {PIPELINE_STAGES.map((s, i) => {
           const count = stageCounts[s.key] ?? 0;
           return (
@@ -582,7 +582,7 @@ export default function RoleShortlistPage() {
           </motion.div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-[2.5rem] border border-dashed border-[var(--border-color)]">
+            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]">
             <ListChecks className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">
               {activeStage === "all" ? "No candidates yet" : `No ${activeStage} candidates`}
@@ -592,7 +592,7 @@ export default function RoleShortlistPage() {
             </p>
             {activeStage === "all" && (
               <Link to={`/client/roles/${roleId}/source`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
                 <Users className="w-3.5 h-3.5" /> Source talent
               </Link>
             )}

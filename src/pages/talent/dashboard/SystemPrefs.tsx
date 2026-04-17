@@ -91,15 +91,15 @@ export default function SystemPrefs() {
             Optimize your workspace interface and communication protocols.
           </p>
         </div>
-        <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/5 border border-[var(--border-color)]">
-          <div className="w-2 h-2 rounded-full bg-[#00A86B] animate-pulse" />
+        <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-none bg-blue-500/5 border border-[var(--border-color)]">
+          <div className="w-2 h-2 rounded-none bg-[#00A86B] animate-pulse" />
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sync Active</span>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[2.5rem] p-8 shadow-sm">
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-8 shadow-sm">
             <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 mb-8">
               <Monitor className="w-3 h-3 text-blue-500" /> Interface Aesthetics
             </h4>
@@ -108,7 +108,7 @@ export default function SystemPrefs() {
               {/* DARK MODE PROTOCOL */}
               <div className="flex items-center justify-between py-4 border-b border-[var(--border-color)] group hover:border-blue-500/50 transition-all">
                 <div className="flex gap-4 items-start">
-                  <div className="mt-1 p-2 rounded-lg bg-slate-500/5 text-slate-400 group-hover:text-[#00A86B] transition-colors">
+                  <div className="mt-1 p-2 rounded-none bg-slate-500/5 text-slate-400 group-hover:text-[#00A86B] transition-colors">
                     {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                   </div>
                   <div>
@@ -162,13 +162,13 @@ export default function SystemPrefs() {
           </section>
 
           {/* SECURITY & PRIVACY */}
-          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-[2.5rem] p-8 shadow-sm">
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-8 shadow-sm">
             <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 mb-8">
               <ShieldCheck className="w-3 h-3 text-[#00A86B]" /> Security & Privacy
             </h4>
-            <div className="flex items-center justify-between p-6 bg-slate-500/5 rounded-2xl border border-[var(--border-color)]">
+            <div className="flex items-center justify-between p-6 bg-slate-500/5 rounded-none border border-[var(--border-color)]">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[#00A86B]/10 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-none bg-[#00A86B]/10 flex items-center justify-center">
                   <Eye className="w-5 h-5 text-[#00A86B]" />
                 </div>
                 <div>
@@ -187,7 +187,7 @@ export default function SystemPrefs() {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
-          <section className="bg-[#050B1E] text-white rounded-[2.5rem] p-8 shadow-xl relative overflow-hidden group border border-white/5">
+          <section className="bg-[#050B1E] text-white rounded-none p-8 shadow-xl relative overflow-hidden group border border-white/5">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent pointer-events-none" />
             <div className="relative z-10">
               <h4 className="text-[10px] font-black uppercase text-blue-300 tracking-widest flex items-center gap-2 mb-8">
@@ -218,7 +218,7 @@ export default function SystemPrefs() {
             onClick={handleApplyChanges}
             disabled={isSaving}
             className={`
-              w-full py-5 rounded-2xl flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-lg
+              w-full py-5 rounded-none flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-lg
               ${isSaving ? "opacity-70 cursor-not-allowed" : "hover:scale-[1.02]"}
               bg-slate-900 text-white dark:bg-white dark:text-slate-900
             `}
@@ -229,7 +229,7 @@ export default function SystemPrefs() {
 
           <AnimatePresence>
             {showSuccess && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-3 p-4 bg-[#00A86B]/10 border border-[#00A86B]/20 rounded-2xl">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-3 p-4 bg-[#00A86B]/10 border border-[#00A86B]/20 rounded-none">
                 <CheckCircle2 className="w-4 h-4 text-[#00A86B]" />
                 <span className="text-[10px] font-black uppercase text-[#00A86B] tracking-widest">Preferences Updated</span>
               </motion.div>

@@ -11,7 +11,7 @@ import { supabase } from "@/lib/supabase";
 
 // ─── Notification icon by type ────────────────────────────────────────────────
 function NotifIcon({ type }: { type: string }) {
-  const base = "w-7 h-7 rounded-xl flex items-center justify-center shrink-0";
+  const base = "w-7 h-7 rounded-none flex items-center justify-center shrink-0";
   if (type === "offer_accepted")
     return <div className={`${base} bg-emerald-500/10`}><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /></div>;
   if (type === "hire_offer" || type === "inquiry")
@@ -142,11 +142,11 @@ export default function DashboardHeader({
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"
+          className="lg:hidden p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-none transition-colors"
         >
           <Menu className="w-6 h-6" />
         </button>
-        <div className="hidden md:flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-full px-4 py-2 w-72 lg:w-80">
+        <div className="hidden md:flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-2 w-72 lg:w-80">
           <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
           <input
             placeholder="Search talent, roles, projects..."
@@ -160,7 +160,7 @@ export default function DashboardHeader({
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-full transition-all"
+          className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all"
         >
           {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
         </button>
@@ -169,11 +169,11 @@ export default function DashboardHeader({
         <div className="relative">
           <button
             onClick={handleOpenNotifications}
-            className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-full transition-all relative"
+            className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all relative"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-[var(--sidebar-bg)] shadow-lg">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-none flex items-center justify-center border-2 border-[var(--sidebar-bg)] shadow-lg">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -194,7 +194,7 @@ export default function DashboardHeader({
                 w-auto lg:w-96
                 bg-[var(--sidebar-bg)]
                 border border-[var(--border-color)]
-                rounded-[1.5rem] lg:rounded-2xl
+                rounded-none lg:rounded-none
                 shadow-2xl overflow-hidden
                 animate-in fade-in slide-in-from-top-2 duration-200
               ">
@@ -203,14 +203,14 @@ export default function DashboardHeader({
                   <div className="flex items-center gap-3">
                     <h3 className="text-xs font-black uppercase tracking-[0.2em]">Notifications</h3>
                     {unreadCount > 0 && (
-                      <span className="px-2 py-0.5 bg-[#00A86B]/10 text-[#00A86B] text-[9px] font-black rounded-full uppercase">
+                      <span className="px-2 py-0.5 bg-[#00A86B]/10 text-[#00A86B] text-[9px] font-black rounded-none uppercase">
                         {unreadCount} new
                       </span>
                     )}
                   </div>
                   <button
                     onClick={() => setIsNotifyOpen(false)}
-                    className="p-1.5 rounded-lg hover:bg-slate-500/10 text-slate-400 transition-colors lg:hidden"
+                    className="p-1.5 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors lg:hidden"
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
@@ -231,7 +231,7 @@ export default function DashboardHeader({
                               {n.title}
                             </p>
                             {!n.is_read && (
-                              <span className="w-2 h-2 bg-[#00A86B] rounded-full shrink-0 mt-1" />
+                              <span className="w-2 h-2 bg-[#00A86B] rounded-none shrink-0 mt-1" />
                             )}
                           </div>
                           <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2 font-medium mt-0.5">
@@ -245,7 +245,7 @@ export default function DashboardHeader({
                     ))
                   ) : (
                     <div className="py-12 text-center">
-                      <div className="w-12 h-12 bg-slate-500/5 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <div className="w-12 h-12 bg-slate-500/5 rounded-none flex items-center justify-center mx-auto mb-3">
                         <Bell className="w-5 h-5 text-slate-300" />
                       </div>
                       <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">All clear</p>
@@ -271,17 +271,17 @@ export default function DashboardHeader({
         <div className="relative ml-1">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 sm:gap-3 p-1.5 sm:pr-3 rounded-2xl bg-slate-500/5 border border-[var(--border-color)] hover:border-[#00A86B]/30 transition-all"
+            className="flex items-center gap-2 sm:gap-3 p-1.5 sm:pr-3 rounded-none bg-slate-500/5 border border-[var(--border-color)] hover:border-[#00A86B]/30 transition-all"
           >
             <div className="relative">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-slate-200 dark:bg-slate-800 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shadow-sm">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-none bg-slate-200 dark:bg-slate-800 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shadow-sm">
                 {profile?.avatar_url
                   ? <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                   : <span className="text-slate-500 font-black text-xs">{profile ? getInitials(profile.full_name) : "..."}</span>
                 }
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#00A86B] border-2 border-[var(--sidebar-bg)] rounded-full">
-                <span className="absolute inset-0 rounded-full bg-[#00A86B] animate-ping opacity-75" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#00A86B] border-2 border-[var(--sidebar-bg)] rounded-none">
+                <span className="absolute inset-0 rounded-none bg-[#00A86B] animate-ping opacity-75" />
               </span>
             </div>
             <div className="hidden sm:block text-left">
@@ -298,22 +298,22 @@ export default function DashboardHeader({
           {isDropdownOpen && (
             <>
               <div className="fixed inset-0 z-[-1]" onClick={() => setIsDropdownOpen(false)} />
-              <div className="absolute right-0 mt-3 w-56 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in duration-200 ring-1 ring-black/5 z-50">
+              <div className="absolute right-0 mt-3 w-56 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-none shadow-2xl p-2 animate-in fade-in zoom-in duration-200 ring-1 ring-black/5 z-50">
                 <div className="px-4 py-3 border-b border-[var(--border-color)] mb-1">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Signed in as</p>
                   <p className="text-sm font-black text-[var(--text-main)] truncate tracking-tight">{profile?.full_name}</p>
                 </div>
                 <Link to="/client/profile" onClick={() => setIsDropdownOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all">
+                  className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all">
                   <User className="w-4 h-4" /> Profile Settings
                 </Link>
                 <Link to="/client/settings" onClick={() => setIsDropdownOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all">
+                  className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all">
                   <Settings className="w-4 h-4" /> System Preferences
                 </Link>
                 <div className="h-px bg-[var(--border-color)] my-1" />
                 <button onClick={handleLogout}
-                  className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 w-full rounded-xl transition-all">
+                  className="flex items-center gap-3 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 w-full rounded-none transition-all">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </div>

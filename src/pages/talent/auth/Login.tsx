@@ -109,7 +109,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
         {/* --- LEFT SIDE: Talent Branding --- */}
         <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
           
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
@@ -122,7 +122,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
                 <Sparkles size={14} /> AI-Powered Talent Network
               </div>
               <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
@@ -130,7 +130,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                 <span className="text-blue-400">global journey.</span>
               </h2>
               <div className="flex items-center gap-4 text-slate-400">
-                <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-blue-500" />
                 </div>
                 <p className="text-lg font-medium text-slate-300">
@@ -140,7 +140,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
             </motion.div>
           </div>
 
-          {/* <div className="relative z-10 p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+          {/* <div className="relative z-10 p-6 bg-white/5 backdrop-blur-md rounded-none border border-white/10">
             <p className="text-sm text-slate-400 font-medium italic">
               "The transition from application to interview was seamless. Flowboard actually understands my technical stack."
             </p>
@@ -164,10 +164,10 @@ const handleSocialLogin = async (provider: "google" | "github") => {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button onClick={() => handleSocialLogin("google")} variant="outline" className="h-12 border-slate-200 rounded-xl font-bold hover:bg-slate-50 shadow-sm transition-all">
+              <Button onClick={() => handleSocialLogin("google")} variant="outline" className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
               </Button>
-              <Button onClick={() => handleSocialLogin("github")} variant="outline" className="h-12 border-slate-200 rounded-xl font-bold hover:bg-slate-50 shadow-sm transition-all">
+              <Button onClick={() => handleSocialLogin("github")} variant="outline" className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all">
                 <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
               </Button>
             </div>
@@ -188,7 +188,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@email.com"
-                    className="h-12 pl-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                    className="h-12 pl-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
                 </div>
@@ -207,7 +207,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-12 pl-11 pr-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                    className="h-12 pl-11 pr-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
@@ -216,7 +216,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                 </div>
               </div>
 
-              <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" disabled={isLoading}>
+              <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" disabled={isLoading}>
                 {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Enter Talent Dashboard <ArrowRight size={18} /></>}
               </Button>
             </form>

@@ -40,9 +40,9 @@ export function Sidebar({ profile }: { profile: any }) {
     
     return (
       <div className="px-4">
-        <Link to={destination} className={`flex items-center rounded-2xl transition-all duration-300 group relative ${isCollapsed ? "justify-center h-12 w-12 mx-auto" : "px-4 py-3 gap-4 w-full"} ${active ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
+        <Link to={destination} className={`flex items-center rounded-none transition-all duration-300 group relative ${isCollapsed ? "justify-center h-12 w-12 mx-auto" : "px-4 py-3 gap-4 w-full"} ${active ? "bg-blue-600 text-white shadow-lg shadow-blue-600/40" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
           <item.icon className={`w-5 h-5 shrink-0 transition-transform ${active ? "scale-110" : "group-hover:scale-110"}`} />
-          {!isCollapsed && <div className="flex items-center justify-between w-full"><span className="text-[13px] font-bold tracking-tight">{item.label}</span>{!isReady && !active && <span className="text-[8px] bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-md font-black uppercase">Soon</span>}</div>}
+          {!isCollapsed && <div className="flex items-center justify-between w-full"><span className="text-[13px] font-bold tracking-tight">{item.label}</span>{!isReady && !active && <span className="text-[8px] bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-none font-black uppercase">Soon</span>}</div>}
         </Link>
       </div>
     );
@@ -53,7 +53,7 @@ export function Sidebar({ profile }: { profile: any }) {
       {/* MOBILE HAMBURGER TOGGLE (Floating) */}
       <button 
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 z-50 w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-transform"
+        className="lg:hidden fixed bottom-6 right-6 z-50 w-14 h-14 bg-blue-600 text-white rounded-none shadow-2xl flex items-center justify-center active:scale-90 transition-transform"
       >
         <Menu size={24} />
       </button>
@@ -82,7 +82,7 @@ export function Sidebar({ profile }: { profile: any }) {
         {/* LOGO SECTION */}
         <div className={`flex items-center min-h-[100px] lg:min-h-[120px] px-7 border-b border-white/5 mb-4 ${isCollapsed ? "justify-center" : "justify-between"}`}>
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-none bg-white flex items-center justify-center shrink-0">
                <img src="/flowboardlogo.png" alt="L" className="w-6 h-6" />
             </div>
             {!isCollapsed && (
@@ -93,7 +93,7 @@ export function Sidebar({ profile }: { profile: any }) {
             )}
           </div>
           {!isCollapsed && (
-            <button onClick={() => setIsCollapsed(true)} className="hidden lg:block p-2 hover:bg-white/5 rounded-xl text-slate-500"><PanelLeftClose size={18} /></button>
+            <button onClick={() => setIsCollapsed(true)} className="hidden lg:block p-2 hover:bg-white/5 rounded-none text-slate-500"><PanelLeftClose size={18} /></button>
           )}
         </div>
 
@@ -113,7 +113,7 @@ export function Sidebar({ profile }: { profile: any }) {
         <div className="mt-auto py-6 border-t border-white/5 bg-black/10">
           <NavItem item={{ label: "Profile", icon: User, href: "/dashboard/profile" }} />
           <div className="px-4 pt-2">
-            <button onClick={handleSignOut} className={`flex items-center rounded-2xl transition-all duration-300 text-red-400 hover:bg-red-500/10 w-full ${isCollapsed ? "justify-center h-12" : "px-4 py-3 gap-4"}`}>
+            <button onClick={handleSignOut} className={`flex items-center rounded-none transition-all duration-300 text-red-400 hover:bg-red-500/10 w-full ${isCollapsed ? "justify-center h-12" : "px-4 py-3 gap-4"}`}>
               <LogOut className="w-5 h-5 shrink-0" />
               {!isCollapsed && <span className="text-[13px] font-bold">Log Out</span>}
             </button>
@@ -122,7 +122,7 @@ export function Sidebar({ profile }: { profile: any }) {
 
         {/* DESKTOP COLLAPSE TOGGLE */}
         {isCollapsed && (
-          <button onClick={() => setIsCollapsed(false)} className="hidden lg:flex absolute -right-3 top-12 w-7 h-7 bg-blue-600 rounded-full items-center justify-center text-white border-4 border-[#050B1E] z-50"><ChevronRight size={12} /></button>
+          <button onClick={() => setIsCollapsed(false)} className="hidden lg:flex absolute -right-3 top-12 w-7 h-7 bg-blue-600 rounded-none items-center justify-center text-white border-4 border-[#050B1E] z-50"><ChevronRight size={12} /></button>
         )}
       </aside>
     </>

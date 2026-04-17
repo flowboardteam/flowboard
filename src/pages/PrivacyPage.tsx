@@ -102,8 +102,8 @@ export default function PrivacyPage() {
           ].map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.label} className="flex flex-col gap-3 p-5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-900 flex items-center justify-center">
+              <div key={item.label} className="flex flex-col gap-3 p-5 rounded-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <div className="w-9 h-9 rounded-none bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-900 flex items-center justify-center">
                   <Icon className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
         </div>
 
         {/* TOC */}
-        <div className="mb-14 p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <div className="mb-14 p-6 rounded-none bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4">Contents</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {sections.map((s) => (
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
             return (
               <section key={s.number} id={`privacy-${s.number}`} className="scroll-mt-28">
                 <div className="flex items-start gap-5 mb-6">
-                  <div className="w-11 h-11 rounded-2xl bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-900 flex items-center justify-center shrink-0">
+                  <div className="w-11 h-11 rounded-none bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-900 flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5 text-blue-600" />
                   </div>
                   <div className="flex-1 min-w-0 pt-1">
@@ -155,7 +155,7 @@ export default function PrivacyPage() {
                     <ul className="space-y-2.5 mt-4">
                       {s.bullets.map((b, bi) => (
                         <li key={bi} className="flex items-start gap-3">
-                          <span className="mt-2 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                          <span className="mt-2 w-1.5 h-1.5 rounded-none bg-blue-600 shrink-0" />
                           <span className="text-base font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{b}</span>
                         </li>
                       ))}
@@ -163,7 +163,7 @@ export default function PrivacyPage() {
                   )}
 
                   {s.highlight && (
-                    <div className={`mt-4 p-4 rounded-xl flex items-start gap-3 ${
+                    <div className={`mt-4 p-4 rounded-none flex items-start gap-3 ${
                       s.highlight.type === "positive"
                         ? "bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900"
                         : "bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900"
@@ -185,14 +185,14 @@ export default function PrivacyPage() {
         </div>
 
         {/* Contact CTA */}
-        <div className="mt-20 p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white text-center">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4">
+        <div className="mt-20 p-8 rounded-none bg-gradient-to-br from-slate-900 to-slate-800 text-white text-center">
+          <div className="w-12 h-12 rounded-none bg-white/10 flex items-center justify-center mx-auto mb-4">
             <Shield className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-2xl font-extrabold tracking-tight mb-3">Questions about your data?</h3>
           <p className="text-slate-400 font-medium mb-6">Contact our privacy team and we'll respond within 48 hours.</p>
           <a href="mailto:info@flowboard.team"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white font-black text-sm uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30">
+            className="inline-flex items-center gap-2 bg-blue-600 text-white font-black text-sm uppercase tracking-widest px-6 py-3 rounded-none hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30">
             info@flowboard.team
           </a>
         </div>

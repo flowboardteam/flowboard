@@ -1,169 +1,156 @@
-import { Brain, Users, Rocket, GraduationCap, Clock, CheckCircle2 } from "lucide-react";
-import { motion, Variants } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Minus } from "lucide-react";
 
-// 1. IMPORT LOCAL ASSETS CORRECTLY
-// This tells Vite/React to process the file and provide a valid URL
+// Asset imports (using existing paths as fallback or project convention)
 import agiImg from "@/assets/agi.avif"; 
 import teamImg from "@/assets/team.jpg"; 
 import globalImg from "@/assets/global.jpg"; 
 
-// --- Configuration ---
-const cycleSteps = [
+const capabilities = [
   {
-    step: 1,
+    id: "agi",
     label: "AGI Advancement",
-    icon: Brain,
-    description: "LLM Reasoning, Model Evaluation, Agentic Workflow, and Advanced Data Labelling for enterprise needs.",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    image: agiImg, // Use the variable directly (no quotes)
+    subLabel: "LLM Reasoning",
+    description: "Build and train enterprise-level agentic AGI with our Haraka-o1 model. Replicate your best performing talents and put them on autopilot.",
+    image: agiImg,
   },
   {
-    step: 2,
+    id: "recruiting",
     label: "Smart Recruiting",
-    icon: Users,
     description: "Streamline your hiring process with intelligent candidate matching and predictive talent analytics.",
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=800",
+    image: "/images/recruiting.jpg",
   },
   {
-    step: 3,
+    id: "team",
     label: "Team Collaboration",
-    icon: GraduationCap,
     description: "Enhanced team workflows and communication tools integrated directly into your global talent stack.",
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
     image: teamImg,
   },
   {
-    step: 4,
+    id: "compliance",
     label: "Global Compliance",
-    icon: Rocket,
     description: "Stay compliant across multiple jurisdictions effortlessly with automated payroll and legal safeguards.",
-    color: "text-purple-600",
-    bgColor: "bg-purple-50",
     image: globalImg,
-  },
+  }
 ];
 
-// --- Animation Variants ---
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    transition: { 
-      duration: 0.8, 
-      ease: [0.16, 1, 0.3, 1]
-    } 
-  },
-};
-
 export function WhyFlowboardSection() {
+  const [activeTab, setActiveTab] = useState("recruiting");
+
+  const activeCapability = capabilities.find(c => c.id === activeTab) || capabilities[1];
+
   return (
-    <section id="why-flowboard" className="py-24 bg-slate-50/50">
-      <div className="container mx-auto px-4">
+    <section id="why-flowboard" className="py-32 bg-[#fafafb] z-20 relative overflow-hidden">
+      {/* Decorative Grid Lines */}
+      <div className="absolute inset-0 z-0 opacity-[0.04] pointer-events-none">
+        <div className="h-full w-full bg-[linear-gradient(to_right,#4f46e5_1px,transparent_1px),linear-gradient(to_bottom,#4f46e5_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      </div>
+
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
         
         {/* Header Content */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1 rounded-full border border-blue-100 mb-6"
-          >
-            <span className="text-xs font-bold uppercase tracking-widest">Why Flowboard</span>
-          </motion.div>
-          
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight"
-          >
+        <div className="mb-20">
+          <span className="text-[11px] font-bold tracking-[0.2em] text-indigo-600 uppercase mb-4 block">WHY FLOWBOARD</span>
+          <h2 className="text-4xl lg:text-6xl font-bold tracking-tight text-indigo-950 mb-6">
             Your Best Talents Work 24/7
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-lg text-slate-600 leading-relaxed"
-          >
+          </h2>
+          <p className="text-lg text-slate-600 max-w-2xl font-medium">
             Build and train enterprise-level agentic AGI with our Haraka-o1 model. 
             Replicate your best performing talents and put them on autopilot.
-          </motion.p>
+          </p>
         </div>
 
-        {/* The Card Grid */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {cycleSteps.map((step) => (
-            <motion.div
-              key={step.step}
-              variants={cardVariants}
-              className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col group"
-            >
-              {/* Image Container */}
-              <div className="h-48 overflow-hidden relative">
-                <img 
-                  src={step.image} // Corrected: Using curly braces to reference the variable
-                  alt={step.label} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute top-4 left-4">
-                  <div className={`${step.bgColor} p-2 rounded-lg backdrop-blur-md border border-white/20 shadow-sm`}>
-                    <step.icon className={`w-5 h-5 ${step.color}`} />
-                  </div>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+          
+          {/* Accordion Column */}
+          <div className="lg:col-span-7 space-y-2">
+            {capabilities.map((cap) => {
+              const isActive = activeTab === cap.id;
+              return (
+                <div 
+                  key={cap.id}
+                  className={`group border-b border-slate-200 transition-all duration-500 ${
+                    isActive ? "bg-white shadow-xl shadow-indigo-100/50 -mx-4 px-4 py-2 border-transparent" : "py-2"
+                  }`}
+                >
+                  <button
+                    onClick={() => setActiveTab(cap.id)}
+                    className="w-full flex items-center justify-between text-left py-6 focus:outline-none"
+                  >
+                    <div className="flex flex-col">
+                      <span className={`text-2xl font-bold transition-colors duration-300 ${
+                        isActive ? "text-indigo-600" : "text-indigo-950 hover:text-indigo-700"
+                      }`}>
+                        {cap.label}
+                      </span>
+                      {cap.subLabel && (
+                        <span className={`text-xs font-bold uppercase tracking-widest mt-1 ${
+                          isActive ? "text-indigo-400" : "text-slate-400"
+                        }`}>
+                          {cap.subLabel}
+                        </span>
+                      )}
+                    </div>
+                    <div className={`p-2 rounded-full transition-all duration-300 ${
+                      isActive ? "bg-indigo-600 text-white rotate-0" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600"
+                    }`}>
+                      {isActive ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                    </div>
+                  </button>
 
-              {/* Text Content */}
-              <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-slate-900 mb-3 tracking-tight">
-                  {step.label}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed mb-6">
-                  {step.description}
-                </p>
-                
-                {/* Visual Indicator */}
-                <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
-                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Capability 0{step.step}</span>
-                   <CheckCircle2 className="w-4 h-4 text-slate-200 group-hover:text-emerald-500 transition-colors" />
+                  <AnimatePresence initial={false}>
+                    {isActive && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <div className="pb-8">
+                          <p className="text-slate-600 text-[17px] leading-relaxed max-w-xl font-medium">
+                            {cap.description}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Footer Accent */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.6 }}
-          className="mt-20 text-center"
-        >
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 px-6 py-2 rounded-full">
-            <Clock className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-semibold text-blue-700 tracking-tight">Enterprise velocity at startup scale</span>
+              );
+            })}
           </div>
-        </motion.div>
+
+          {/* Image Showcase Column */}
+          <div className="lg:col-span-5 hidden lg:block sticky top-32">
+            <div className="relative aspect-square w-full rounded-none overflow-hidden shadow-2xl border border-slate-100 bg-slate-50">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={activeTab}
+                  src={activeCapability.image}
+                  alt={activeCapability.label}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.6 }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </AnimatePresence>
+              
+              {/* Floating Badge */}
+              <div className="absolute top-6 right-6 z-20">
+                 <div className="bg-white/90 backdrop-blur-md px-4 py-2 border border-slate-100 shadow-lg flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+                    <span className="text-[10px] font-bold text-indigo-950 uppercase tracking-widest"> Haraka-o1 Powered </span>
+                 </div>
+              </div>
+
+              {/* Decorative Corner */}
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-600/10 -mb-16 -ml-16 rounded-full blur-3xl" />
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
   );

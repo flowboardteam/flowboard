@@ -91,7 +91,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <aside className="w-full h-full bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col p-6 overflow-y-auto">
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
+        <div className="w-10 h-10 rounded-none flex items-center justify-center shadow-sm">
           <img src="/flowboardlogo.png" alt="FlowBoard Logo" className="w-20 h-20 object-contain" />
         </div>
         <span className="text-xl font-black tracking-tighter text-[var(--text-main)]">Flowboard</span>
@@ -112,7 +112,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                     to={item.path}
                     onClick={onClose}
                     className={({ isActive }) =>
-                      `flex items-center justify-between px-4 py-3 rounded-xl transition-all font-bold text-sm ${
+                      `flex items-center justify-between px-4 py-3 rounded-none transition-all font-bold text-sm ${
                         isActive
                           ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
                           : "text-slate-500 hover:bg-blue-500/10 hover:text-blue-500"
@@ -124,7 +124,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                       <span className="truncate">{item.name}</span>
                     </div>
                     {badgeCount > 0 && (
-                      <span className="ml-2 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full min-w-[20px] text-center shrink-0 shadow-md shadow-amber-500/30">
+                      <span className="ml-2 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-none min-w-[20px] text-center shrink-0 shadow-md shadow-amber-500/30">
                         {badgeCount}
                       </span>
                     )}

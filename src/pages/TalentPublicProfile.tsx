@@ -210,8 +210,8 @@ export function TalentPublicProfile() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <div className="text-center space-y-4">
           <div className="relative w-16 h-16 mx-auto">
-            <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 border-4 border-slate-200 rounded-none"></div>
+            <div className="absolute inset-0 border-4 border-indigo-600 rounded-none border-t-transparent animate-spin"></div>
           </div>
           <p className="text-sm font-medium text-slate-600">
             Loading profile...
@@ -225,7 +225,7 @@ export function TalentPublicProfile() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <div className="text-center space-y-4 max-w-md mx-auto px-6">
-          <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto bg-red-100 rounded-none flex items-center justify-center">
             <span className="text-2xl">⚠️</span>
           </div>
           <h2 className="text-2xl font-bold text-slate-900">
@@ -237,7 +237,7 @@ export function TalentPublicProfile() {
           </p>
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-none font-semibold hover:bg-indigo-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Go Back
@@ -267,7 +267,7 @@ export function TalentPublicProfile() {
               </button>
               <div className="hidden md:block h-6 w-px bg-slate-200"></div>
               <div className="hidden md:flex items-center gap-2">
-                <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
+                <div className="w-2 h-2 bg-indigo-600 rounded-none"></div>
                 <span className="text-sm font-semibold text-slate-900">
                   Flowboard
                 </span>
@@ -288,7 +288,7 @@ export function TalentPublicProfile() {
                   <span className="hidden lg:inline">Download CV</span>
                 </a>
               )}
-              <button className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-indigo-600 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 text-sm">
+              <button className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-indigo-600 text-white rounded-none sm:rounded-none font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 text-sm">
                 <Mail className="w-4 h-4" />
                 <span className="hidden sm:inline">Contact</span>
               </button>
@@ -304,7 +304,7 @@ export function TalentPublicProfile() {
             {/* LEFT SIDEBAR - PROFILE CARD */}
             <div className="lg:col-span-1 space-y-4 sm:space-y-6">
               {/* MAIN PROFILE CARD */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
+              <div className="bg-white rounded-none sm:rounded-none shadow-xl shadow-slate-200/50 border border-slate-200/60 overflow-hidden">
                 <div className="relative h-24 sm:h-32 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
                   <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-30"></div>
                 </div>
@@ -312,7 +312,7 @@ export function TalentPublicProfile() {
                 <div className="relative px-4 sm:px-8 pb-6 sm:pb-8">
                   <div className="relative -mt-12 sm:-mt-16 mb-4 sm:mb-6">
                     <div className="relative inline-block">
-                      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl overflow-hidden bg-white shadow-xl border-4 border-white">
+                      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-none sm:rounded-none overflow-hidden bg-white shadow-xl border-4 border-white">
                         {talent.avatar_url ? (
                           <img
                             src={talent.avatar_url}
@@ -327,7 +327,7 @@ export function TalentPublicProfile() {
                           </div>
                         )}
                       </div>
-                      <div className="absolute -bottom-1 sm:-bottom-2 -right-1 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500 rounded-full flex items-center justify-center border-2 sm:border-4 border-white shadow-lg">
+                      <div className="absolute -bottom-1 sm:-bottom-2 -right-1 sm:-right-2 w-8 h-8 sm:w-10 sm:h-10 bg-emerald-500 rounded-none flex items-center justify-center border-2 sm:border-4 border-white shadow-lg">
                         <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                       </div>
                     </div>
@@ -376,11 +376,11 @@ export function TalentPublicProfile() {
                     <div className="pt-4 sm:pt-6 space-y-2 sm:space-y-3">
                       <button
                         onClick={() => setShowHireModal(true)}
-                        className="w-full py-2.5 sm:py-3 bg-indigo-600 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 text-sm sm:text-base active:scale-[0.98]"
+                        className="w-full py-2.5 sm:py-3 bg-indigo-600 text-white rounded-none sm:rounded-none font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 text-sm sm:text-base active:scale-[0.98]"
                       >
                         Hire {talent.full_name?.split(" ")[0]}
                       </button>
-                      <button className="w-full py-2.5 sm:py-3 bg-slate-100 text-slate-700 rounded-lg sm:rounded-xl font-semibold hover:bg-slate-200 transition-colors text-sm sm:text-base">
+                      <button className="w-full py-2.5 sm:py-3 bg-slate-100 text-slate-700 rounded-none sm:rounded-none font-semibold hover:bg-slate-200 transition-colors text-sm sm:text-base">
                         Schedule Interview
                       </button>
                     </div>
@@ -389,13 +389,13 @@ export function TalentPublicProfile() {
               </div>
 
               {/* QUICK STATS - Flat version (No extra functions needed) */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 p-4 sm:p-6">
+              <div className="bg-white rounded-none sm:rounded-none shadow-lg shadow-slate-200/50 border border-slate-200/60 p-4 sm:p-6">
                 <h3 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
                   Professional Metrics
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center">
+                    <div className="w-9 h-9 bg-amber-100 rounded-none flex items-center justify-center">
                       <Star className="w-4 h-4 text-amber-600" />
                     </div>
                     <div>
@@ -408,7 +408,7 @@ export function TalentPublicProfile() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-emerald-100 rounded-lg flex items-center justify-center">
+                    <div className="w-9 h-9 bg-emerald-100 rounded-none flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
                     </div>
                     <div>
@@ -424,7 +424,7 @@ export function TalentPublicProfile() {
               </div>
 
               {/* SOCIAL LINKS */}
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 p-4 sm:p-6">
+              <div className="bg-white rounded-none sm:rounded-none shadow-lg shadow-slate-200/50 border border-slate-200/60 p-4 sm:p-6">
                 <h3 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
                   Connect
                 </h3>
@@ -434,7 +434,7 @@ export function TalentPublicProfile() {
                       href={formatExternalLink(talent.github_url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-all"
+                      className="flex-1 h-10 bg-slate-50 border border-slate-100 rounded-none flex items-center justify-center hover:bg-slate-100 transition-all"
                     >
                       <Github className="w-4 h-4 text-slate-600" />
                     </a>
@@ -444,7 +444,7 @@ export function TalentPublicProfile() {
                       href={formatExternalLink(talent.linkedin_url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-all"
+                      className="flex-1 h-10 bg-slate-50 border border-slate-100 rounded-none flex items-center justify-center hover:bg-slate-100 transition-all"
                     >
                       <Linkedin className="w-4 h-4 text-slate-600" />
                     </a>
@@ -454,7 +454,7 @@ export function TalentPublicProfile() {
                       href={formatExternalLink(talent.website_url)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 h-10 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-all"
+                      className="flex-1 h-10 bg-slate-50 border border-slate-100 rounded-none flex items-center justify-center hover:bg-slate-100 transition-all"
                     >
                       <Globe className="w-4 h-4 text-slate-600" />
                     </a>
@@ -466,7 +466,7 @@ export function TalentPublicProfile() {
             {/* RIGHT CONTENT AREA */}
             <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               {/* NAVIGATION TABS - Sticky with Glassmorphism */}
-              <div className="sticky top-20 sm:top-24 z-30 bg-white/80 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200/60 p-1.5 sm:p-2">
+              <div className="sticky top-20 sm:top-24 z-30 bg-white/80 backdrop-blur-md rounded-none sm:rounded-none shadow-lg shadow-slate-200/50 border border-slate-200/60 p-1.5 sm:p-2">
                 <div className="grid grid-cols-4 gap-1 sm:gap-2">
                   {["Overview", "Skills", "Tools", "About"].map((tab) => (
                     <button
@@ -477,7 +477,7 @@ export function TalentPublicProfile() {
                           window.scrollTo({ top: 400, behavior: "smooth" });
                         }
                       }}
-                      className={`py-2 sm:py-3 px-2 sm:px-4 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm transition-all ${
+                      className={`py-2 sm:py-3 px-2 sm:px-4 rounded-none sm:rounded-none font-semibold text-xs sm:text-sm transition-all ${
                         activeSection === tab.toLowerCase()
                           ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20"
                           : "text-slate-600 hover:bg-slate-100"
@@ -496,7 +496,7 @@ export function TalentPublicProfile() {
                   <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                     {/* Core Stats Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      <div className="p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                      <div className="p-4 sm:p-6 bg-white rounded-none border border-slate-200 shadow-sm">
                         <p className="text-xs sm:text-sm text-indigo-600 font-bold uppercase tracking-wider mb-1">
                           Experience
                         </p>
@@ -507,7 +507,7 @@ export function TalentPublicProfile() {
                           Years Active
                         </p>
                       </div>
-                      <div className="p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                      <div className="p-4 sm:p-6 bg-white rounded-none border border-slate-200 shadow-sm">
                         <p className="text-xs sm:text-sm text-emerald-600 font-bold uppercase tracking-wider mb-1">
                           Status
                         </p>
@@ -515,13 +515,13 @@ export function TalentPublicProfile() {
                           {talent.employment_status || "Available"}
                         </p>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                          <div className="w-2 h-2 bg-emerald-500 rounded-none animate-pulse"></div>
                           <p className="text-xs text-slate-500 font-medium">
                             Ready to work
                           </p>
                         </div>
                       </div>
-                      <div className="hidden sm:block p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                      <div className="hidden sm:block p-4 sm:p-6 bg-white rounded-none border border-slate-200 shadow-sm">
                         <p className="text-xs sm:text-sm text-purple-600 font-bold uppercase tracking-wider mb-1">
                           Location
                         </p>
@@ -536,9 +536,9 @@ export function TalentPublicProfile() {
 
                     {/* Bio Teaser */}
                     {talent.bio && (
-                      <div className="bg-white rounded-2xl border border-slate-200/60 p-6 sm:p-8 shadow-sm">
+                      <div className="bg-white rounded-none border border-slate-200/60 p-6 sm:p-8 shadow-sm">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="p-2 bg-indigo-50 rounded-lg">
+                          <div className="p-2 bg-indigo-50 rounded-none">
                             <FileText className="w-5 h-5 text-indigo-600" />
                           </div>
                           <h2 className="text-lg font-bold text-slate-900">
@@ -553,7 +553,7 @@ export function TalentPublicProfile() {
                     )}
 
                     {/* Quick Skills Preview */}
-                    <div className="bg-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl shadow-slate-200">
+                    <div className="bg-slate-900 rounded-none p-6 sm:p-8 text-white shadow-xl shadow-slate-200">
                       <div className="flex justify-between items-center mb-6">
                         <h3 className="text-lg font-bold">Top Expertise</h3>
                         <button
@@ -567,7 +567,7 @@ export function TalentPublicProfile() {
                         {talent.skills?.slice(0, 6).map((skill) => (
                           <span
                             key={skill}
-                            className="px-3 py-1.5 bg-white/10 border border-white/10 rounded-lg text-sm font-medium"
+                            className="px-3 py-1.5 bg-white/10 border border-white/10 rounded-none text-sm font-medium"
                           >
                             {skill}
                           </span>
@@ -580,9 +580,9 @@ export function TalentPublicProfile() {
                 {/* SKILLS TAB */}
                 {activeSection === "skills" && (
                   <div className="space-y-6 animate-in fade-in zoom-in-95">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 sm:p-8">
+                    <div className="bg-white rounded-none shadow-sm border border-slate-200/60 p-6 sm:p-8">
                       <div className="flex items-center gap-3 mb-8">
-                        <div className="p-2.5 bg-emerald-100 rounded-xl">
+                        <div className="p-2.5 bg-emerald-100 rounded-none">
                           <TrendingUp className="w-6 h-6 text-emerald-600" />
                         </div>
                         <div>
@@ -598,7 +598,7 @@ export function TalentPublicProfile() {
                         {talent.skills?.map((skill) => (
                           <div
                             key={skill}
-                            className="px-5 py-3 bg-gradient-to-br from-slate-50 to-white text-slate-700 rounded-xl border border-slate-200 font-bold text-sm shadow-sm hover:border-indigo-500 hover:translate-y-[-2px] transition-all cursor-default"
+                            className="px-5 py-3 bg-gradient-to-br from-slate-50 to-white text-slate-700 rounded-none border border-slate-200 font-bold text-sm shadow-sm hover:border-indigo-500 hover:translate-y-[-2px] transition-all cursor-default"
                           >
                             {skill}
                           </div>
@@ -611,9 +611,9 @@ export function TalentPublicProfile() {
                 {/* TOOLS TAB */}
                 {activeSection === "tools" && (
                   <div className="space-y-6 animate-in fade-in zoom-in-95">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 sm:p-8">
+                    <div className="bg-white rounded-none shadow-sm border border-slate-200/60 p-6 sm:p-8">
                       <div className="flex items-center gap-3 mb-8">
-                        <div className="p-2.5 bg-purple-100 rounded-xl">
+                        <div className="p-2.5 bg-purple-100 rounded-none">
                           <Award className="w-6 h-6 text-purple-600" />
                         </div>
                         <div>
@@ -629,12 +629,12 @@ export function TalentPublicProfile() {
                         {talent.tools?.map((tool) => (
                           <div
                             key={tool}
-                            className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl group hover:bg-white hover:border-purple-300 transition-all"
+                            className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-none group hover:bg-white hover:border-purple-300 transition-all"
                           >
                             <span className="font-bold text-slate-700">
                               {tool}
                             </span>
-                            <div className="h-1.5 w-12 bg-slate-200 rounded-full overflow-hidden">
+                            <div className="h-1.5 w-12 bg-slate-200 rounded-none overflow-hidden">
                               <div className="h-full w-full bg-purple-500"></div>
                             </div>
                           </div>
@@ -648,7 +648,7 @@ export function TalentPublicProfile() {
                 {activeSection === "about" && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                     {/* Full Bio */}
-                    <div className="bg-white rounded-2xl border border-slate-200/60 p-6 sm:p-8">
+                    <div className="bg-white rounded-none border border-slate-200/60 p-6 sm:p-8">
                       <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                         <Users className="w-5 h-5 text-indigo-600" /> The Story
                       </h2>
@@ -660,7 +660,7 @@ export function TalentPublicProfile() {
                     {/* Professional Background Extras */}
                     <div className="grid sm:grid-cols-2 gap-6">
                       {/* Education / Role details if they exist in your DB */}
-                      <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
+                      <div className="bg-white rounded-none border border-slate-200/60 p-6">
                         <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
                           <Briefcase className="w-4 h-4 text-slate-400" />{" "}
                           Primary Discipline
@@ -670,7 +670,7 @@ export function TalentPublicProfile() {
                         </p>
                       </div>
 
-                      <div className="bg-white rounded-2xl border border-slate-200/60 p-6">
+                      <div className="bg-white rounded-none border border-slate-200/60 p-6">
                         <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-indigo-500" />{" "}
                           Verification
@@ -719,7 +719,7 @@ export function TalentPublicProfile() {
       </footer>
       {showHireModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95">
+          <div className="bg-white rounded-none w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-xl font-bold text-slate-900">
@@ -749,14 +749,14 @@ export function TalentPublicProfile() {
                   name="message"
                   required
                   rows={5}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-none focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
                   placeholder={`Hey ${talent.full_name.split(" ")[0]}, I'd love to discuss a project with you...`}
                   defaultValue={`Hey ${talent.full_name.split(" ")[0]}, I'd love to discuss a project with you...`}
                 />
               </div>
 
-              <div className="bg-indigo-50 p-3 rounded-lg flex items-start gap-3 mb-2">
-                <div className="w-5 h-5 bg-indigo-100 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="bg-indigo-50 p-3 rounded-none flex items-start gap-3 mb-2">
+                <div className="w-5 h-5 bg-indigo-100 rounded-none flex items-center justify-center flex-shrink-0 mt-0.5">
                   <Mail className="w-3 h-3 text-indigo-600" />
                 </div>
                 <p className="text-[11px] text-indigo-700 leading-relaxed">
@@ -768,7 +768,7 @@ export function TalentPublicProfile() {
               <button
                 disabled={sending || !currentUser}
                 type="submit"
-                className="w-full py-3.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-200"
+                className="w-full py-3.5 bg-indigo-600 text-white rounded-none font-bold hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-lg shadow-indigo-200"
               >
                 {sending ? "Sending Message..." : "Send Hiring Inquiry"}
               </button>

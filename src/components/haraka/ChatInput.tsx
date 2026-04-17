@@ -14,13 +14,13 @@ export default function ChatInput({ onSubmit, loading }: Props) {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="Describe the talent you are looking for..."
-        className="w-full h-32 bg-[var(--bg-main)] p-4 rounded-xl border border-[var(--border-color)]"
+        className="w-full h-32 bg-[var(--bg-main)] p-4 rounded-none border border-[var(--border-color)]"
       />
 
       <button
         onClick={() => onSubmit(value)}
         disabled={loading || !value}
-        className="bg-emerald-500 px-6 py-3 rounded-xl font-bold text-white"
+        className="bg-emerald-500 px-6 py-3 rounded-none font-bold text-white"
       >
         {loading ? "Analyzing..." : "Generate Hiring Spec"}
       </button>

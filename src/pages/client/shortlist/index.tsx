@@ -111,12 +111,12 @@ export default function Shortlist() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-md bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-[2.5rem] p-8 shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-none p-8 shadow-2xl overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-red-500/50" />
               
               <div className="flex flex-col items-center text-center space-y-6">
-                <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-none bg-red-500/10 flex items-center justify-center">
                   <AlertCircle className="w-8 h-8 text-red-500" />
                 </div>
                 
@@ -130,13 +130,13 @@ export default function Shortlist() {
                 <div className="flex flex-col w-full gap-3 pt-4">
                   <button 
                     onClick={confirmClearAll}
-                    className="w-full py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-red-500/20"
+                    className="w-full py-4 bg-red-500 hover:bg-red-600 text-white rounded-none text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-red-500/20"
                   >
                     Confirm Wipe
                   </button>
                   <button 
                     onClick={() => setShowClearModal(false)}
-                    className="w-full py-4 bg-slate-500/10 hover:bg-slate-500/20 text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all"
+                    className="w-full py-4 bg-slate-500/10 hover:bg-slate-500/20 text-slate-400 rounded-none text-[10px] font-black uppercase tracking-[0.2em] transition-all"
                   >
                     Nevermind
                   </button>
@@ -166,7 +166,7 @@ export default function Shortlist() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Filter saved experts..."
-              className="w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-xl py-3 pl-12 text-xs font-bold outline-none focus:border-blue-500/50 transition-all"
+              className="w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-none py-3 pl-12 text-xs font-bold outline-none focus:border-blue-500/50 transition-all"
             />
           </div>
 
@@ -192,17 +192,17 @@ export default function Shortlist() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="p-8 rounded-[2.5rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm group hover:border-blue-500/30 transition-all relative"
+                className="p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm group hover:border-blue-500/30 transition-all relative"
               >
                 <button 
                   onClick={() => handleRemove(person.github_id, person.full_name)}
-                  className="absolute top-6 right-6 p-2 bg-red-500/10 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white z-10"
+                  className="absolute top-6 right-6 p-2 bg-red-500/10 text-red-500 rounded-none opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white z-10"
                 >
                   <UserMinus className="w-4 h-4" />
                 </button>
 
                 <div className="flex items-center gap-4 mb-6">
-                  <img src={person.avatar_url} className="w-14 h-14 rounded-2xl border border-[var(--border-color)] object-cover" alt="" />
+                  <img src={person.avatar_url} className="w-14 h-14 rounded-none border border-[var(--border-color)] object-cover" alt="" />
                   <div>
                     <h3 className="text-lg font-black uppercase tracking-tighter leading-none mb-1 pr-6">{person.full_name}</h3>
                     <div className="flex items-center gap-2 text-[9px] font-bold text-blue-600 uppercase">
@@ -225,7 +225,7 @@ export default function Shortlist() {
                     href={person.github_url} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
+                    className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-none text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
                   >
                     GitHub Profile <ExternalLink className="w-3 h-3" />
                   </a>
@@ -235,9 +235,9 @@ export default function Shortlist() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="py-32 text-center border-2 border-dashed border-[var(--border-color)] rounded-[3rem] bg-[var(--sidebar-bg)]/50">
+        <div className="py-32 text-center border-2 border-dashed border-[var(--border-color)] rounded-none bg-[var(--sidebar-bg)]/50">
            <p className="font-black uppercase text-slate-400 tracking-[0.2em] mb-6">No experts in this shortlist yet.</p>
-           <Link to="/client/haraka" className="bg-blue-600 text-white px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all inline-flex items-center gap-2">
+           <Link to="/client/haraka" className="bg-blue-600 text-white px-10 py-4 rounded-none text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all inline-flex items-center gap-2">
              <Zap className="w-4 h-4 fill-current" /> Run Haraka Discovery
            </Link>
         </div>

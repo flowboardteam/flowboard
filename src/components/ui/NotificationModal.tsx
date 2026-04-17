@@ -56,7 +56,7 @@ export default function NotificationModal({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-md transform overflow-hidden rounded-3xl bg-white p-8 text-left shadow-2xl transition-all border border-slate-100">
+              <Dialog.Panel className="relative w-full max-w-md transform overflow-hidden rounded-none bg-white p-8 text-left shadow-2xl transition-all border border-slate-100">
                 <div className="flex items-start gap-5">
                   <div className="flex-shrink-0">{icon}</div>
                   <div className="flex-1">
@@ -74,7 +74,7 @@ export default function NotificationModal({
                     <button
                       type="button"
                       onClick={onPrimaryClick}
-                      className="inline-flex flex-[2] justify-center rounded-xl bg-[#050B1E] px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20"
+                      className="inline-flex flex-[2] justify-center rounded-none bg-[#050B1E] px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/20"
                     >
                       {primaryAction}
                     </button>
@@ -82,7 +82,7 @@ export default function NotificationModal({
                   <button
                     type="button"
                     onClick={onClose}
-                    className={`inline-flex flex-1 justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all`}
+                    className={`inline-flex flex-1 justify-center rounded-none border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all`}
                   >
                     {primaryAction ? "Cancel" : "Close"}
                   </button>

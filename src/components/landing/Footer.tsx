@@ -64,7 +64,7 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <a href="/" className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 rounded-none bg-blue-600 flex items-center justify-center shadow-lg">
                 <img src="/flowboardlogo.png" alt="FlowBoard Logo" className="w-8 h-8 object-contain" />
               </div>
               <span className="text-xl font-bold">Flowboard Team</span>
@@ -77,7 +77,7 @@ export function Footer() {
                 <a key={social.label} href={social.href}
                   target={isExternal(social.href) ? "_blank" : undefined}
                   rel={isExternal(social.href) ? "noopener noreferrer" : undefined}
-                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-110"
+                  className="w-10 h-10 rounded-none bg-white/10 flex items-center justify-center hover:bg-blue-600 transition-all hover:scale-110"
                   aria-label={social.label}>
                   <social.icon className="w-4 h-4 text-white" />
                 </a>

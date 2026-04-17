@@ -145,7 +145,7 @@ export default function ClientOnboarding() {
     <div className="flex flex-col min-h-screen bg-[#0A1229] text-white selection:bg-indigo-500/30 overflow-x-hidden">
       {/* Background Glow */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[500px] blur-[120px] rounded-full bg-indigo-500/10 opacity-50" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] h-[500px] blur-[120px] rounded-none bg-indigo-500/10 opacity-50" />
       </div>
 
       <main className="relative z-10 flex-grow flex flex-col items-center justify-center p-4 py-8 md:p-8">
@@ -153,16 +153,16 @@ export default function ClientOnboarding() {
           layout
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-[650px] bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-[2rem] p-6 md:p-10 shadow-2xl"
+          className="w-full max-w-[650px] bg-white/[0.02] border border-white/10 backdrop-blur-3xl rounded-none p-6 md:p-10 shadow-2xl"
         >
           {/* Progress Stepper */}
           <div className="flex items-center justify-center gap-2 md:gap-4 mb-8 md:mb-12">
-            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border transition-all ${step === 1 ? "bg-indigo-500/10 border-indigo-500 text-indigo-400" : "bg-white/5 border-white/10 text-slate-500"}`}>
+            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-none border transition-all ${step === 1 ? "bg-indigo-500/10 border-indigo-500 text-indigo-400" : "bg-white/5 border-white/10 text-slate-500"}`}>
               <Building2 className="w-3 h-3 md:w-4 md:h-4" />
               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Company</span>
             </div>
             <div className="w-4 md:w-8 h-[1px] bg-white/10" />
-            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border transition-all ${step === 2 ? "bg-indigo-500/10 border-indigo-500 text-indigo-400" : "bg-white/5 border-white/10 text-slate-500"}`}>
+            <div className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-none border transition-all ${step === 2 ? "bg-indigo-500/10 border-indigo-500 text-indigo-400" : "bg-white/5 border-white/10 text-slate-500"}`}>
               <Globe className="w-3 h-3 md:w-4 md:h-4" />
               <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Scaling</span>
             </div>
@@ -184,7 +184,7 @@ export default function ClientOnboarding() {
                       value={details.companyName}
                       onChange={(e) => setDetails({ ...details, companyName: e.target.value })}
                       placeholder="e.g. Acme Corp"
-                      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-indigo-500 transition-all"
+                      className="w-full bg-white/5 border border-white/10 rounded-none p-4 text-sm outline-none focus:border-indigo-500 transition-all"
                     />
                   </div>
 
@@ -202,11 +202,11 @@ export default function ClientOnboarding() {
                         }}
                         onFocus={() => setShowIndustrySuggestions(true)}
                         placeholder="Search or type industry..."
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 pl-12 text-sm outline-none focus:border-indigo-500 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-none p-4 pl-12 text-sm outline-none focus:border-indigo-500 transition-all"
                       />
                     </div>
                     {showIndustrySuggestions && industrySearch.length > 0 && (
-                      <div className="absolute z-[120] w-full mt-2 bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
+                      <div className="absolute z-[120] w-full mt-2 bg-[#0F172A] border border-white/10 rounded-none shadow-2xl max-h-48 overflow-y-auto">
                         {filteredIndustries.map((ind) => (
                           <div key={ind} onClick={() => { setDetails({...details, industry: ind}); setIndustrySearch(ind); setShowIndustrySuggestions(false); }} className="p-3 hover:bg-indigo-500/10 cursor-pointer text-sm border-b border-white/5">
                             {ind}
@@ -230,10 +230,10 @@ export default function ClientOnboarding() {
                         onChange={(e) => { setCountrySearch(e.target.value); setShowCountrySuggestions(true); }}
                         onFocus={() => setShowCountrySuggestions(true)}
                         placeholder="Country"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-indigo-500 transition-all"
+                        className="w-full bg-white/5 border border-white/10 rounded-none p-4 text-sm outline-none focus:border-indigo-500 transition-all"
                       />
                       {showCountrySuggestions && filteredCountries.length > 0 && (
-                        <div className="absolute z-[110] w-full mt-2 bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl max-h-40 overflow-y-auto">
+                        <div className="absolute z-[110] w-full mt-2 bg-[#0F172A] border border-white/10 rounded-none shadow-2xl max-h-40 overflow-y-auto">
                           {filteredCountries.map((c) => (
                             <div key={c.isoCode} onClick={() => { setSelectedCountry(c); setCountrySearch(c.name); setShowCountrySuggestions(false); setCitySearch(""); }} className="p-3 hover:bg-indigo-500/10 cursor-pointer text-sm">
                               {c.flag} {c.name}
@@ -250,10 +250,10 @@ export default function ClientOnboarding() {
                         value={citySearch}
                         onChange={(e) => { setCitySearch(e.target.value); setShowCitySuggestions(true); }}
                         placeholder="City"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-indigo-500 transition-all disabled:opacity-30"
+                        className="w-full bg-white/5 border border-white/10 rounded-none p-4 text-sm outline-none focus:border-indigo-500 transition-all disabled:opacity-30"
                       />
                       {showCitySuggestions && filteredCities.length > 0 && (
-                        <div className="absolute z-[110] w-full mt-2 bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl max-h-40 overflow-y-auto">
+                        <div className="absolute z-[110] w-full mt-2 bg-[#0F172A] border border-white/10 rounded-none shadow-2xl max-h-40 overflow-y-auto">
                           {filteredCities.map((city) => (
                             <div key={city.name} onClick={() => { setCitySearch(city.name); setDetails({...details, location: `${city.name}, ${selectedCountry.name}`}); setShowCitySuggestions(false); }} className="p-3 hover:bg-indigo-500/10 cursor-pointer text-sm">
                               {city.name}
@@ -268,7 +268,7 @@ export default function ClientOnboarding() {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!isStep1Complete}
-                  className="w-full h-14 md:h-16 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-base md:text-lg disabled:opacity-20 transition-all uppercase italic tracking-widest"
+                  className="w-full h-14 md:h-16 bg-indigo-600 hover:bg-indigo-500 text-white rounded-none font-black text-base md:text-lg disabled:opacity-20 transition-all uppercase italic tracking-widest"
                 >
                   Next Step
                 </Button>
@@ -286,7 +286,7 @@ export default function ClientOnboarding() {
                       <button
                         key={size}
                         onClick={() => setDetails({ ...details, teamSize: size })}
-                        className={`p-4 rounded-xl border text-xs font-bold transition-all ${details.teamSize === size ? "bg-indigo-500/20 border-indigo-500 text-indigo-400" : "bg-white/5 border-white/10 text-slate-500 hover:border-white/20"}`}
+                        className={`p-4 rounded-none border text-xs font-bold transition-all ${details.teamSize === size ? "bg-indigo-500/20 border-indigo-500 text-indigo-400" : "bg-white/5 border-white/10 text-slate-500 hover:border-white/20"}`}
                       >
                         {size} Employees
                       </button>
@@ -298,7 +298,7 @@ export default function ClientOnboarding() {
                   <Button
                     onClick={handleFinish}
                     disabled={isLoading || !details.teamSize}
-                    className="h-14 md:h-16 rounded-2xl font-black text-base md:text-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all uppercase italic tracking-widest"
+                    className="h-14 md:h-16 rounded-none font-black text-base md:text-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-all uppercase italic tracking-widest"
                   >
                     {isLoading ? <Loader2 className="animate-spin" /> : "Finish Setup"}
                   </Button>

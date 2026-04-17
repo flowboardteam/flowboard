@@ -19,7 +19,7 @@ export default function HarakaSpecPreview({ spec, onSearchResults }: Props) {
   };
 
   return (
-    <div className="space-y-6 bg-[var(--sidebar-bg)] p-6 rounded-2xl border border-[var(--border-color)]">
+    <div className="space-y-6 bg-[var(--sidebar-bg)] p-6 rounded-none border border-[var(--border-color)]">
 
       <h2 className="text-xl font-black">Structured Hiring Spec</h2>
 
@@ -33,7 +33,7 @@ export default function HarakaSpecPreview({ spec, onSearchResults }: Props) {
 
       <button
         onClick={handleSearch}
-        className="bg-emerald-500 px-6 py-3 rounded-xl font-bold text-white"
+        className="bg-emerald-500 px-6 py-3 rounded-none font-bold text-white"
       >
         Search Global Talent
       </button>

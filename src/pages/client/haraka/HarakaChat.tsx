@@ -17,7 +17,7 @@ export default function HarakaChat({ onSpecGenerated }: Props) {
   };
 
   return (
-    <div className="bg-[var(--sidebar-bg)] p-6 rounded-2xl border border-[var(--border-color)]">
+    <div className="bg-[var(--sidebar-bg)] p-6 rounded-none border border-[var(--border-color)]">
       <ChatInput onSubmit={handleSubmit} loading={loading} />
     </div>
   );

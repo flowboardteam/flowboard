@@ -119,16 +119,16 @@ export function TalentCategoriesSection() {
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
   return (
-    <section id="talent-features" className="py-24 bg-white">
+    <section id="talent-features" className="py-24 bg-transparent">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Tab Switcher */}
         <div className="flex justify-center mb-12">
-          <div className="inline-flex p-1 bg-slate-50 border border-slate-200 rounded-xl shadow-sm overflow-x-auto no-scrollbar">
+          <div className="inline-flex p-1 bg-slate-50 border border-slate-200 rounded-none shadow-sm overflow-x-auto no-scrollbar">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab)}
-                className={`flex items-center gap-2 px-6 md:px-8 py-3 text-sm font-bold transition-all rounded-lg whitespace-nowrap ${
+                className={`flex items-center gap-2 px-6 md:px-8 py-3 text-sm font-bold transition-all rounded-none whitespace-nowrap ${
                   activeTab.id === tab.id
                     ? "bg-blue-600 text-white shadow-md"
                     : "text-slate-500 hover:text-slate-900"
@@ -142,7 +142,7 @@ export function TalentCategoriesSection() {
         </div>
 
         {/* Feature Container */}
-        <div className="bg-slate-50/50 rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
+        <div className="bg-slate-50/50 rounded-none border border-slate-100 overflow-hidden shadow-sm">
           <div className="flex flex-col lg:flex-row min-h-[580px]">
             {/* Left Column */}
             <div className="flex-1 p-8 lg:p-16 flex flex-col justify-center bg-white">
@@ -172,7 +172,7 @@ export function TalentCategoriesSection() {
                   <div className="space-y-5 mb-10">
                     {activeTab.features.map((feature, i) => (
                       <div key={i} className="flex gap-4 items-start">
-                        <div className="mt-1 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                        <div className="mt-1 w-5 h-5 rounded-none bg-blue-50 flex items-center justify-center shrink-0">
                           <Check className="w-3 h-3 text-blue-600 stroke-[3px]" />
                         </div>
                         <div>
@@ -190,7 +190,7 @@ export function TalentCategoriesSection() {
                   <Button
                     asChild
                     variant="outline"
-                    className="h-12 px-8 rounded-xl border-slate-200 font-bold group"
+                    className="h-12 px-8 rounded-none border-slate-200 font-bold group"
                   >
                     <Link to={activeTab.link}>
                       Explore {activeTab.label}
@@ -230,10 +230,10 @@ export function TalentCategoriesSection() {
 
 function AssistantMockup() {
   return (
-    <div className="w-full max-w-[400px] bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden h-[400px]">
+    <div className="w-full max-w-[400px] bg-white rounded-none shadow-2xl border border-slate-100 flex flex-col overflow-hidden h-[400px]">
       <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+          <div className="w-2 h-2 rounded-none bg-emerald-500" />
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
             Haraka-o1 Active
           </span>
@@ -242,26 +242,26 @@ function AssistantMockup() {
       </div>
 
       <div className="flex-1 p-6 space-y-4 overflow-y-auto">
-        <div className="bg-slate-50 rounded-2xl rounded-tl-none p-3 text-[11px] text-slate-600 max-w-[80%]">
+        <div className="bg-slate-50 rounded-none rounded-none p-3 text-[11px] text-slate-600 max-w-[80%]">
           Hello! I've analyzed the Q4 payroll data. Would you like me to
           generate the compliance reports for Brazil?
         </div>
-        <div className="bg-blue-600 rounded-2xl rounded-tr-none p-3 text-[11px] text-white ml-auto max-w-[80%]">
+        <div className="bg-blue-600 rounded-none rounded-none p-3 text-[11px] text-white ml-auto max-w-[80%]">
           Yes, please. Also check if the new engineering hires in Poland are
           verified.
         </div>
-        <div className="bg-slate-50 rounded-2xl rounded-tl-none p-3 text-[11px] text-slate-600 max-w-[80%] flex items-center gap-2">
+        <div className="bg-slate-50 rounded-none rounded-none p-3 text-[11px] text-slate-600 max-w-[80%] flex items-center gap-2">
           <div className="flex gap-1">
-            <span className="w-1 h-1 bg-slate-300 rounded-full animate-bounce" />
-            <span className="w-1 h-1 bg-slate-300 rounded-full animate-bounce delay-75" />
-            <span className="w-1 h-1 bg-slate-300 rounded-full animate-bounce delay-150" />
+            <span className="w-1 h-1 bg-slate-300 rounded-none animate-bounce" />
+            <span className="w-1 h-1 bg-slate-300 rounded-none animate-bounce delay-75" />
+            <span className="w-1 h-1 bg-slate-300 rounded-none animate-bounce delay-150" />
           </div>
           Thinking...
         </div>
       </div>
 
       <div className="p-4 border-t border-slate-50">
-        <div className="flex gap-2 items-center bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+        <div className="flex gap-2 items-center bg-slate-50 px-4 py-2 rounded-none border border-slate-100">
           <span className="text-[11px] text-slate-400 flex-1">
             Ask Haraka anything...
           </span>
@@ -282,11 +282,11 @@ function RecruitingMockup() {
   ];
 
   return (
-    <div className="w-full max-w-[400px] bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 relative overflow-hidden">
+    <div className="w-full max-w-[400px] bg-white rounded-none shadow-2xl border border-slate-100 p-6 relative overflow-hidden">
       <div className="flex gap-2 mb-8 border-b border-slate-100 pb-4">
         {["Country", "Worker type", "Job title"].map((label) => (
           <div key={label} className="flex-1">
-            <div className="flex items-center justify-between px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+            <div className="flex items-center justify-between px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-none text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
               {label}
               <Search className="w-2.5 h-2.5" />
             </div>
@@ -301,20 +301,20 @@ function RecruitingMockup() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: i * 0.1 }}
           >
-            <div className="w-14 h-14 rounded-full border-4 border-white shadow-lg overflow-hidden bg-slate-100">
+            <div className="w-14 h-14 rounded-none border-4 border-white shadow-lg overflow-hidden bg-slate-100">
               <img
                 src={t.img}
                 alt="talent"
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full shadow-sm flex items-center justify-center text-xs">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-none shadow-sm flex items-center justify-center text-xs">
               {t.flag}
             </div>
           </motion.div>
         ))}
       </div>
-      <Button className="w-full bg-blue-600 hover:bg-blue-700 h-12 rounded-xl font-bold shadow-lg shadow-blue-200">
+      <Button className="w-full bg-blue-600 hover:bg-blue-700 h-12 rounded-none font-bold shadow-lg shadow-blue-200">
         Search
       </Button>
     </div>
@@ -323,10 +323,10 @@ function RecruitingMockup() {
 
 function PayrollMockup() {
   return (
-    <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
+    <div className="w-full max-w-sm bg-white rounded-none shadow-xl border border-slate-100 p-6">
       <div className="flex items-center justify-between mb-6">
         <p className="text-sm font-bold text-slate-900">Upcoming Payments</p>
-        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-none">
           Syncing
         </span>
       </div>
@@ -337,10 +337,10 @@ function PayrollMockup() {
         ].map((p) => (
           <div
             key={p.n}
-            className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100"
+            className="flex items-center justify-between p-3 bg-slate-50 rounded-none border border-slate-100"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-100" />
+              <div className="w-8 h-8 rounded-none bg-blue-100" />
               <span className="text-xs font-bold text-slate-700">{p.n}</span>
             </div>
             <div className="text-right">
@@ -356,26 +356,26 @@ function PayrollMockup() {
 
 function CloudMockup() {
   return (
-    <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
+    <div className="w-full max-w-sm bg-white rounded-none shadow-xl border border-slate-100 p-6">
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+        <div className="p-4 bg-slate-50 rounded-none border border-slate-100">
           <p className="text-[10px] font-bold text-blue-600 uppercase mb-1">
             Velocity
           </p>
           <p className="text-xl font-bold text-slate-900">+15%</p>
         </div>
-        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+        <div className="p-4 bg-slate-50 rounded-none border border-slate-100">
           <p className="text-[10px] font-bold text-emerald-600 uppercase mb-1">
             Status
           </p>
           <p className="text-xl font-bold text-slate-900">Stable</p>
         </div>
       </div>
-      <div className="p-5 bg-blue-600 rounded-2xl text-white">
+      <div className="p-5 bg-blue-600 rounded-none text-white">
         <p className="text-[10px] font-bold uppercase opacity-80 mb-3">
           Model Accuracy
         </p>
-        <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden mb-2">
+        <div className="h-1.5 w-full bg-white/20 rounded-none overflow-hidden mb-2">
           <div className="h-full w-[88%] bg-white" />
         </div>
         <div className="flex justify-between text-[10px] font-bold">

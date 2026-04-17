@@ -84,21 +84,21 @@ export default function ResetPassword() {
     <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
       {/* LEFT SIDE: Brand Experience (Same as Login/Signup) */}
       <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
         <div className="relative z-10">
           <Link to="/" className="flex items-center gap-2 mb-20 group">
             <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
             <span className="text-2xl font-black tracking-tighter uppercase italic text-white">FLOWBOARD</span>
           </Link>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
               <Sparkles size={14} /> Security Protocol v2.0
             </div>
             <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight text-white">
               Redefining <br />
               <span className="text-blue-400">Security.</span>
             </h2>
-            <div className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 max-w-sm">
+            <div className="p-6 bg-white/5 backdrop-blur-xl rounded-none border border-white/10 max-w-sm">
               <p className="text-slate-400 text-sm font-medium italic">
                 "Your talent is your currency. We make sure the vault is impenetrable."
               </p>
@@ -125,7 +125,7 @@ export default function ResetPassword() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="h-12 pl-11 pr-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                  className="h-12 pl-11 pr-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                   required
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600">
@@ -143,14 +143,14 @@ export default function ResetPassword() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="h-12 pl-11 rounded-xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                  className="h-12 pl-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                   required
                 />
               </div>
             </div>
 
             {/* Live Requirements Checklist */}
-            <div className="p-4 bg-slate-50 rounded-2xl space-y-2 border border-slate-100 shadow-inner">
+            <div className="p-4 bg-slate-50 rounded-none space-y-2 border border-slate-100 shadow-inner">
               {requirements.map((req, i) => (
                 <div key={i} className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-tight">
                   {req.test ? <Check className="w-3 h-3 text-emerald-500" /> : <X className="w-3 h-3 text-slate-300" />}
@@ -159,7 +159,7 @@ export default function ResetPassword() {
               ))}
             </div>
 
-            <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl transition-all active:scale-[0.98]" disabled={isLoading || !canSubmit}>
+            <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl transition-all active:scale-[0.98]" disabled={isLoading || !canSubmit}>
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Credentials"}
             </Button>
           </form>

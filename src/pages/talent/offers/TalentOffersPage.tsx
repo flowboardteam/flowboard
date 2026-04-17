@@ -84,11 +84,11 @@ function OfferCard({ offer, onRespond, onView }: {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className="p-4 sm:p-5 rounded-[1.5rem] bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-3 hover:border-blue-500/30 transition-all"
+      className="p-4 sm:p-5 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-3 hover:border-blue-500/30 transition-all"
     >
       {/* Top row: status + date */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${cfg.bg} ${cfg.color}`}>
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border ${cfg.bg} ${cfg.color}`}>
           <StatusIcon className="w-3 h-3 shrink-0" />
           {cfg.label}
         </span>
@@ -97,7 +97,7 @@ function OfferCard({ offer, onRespond, onView }: {
 
       {/* Org + role */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-9 h-9 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
           {offer.client_profile?.avatar_url
             ? <img src={offer.client_profile.avatar_url} alt={orgName} className="w-full h-full object-cover" />
             : <Building2 className="w-4 h-4 text-slate-400" />
@@ -142,7 +142,7 @@ function OfferCard({ offer, onRespond, onView }: {
       <div className="flex gap-2 pt-2 border-t border-[var(--border-color)]">
         <button
           onClick={() => onView(offer)}
-          className="flex-1 py-2 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all"
+          className="flex-1 py-2 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-slate-500/20 transition-all"
         >
           Read offer
         </button>
@@ -151,14 +151,14 @@ function OfferCard({ offer, onRespond, onView }: {
           <>
             <button
               onClick={() => onRespond(offer, "accepted")}
-              className="flex items-center justify-center gap-1 px-3 py-2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-sm shadow-emerald-500/20 shrink-0"
+              className="flex items-center justify-center gap-1 px-3 py-2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-emerald-400 transition-all shadow-sm shadow-emerald-500/20 shrink-0"
             >
               <CheckCircle2 className="w-3 h-3" />
               <span className="hidden sm:inline">Accept</span>
             </button>
             <button
               onClick={() => onRespond(offer, "declined")}
-              className="flex items-center justify-center gap-1 px-3 py-2 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-all border border-red-500/20 shrink-0"
+              className="flex items-center justify-center gap-1 px-3 py-2 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-red-500/20 transition-all border border-red-500/20 shrink-0"
             >
               <XCircle className="w-3 h-3" />
               <span className="hidden sm:inline">Decline</span>
@@ -196,18 +196,18 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
           exit={{ opacity: 0, y: 40 }}
           onClick={e => e.stopPropagation()}
           // Bottom sheet on mobile, centered modal on sm+
-          className="w-full sm:max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl overflow-hidden"
+          className="w-full sm:max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none[2rem] sm:rounded-none shadow-2xl overflow-hidden"
         >
           {/* Drag handle (mobile only) */}
           <div className="flex justify-center pt-3 pb-1 sm:hidden">
-            <div className="w-10 h-1 rounded-full bg-slate-500/30" />
+            <div className="w-10 h-1 rounded-none bg-slate-500/30" />
           </div>
 
           {/* Header */}
           <div className="px-6 pt-4 pb-4 border-b border-[var(--border-color)]">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border mb-2 ${cfg.bg} ${cfg.color}`}>
+                <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border mb-2 ${cfg.bg} ${cfg.color}`}>
                   <cfg.icon className="w-3 h-3" />{cfg.label}
                 </span>
                 <h2 className="text-base font-black dark:text-white tracking-tight leading-tight">
@@ -217,7 +217,7 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors flex-shrink-0 mt-1"
+                className="p-2 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors flex-shrink-0 mt-1"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -231,7 +231,7 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
                 { label: "Start date", value: fmtDate(offer.start_date) },
                 { label: "Duration",   value: offer.contract_length ?? (offer.role_type === "full_time" ? "Permanent" : "—") },
               ].map(m => (
-                <div key={m.label} className="bg-slate-500/5 rounded-xl p-3">
+                <div key={m.label} className="bg-slate-500/5 rounded-none p-3">
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{m.label}</p>
                   <p className="text-xs font-black dark:text-white capitalize truncate">{m.value}</p>
                 </div>
@@ -258,7 +258,7 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
                 onChange={e => setDeclineReason(e.target.value)}
                 rows={3}
                 placeholder="Let them know why you're declining..."
-                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-3 text-sm font-medium outline-none focus:ring-2 ring-red-500/20 transition-all resize-none"
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none p-3 text-sm font-medium outline-none focus:ring-2 ring-red-500/20 transition-all resize-none"
               />
             </div>
           )}
@@ -270,14 +270,14 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowDeclineForm(false)}
-                    className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all"
+                    className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all"
                   >
                     Back
                   </button>
                   <button
                     onClick={() => onRespond(offer, "declined", declineReason)}
                     disabled={responding}
-                    className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+                    className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-red-400 transition-all flex items-center justify-center gap-2 disabled:opacity-40"
                   >
                     {responding
                       ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -290,14 +290,14 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowDeclineForm(true)}
-                    className="flex-1 py-3 border border-red-500/20 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-all"
+                    className="flex-1 py-3 border border-red-500/20 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-red-500/20 transition-all"
                   >
                     Decline
                   </button>
                   <button
                     onClick={() => onRespond(offer, "accepted")}
                     disabled={responding}
-                    className="flex-1 py-3 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20 disabled:opacity-40"
+                    className="flex-1 py-3 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-emerald-400 transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20 disabled:opacity-40"
                   >
                     {responding
                       ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -310,7 +310,7 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
             ) : (
               <button
                 onClick={onClose}
-                className="w-full py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all"
+                className="w-full py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all"
               >
                 Close
               </button>
@@ -440,7 +440,7 @@ export default function TalentOffersPage() {
         <p className="text-sm font-bold text-red-500">{error}</p>
         <button
           onClick={fetchOffers}
-          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all"
+          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Retry
         </button>
@@ -472,7 +472,7 @@ export default function TalentOffersPage() {
       {counts.pending > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20"
+          className="flex items-start gap-3 p-4 rounded-none bg-amber-500/5 border border-amber-500/20"
         >
           <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
           <div>
@@ -492,7 +492,7 @@ export default function TalentOffersPage() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-shrink-0 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+            className={`flex-shrink-0 px-4 py-2 rounded-none text-[11px] font-black uppercase tracking-widest transition-all ${
               activeTab === tab
                 ? "bg-[var(--card-bg)] text-blue-600 shadow-sm border border-blue-500/20"
                 : "text-slate-400 hover:text-slate-600 border border-transparent"
@@ -525,7 +525,7 @@ export default function TalentOffersPage() {
         ) : (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-[2rem] border border-dashed border-[var(--border-color)]"
+            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]"
           >
             <Inbox className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="text-lg font-black tracking-tighter uppercase dark:text-white">

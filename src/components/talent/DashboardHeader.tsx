@@ -118,11 +118,11 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors"
+          className="lg:hidden p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-none transition-colors"
         >
           <Menu className="w-6 h-6" />
         </button>
-        <div className="hidden md:flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-full px-4 py-2 w-80">
+        <div className="hidden md:flex items-center bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-2 w-80">
           <Search className="w-4 h-4 text-slate-400 mr-2" />
           <input
             placeholder="Search projects or agents..."
@@ -134,7 +134,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
       <div className="flex items-center gap-2 md:gap-4">
         <button
           onClick={toggleTheme}
-          className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-full transition-all"
+          className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all"
         >
           {theme === "light" ? (
             <Moon className="w-5 h-5" />
@@ -146,11 +146,11 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
         <div className="relative">
   <button
     onClick={() => setIsNotifyOpen(!isNotifyOpen)}
-    className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-full transition-all relative"
+    className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all relative"
   >
     <Bell className="w-6 h-6" />
     {unreadCount > 0 && (
-      <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-bounce shadow-lg border-2 border-[var(--sidebar-bg)]">
+      <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-black rounded-none flex items-center justify-center animate-bounce shadow-lg border-2 border-[var(--sidebar-bg)]">
         {unreadCount}
       </span>
     )}
@@ -171,7 +171,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
         w-auto lg:w-80 
         bg-[var(--sidebar-bg)] 
         border border-[var(--border-color)] 
-        rounded-[2rem] lg:rounded-2xl 
+        rounded-none lg:rounded-none 
         shadow-2xl overflow-hidden 
         animate-in fade-in slide-in-from-top-4 lg:slide-in-from-top-2 duration-200
       ">
@@ -179,7 +179,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
         <div className="p-5 border-b border-[var(--border-color)] flex justify-between items-center bg-slate-500/5">
           <h3 className="text-xs font-black uppercase tracking-[0.2em]">Notifications</h3>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-[#00A86B]/10 text-[#00A86B] text-[9px] font-black rounded-full uppercase">
+            <span className="px-2 py-0.5 bg-[#00A86B]/10 text-[#00A86B] text-[9px] font-black rounded-none uppercase">
               {unreadCount} New
             </span>
             <button 
@@ -203,7 +203,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
                   <p className="text-[11px] font-black text-[var(--text-main)] group-hover:text-[#00A86B] transition-colors">
                     {n.title}
                   </p>
-                  {!n.is_read && <span className="w-1.5 h-1.5 bg-[#00A86B] rounded-full mt-1" />}
+                  {!n.is_read && <span className="w-1.5 h-1.5 bg-[#00A86B] rounded-none mt-1" />}
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 font-medium">
                   {n.message}
@@ -215,7 +215,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
             ))
           ) : (
             <div className="p-12 text-center">
-              <div className="w-12 h-12 bg-slate-500/5 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-slate-500/5 rounded-none flex items-center justify-center mx-auto mb-4">
                 <Bell className="w-5 h-5 text-slate-300" />
               </div>
               <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Signal clear</p>
@@ -240,11 +240,11 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
         <div className="relative ml-2">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-3 p-1.5 pr-3 rounded-2xl bg-slate-500/5 border border-[var(--border-color)] hover:border-[#00A86B]/30 transition-all group"
+            className="flex items-center gap-3 p-1.5 pr-3 rounded-none bg-slate-500/5 border border-[var(--border-color)] hover:border-[#00A86B]/30 transition-all group"
           >
             <div className="relative">
               {/* AVATAR LOGIC: Show image if exists, else initials */}
-              <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shadow-sm">
+              <div className="w-10 h-10 rounded-none bg-slate-200 dark:bg-slate-800 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shadow-sm">
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
@@ -259,8 +259,8 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
               </div>
 
               {/* Status Indicator - Emerald Theme */}
-              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#00A86B] border-2 border-[var(--sidebar-bg)] rounded-full shadow-sm">
-                <span className="absolute inset-0 rounded-full bg-[#00A86B] animate-ping opacity-75"></span>
+              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#00A86B] border-2 border-[var(--sidebar-bg)] rounded-none shadow-sm">
+                <span className="absolute inset-0 rounded-none bg-[#00A86B] animate-ping opacity-75"></span>
               </span>
             </div>
 
@@ -285,7 +285,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
                 onClick={() => setIsDropdownOpen(false)}
               />
 
-              <div className="absolute right-0 mt-3 w-60 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in duration-200 ring-1 ring-black/5">
+              <div className="absolute right-0 mt-3 w-60 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-none shadow-2xl p-2 animate-in fade-in zoom-in duration-200 ring-1 ring-black/5">
                 <div className="px-4 py-4 border-b border-[var(--border-color)] mb-1">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">
                     Signed in as
@@ -297,7 +297,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
                 <Link
                   to="/talent/profile"
-                  className="flex items-center gap-3 px-4 py-3 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all"
+                  className="flex items-center gap-3 px-4 py-3 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   <User className="w-4 h-4" />
@@ -306,7 +306,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
                 <Link
                   to="/talent/settings"
-                  className="flex items-center gap-3 px-4 py-3 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all"
+                  className="flex items-center gap-3 px-4 py-3 text-[11px] font-black tracking-widest text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-none transition-all"
                   onClick={() => setIsDropdownOpen(false)}
                 >
                   <Settings className="w-4 h-4" />
@@ -317,7 +317,7 @@ const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 w-full rounded-xl transition-all"
+                  className="flex items-center gap-3 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500/10 w-full rounded-none transition-all"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out

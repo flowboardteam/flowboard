@@ -94,11 +94,11 @@ function TagInput({ tags, onAdd, onRemove, placeholder }) {
   };
   return (
     <div
-      className="min-h-[52px] bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3 py-2 flex flex-wrap gap-2 items-center focus-within:ring-2 ring-blue-500/20 transition-all cursor-text"
+      className="min-h-[52px] bg-slate-500/5 border border-[var(--border-color)] rounded-none px-3 py-2 flex flex-wrap gap-2 items-center focus-within:ring-2 ring-blue-500/20 transition-all cursor-text"
       onClick={e => (e.currentTarget.querySelector("input") as HTMLInputElement)?.focus()}
     >
       {tags.map(tag => (
-        <span key={tag} className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-full">
+        <span key={tag} className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-none">
           {tag}
           <button type="button" onClick={() => onRemove(tag)} className="hover:text-red-500 transition-colors">
             <X className="w-3 h-3" />
@@ -134,7 +134,7 @@ function StepIndicator({ currentStep }) {
           return (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center gap-1.5">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                <div className={`w-9 h-9 rounded-none flex items-center justify-center transition-all ${
                   isComplete ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
                   : isActive  ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
                   :             "bg-slate-500/10 text-slate-400"
@@ -167,16 +167,16 @@ function StepIndicator({ currentStep }) {
             {currentLabel}
           </span>
         </div>
-        <div className="h-1.5 w-full bg-slate-500/10 rounded-full overflow-hidden">
+        <div className="h-1.5 w-full bg-slate-500/10 rounded-none overflow-hidden">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all duration-300"
+            className="h-full bg-blue-600 rounded-none transition-all duration-300"
             style={{ width: `${(currentStep / STEPS.length) * 100}%` }}
           />
         </div>
         {/* Completed steps as dots */}
         <div className="flex items-center gap-2">
           {STEPS.map(step => (
-            <div key={step.id} className={`w-2 h-2 rounded-full transition-all ${
+            <div key={step.id} className={`w-2 h-2 rounded-none transition-all ${
               currentStep > step.id  ? "bg-emerald-500"
               : currentStep === step.id ? "bg-blue-600 scale-125"
               : "bg-slate-500/20"
@@ -271,7 +271,7 @@ function FlowAITab({ onGenerated }) {
   if (!generatedRole && !generating) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+        <div className="flex items-center gap-3 p-4 rounded-none bg-blue-500/5 border border-blue-500/10">
           <BrainCircuit className="w-5 h-5 text-blue-500 flex-shrink-0" />
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed">
             Describe the role in plain English — FlowAI will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.
@@ -285,14 +285,14 @@ function FlowAITab({ onGenerated }) {
             rows={5}
             onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleGenerate(); }}
             placeholder="e.g. A senior backend engineer who knows Node.js and PostgreSQL, will own our API infrastructure, 5+ years experience, remote role..."
-            className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
+            className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
           />
           <p className="text-[10px] text-slate-400 mt-1.5">Press Cmd+Enter to generate</p>
         </div>
         <button
           onClick={handleGenerate}
           disabled={!initialPrompt.trim()}
-          className="w-full py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+          className="w-full py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
         >
           <Sparkles className="w-4 h-4" /> Generate with FlowAI
         </button>
@@ -305,10 +305,10 @@ function FlowAITab({ onGenerated }) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <div className="relative">
-          <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-none bg-blue-500/10 flex items-center justify-center">
             <BrainCircuit className="w-7 h-7 text-blue-500" />
           </div>
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-none flex items-center justify-center">
             <Loader2 className="w-2.5 h-2.5 text-white animate-spin" />
           </div>
         </div>
@@ -324,7 +324,7 @@ function FlowAITab({ onGenerated }) {
   return (
     <div className="space-y-5">
       {/* Preview card */}
-      <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20">
+      <div className="p-5 rounded-none bg-emerald-500/5 border border-emerald-500/20">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -338,7 +338,7 @@ function FlowAITab({ onGenerated }) {
           </div>
           <button
             onClick={() => { setGeneratedRole(null); setChatHistory([]); }}
-            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-500/10 flex-shrink-0"
+            className="p-1.5 rounded-none text-slate-400 hover:bg-slate-500/10 flex-shrink-0"
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
@@ -352,7 +352,7 @@ function FlowAITab({ onGenerated }) {
         {generatedRole.skills?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {generatedRole.skills.slice(0, 5).map(s => (
-              <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">{s}</span>
+              <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-none">{s}</span>
             ))}
             {generatedRole.skills.length > 5 && (
               <span className="text-[10px] font-black text-slate-400">+{generatedRole.skills.length - 5}</span>
@@ -366,10 +366,10 @@ function FlowAITab({ onGenerated }) {
         <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
           {chatHistory.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs font-medium leading-relaxed ${
+              <div className={`max-w-[85%] px-3 py-2 rounded-none text-xs font-medium leading-relaxed ${
                 msg.role === "user"
-                  ? "bg-blue-600 text-white rounded-br-sm"
-                  : "bg-slate-500/10 text-slate-600 dark:text-slate-300 rounded-bl-sm"
+                  ? "bg-blue-600 text-white rounded-none"
+                  : "bg-slate-500/10 text-slate-600 dark:text-slate-300 rounded-none"
               }`}>
                 {msg.text.replace(/\*\*/g, "")}
               </div>
@@ -377,7 +377,7 @@ function FlowAITab({ onGenerated }) {
           ))}
           {refining && (
             <div className="flex justify-start">
-              <div className="px-3 py-2 rounded-2xl bg-slate-500/10 rounded-bl-sm">
+              <div className="px-3 py-2 rounded-none bg-slate-500/10 rounded-none">
                 <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin" />
               </div>
             </div>
@@ -398,12 +398,12 @@ function FlowAITab({ onGenerated }) {
             onKeyDown={e => { if (e.key === "Enter") handleRefine(); }}
             placeholder='e.g. "Make it more senior" or "Add GraphQL to skills"'
             disabled={refining}
-            className="flex-1 bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all disabled:opacity-50 min-w-0"
+            className="flex-1 bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all disabled:opacity-50 min-w-0"
           />
           <button
             onClick={handleRefine}
             disabled={!refineInput.trim() || refining}
-            className="flex-shrink-0 p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-shrink-0 p-3 bg-blue-600 text-white rounded-none hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {refining ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
@@ -415,7 +415,7 @@ function FlowAITab({ onGenerated }) {
       <div className="flex gap-3 pt-1">
         <button
           onClick={handleUseRole}
-          className="flex-1 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+          className="flex-1 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
         >
           <Eye className="w-4 h-4" /> Preview & edit this role
         </button>
@@ -434,7 +434,7 @@ function StepBasics({ data, onChange }) {
           value={data.title}
           onChange={e => onChange("title", e.target.value)}
           placeholder="e.g. Senior Frontend Engineer"
-          className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+          className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
         />
       </div>
 
@@ -444,7 +444,7 @@ function StepBasics({ data, onChange }) {
           <select
             value={data.department}
             onChange={e => onChange("department", e.target.value)}
-            className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all cursor-pointer"
+            className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all cursor-pointer"
           >
             <option value="">Select department</option>
             {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
@@ -457,7 +457,7 @@ function StepBasics({ data, onChange }) {
               <button
                 key={t} type="button"
                 onClick={() => onChange("type", t)}
-                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+                className={`flex-1 py-3 rounded-none text-[10px] font-black uppercase tracking-wider transition-all border ${
                   data.type === t
                     ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
                     : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
@@ -480,7 +480,7 @@ function StepBasics({ data, onChange }) {
               <button
                 key={l} type="button"
                 onClick={() => onChange("location", l)}
-                className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+                className={`flex-1 py-3 rounded-none text-[10px] font-black uppercase tracking-wider transition-all border ${
                   data.location === l
                     ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
                     : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
@@ -499,7 +499,7 @@ function StepBasics({ data, onChange }) {
             value={data.salary}
             onChange={e => onChange("salary", e.target.value)}
             placeholder="e.g. $80k–$110k or $50/hr"
-            className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+            className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
           />
         </div>
       </div>
@@ -511,7 +511,7 @@ function StepBasics({ data, onChange }) {
             <button
               key={l} type="button"
               onClick={() => onChange("experience_level", l)}
-              className={`py-3 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border text-center leading-tight ${
+              className={`py-3 px-3 rounded-none text-[10px] font-black uppercase tracking-wider transition-all border text-center leading-tight ${
                 data.experience_level === l
                   ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
                   : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
@@ -537,7 +537,7 @@ function StepDescription({ data, onChange }) {
           onChange={e => onChange("description", e.target.value)}
           rows={5}
           placeholder="Describe the role, team context, and what success looks like..."
-          className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
+          className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
         />
       </div>
       <div>
@@ -585,7 +585,7 @@ function StepRequirements({ data, onChange }) {
           value={data.education}
           onChange={e => onChange("education", e.target.value)}
           placeholder="e.g. BSc Computer Science or equivalent experience"
-          className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+          className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
         />
       </div>
       <div>
@@ -610,7 +610,7 @@ function StepReview({ data, onPublish, onDraft, saving }) {
       slate:   "bg-slate-500/10 text-slate-500",
     };
     return (
-      <span className={`inline-flex text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${styles[color] ?? styles.blue}`}>
+      <span className={`inline-flex text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none ${styles[color] ?? styles.blue}`}>
         {text}
       </span>
     );
@@ -625,7 +625,7 @@ function StepReview({ data, onPublish, onDraft, saving }) {
 
   return (
     <div>
-      <div className="p-4 rounded-[1.5rem] bg-slate-500/5 border border-[var(--border-color)] mb-6">
+      <div className="p-4 rounded-none bg-slate-500/5 border border-[var(--border-color)] mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
           <div>
             <h3 className="text-base font-black tracking-tight dark:text-white">{data.title || "—"}</h3>
@@ -671,7 +671,7 @@ function StepReview({ data, onPublish, onDraft, saving }) {
         <button
           onClick={onDraft}
           disabled={saving}
-          className="py-4 rounded-xl border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-500/5 transition-all flex items-center justify-center gap-2 disabled:opacity-40"
+          className="py-4 rounded-none border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-500/5 transition-all flex items-center justify-center gap-2 disabled:opacity-40"
         >
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
           Save as draft
@@ -679,7 +679,7 @@ function StepReview({ data, onPublish, onDraft, saving }) {
         <button
           onClick={onPublish}
           disabled={saving}
-          className="py-4 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-40"
+          className="py-4 bg-blue-600 text-white rounded-none text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-40"
         >
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5 fill-current" />}
           Publish role
@@ -804,9 +804,9 @@ export default function CreateRolePage() {
           <motion.button
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
             onClick={() => setMode("manual")}
-            className="p-6 sm:p-8 rounded-[2rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group"
+            className="p-6 sm:p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group"
           >
-            <div className="w-12 h-12 rounded-2xl bg-slate-500/10 flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
+            <div className="w-12 h-12 rounded-none bg-slate-500/10 flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
               <FileText className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
             </div>
             <div>
@@ -821,14 +821,14 @@ export default function CreateRolePage() {
           <motion.button
             whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
             onClick={() => setMode("ai")}
-            className="p-6 sm:p-8 rounded-[2rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group relative overflow-hidden"
+            className="p-6 sm:p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group relative overflow-hidden"
           >
             <div className="absolute top-4 right-4">
-              <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-2 py-1 rounded-full border border-emerald-500/20">
+              <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-2 py-1 rounded-none border border-emerald-500/20">
                 AI powered
               </span>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-none bg-blue-500/10 flex items-center justify-center">
               <BrainCircuit className="w-6 h-6 text-blue-500" />
             </div>
             <div>
@@ -865,7 +865,7 @@ export default function CreateRolePage() {
             Describe what you need — FlowAI will draft the full role. You can refine it with follow-up prompts before saving.
           </p>
         </div>
-        <div className="p-6 sm:p-8 rounded-[2rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
+        <div className="p-6 sm:p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
           <FlowAITab onGenerated={handleAIGenerated} />
         </div>
       </div>
@@ -908,7 +908,7 @@ export default function CreateRolePage() {
         <StepIndicator currentStep={step} />
       </div>
 
-      <div className="p-5 sm:p-8 rounded-[2rem] bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
+      <div className="p-5 sm:p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
@@ -932,7 +932,7 @@ export default function CreateRolePage() {
             <button
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-600/20"
+              className="flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-600/20"
             >
               Continue <ChevronRight className="w-3.5 h-3.5" />
             </button>

@@ -19,10 +19,10 @@ export default function ApplicationsPage() {
             <input 
               type="text" 
               placeholder="Search apps..." 
-              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64"
+              className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-none text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64"
             />
           </div>
-          <button className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+          <button className="p-2.5 bg-white border border-slate-200 rounded-none hover:bg-slate-50 transition-colors">
             <Filter className="w-5 h-5 text-slate-600" />
           </button>
         </div>

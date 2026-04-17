@@ -149,20 +149,20 @@ export default function TalentPool() {
         </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:flex gap-4 items-center bg-[var(--sidebar-bg)] p-4 rounded-2xl border border-[var(--border-color)]">
+        <div className="grid grid-cols-1 md:flex gap-4 items-center bg-[var(--sidebar-bg)] p-4 rounded-none border border-[var(--border-color)]">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
               placeholder="Search by name, role, or skill-set..."
-              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl py-3 pl-12 text-sm font-bold focus:border-emerald-500/50 outline-none transition-all" />
+              className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none py-3 pl-12 text-sm font-bold focus:border-emerald-500/50 outline-none transition-all" />
           </div>
           <div className="flex gap-2">
             <select value={selectedIndustry} onChange={e => setSelectedIndustry(e.target.value)}
-              className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[10px] font-black uppercase text-slate-400 outline-none focus:border-emerald-500">
+              className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-3 text-[10px] font-black uppercase text-slate-400 outline-none focus:border-emerald-500">
               {industries.map(ind => <option key={ind} value={ind}>{ind}</option>)}
             </select>
             <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}
-              className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[10px] font-black uppercase text-slate-400 outline-none focus:border-emerald-500">
+              className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-3 text-[10px] font-black uppercase text-slate-400 outline-none focus:border-emerald-500">
               {roles.map(role => <option key={role} value={role}>{role}</option>)}
             </select>
           </div>
@@ -190,16 +190,16 @@ export default function TalentPool() {
           <div className="fixed right-0 top-0 h-full w-full max-w-xl bg-[var(--sidebar-bg)] border-l border-[var(--border-color)] z-[101] shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-500">
             <div className="sticky top-0 bg-[var(--sidebar-bg)]/90 backdrop-blur-md p-6 flex justify-between items-center border-b border-[var(--border-color)] z-10">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">Talent Dossier</span>
-              <button onClick={() => setSelectedTalent(null)} className="p-2 hover:bg-rose-500/10 rounded-full group transition-all">
+              <button onClick={() => setSelectedTalent(null)} className="p-2 hover:bg-rose-500/10 rounded-none group transition-all">
                 <X className="w-5 h-5 text-slate-400 group-hover:text-rose-500" />
               </button>
             </div>
             <div className="p-8 space-y-8">
               {/* Profile */}
               <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start text-center sm:text-left">
-                <div className="w-28 h-28 rounded-[2rem] bg-slate-800 border-2 border-emerald-500/20 p-1 shrink-0 overflow-hidden shadow-xl">
+                <div className="w-28 h-28 rounded-none bg-slate-800 border-2 border-emerald-500/20 p-1 shrink-0 overflow-hidden shadow-xl">
                   {selectedTalent.avatar_url
-                    ? <img src={selectedTalent.avatar_url} className="w-full h-full object-cover rounded-[1.8rem]" alt="" />
+                    ? <img src={selectedTalent.avatar_url} className="w-full h-full object-cover rounded-none" alt="" />
                     : <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-600 bg-slate-900">{selectedTalent.full_name?.charAt(0)}</div>
                   }
                 </div>
@@ -208,36 +208,36 @@ export default function TalentPool() {
                   <p className="text-emerald-500 font-black uppercase text-xs tracking-widest">{selectedTalent.primary_role}</p>
                   <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 mt-3 text-slate-400 text-[10px] font-black uppercase">
                     <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-emerald-500" /> {selectedTalent.location || "Remote"}</span>
-                    <span className="w-1 h-1 bg-slate-700 rounded-full" />
+                    <span className="w-1 h-1 bg-slate-700 rounded-none" />
                     <span>{selectedTalent.experience_level || "Expert"} Level</span>
                   </div>
                 </div>
               </div>
               {/* Bio */}
-              <div className="bg-[var(--bg-main)] p-6 rounded-3xl border border-[var(--border-color)] relative">
-                <div className="absolute -top-3 left-6 px-3 py-1 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-full text-[9px] font-black uppercase tracking-widest text-slate-500">Biography</div>
+              <div className="bg-[var(--bg-main)] p-6 rounded-none border border-[var(--border-color)] relative">
+                <div className="absolute -top-3 left-6 px-3 py-1 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-none text-[9px] font-black uppercase tracking-widest text-slate-500">Biography</div>
                 <p className="text-sm text-slate-400 leading-relaxed font-medium">"{selectedTalent.bio || "Candidate has not provided a bio yet."}"</p>
               </div>
               {/* Actions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button onClick={openOfferModal}
-                  className="flex items-center justify-center gap-3 bg-emerald-500 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all hover:bg-emerald-400 hover:scale-[1.02] shadow-lg shadow-emerald-500/20">
+                  className="flex items-center justify-center gap-3 bg-emerald-500 text-white py-4 rounded-none font-black text-[10px] uppercase tracking-widest transition-all hover:bg-emerald-400 hover:scale-[1.02] shadow-lg shadow-emerald-500/20">
                   <Zap className="w-4 h-4 fill-white" /> Send offer
                 </button>
                 <Link to={`/@${selectedTalent.username || selectedTalent.id}`}
-                  className="flex items-center justify-center gap-3 bg-[var(--text-main)] text-[var(--sidebar-bg)] py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:opacity-90">
+                  className="flex items-center justify-center gap-3 bg-[var(--text-main)] text-[var(--sidebar-bg)] py-4 rounded-none font-black text-[10px] uppercase tracking-widest hover:opacity-90">
                   <ExternalLink className="w-4 h-4" /> Full Profile
                 </Link>
                 <button onClick={() => navigate(`/interview-scheduler/${selectedTalent.id}`)}
-                  className="flex items-center justify-center gap-3 bg-transparent text-[var(--text-main)] py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-[var(--border-color)] hover:bg-slate-500/5 transition-all">
+                  className="flex items-center justify-center gap-3 bg-transparent text-[var(--text-main)] py-4 rounded-none font-black text-[10px] uppercase tracking-widest border border-[var(--border-color)] hover:bg-slate-500/5 transition-all">
                   <Calendar className="w-4 h-4" /> Schedule Interview
                 </button>
                 {selectedTalent.resume_url
                   ? <a href={selectedTalent.resume_url} target="_blank" rel="noreferrer"
-                      className="flex items-center justify-center gap-3 bg-blue-500/10 text-blue-500 py-4 rounded-2xl font-black text-[10px] uppercase border border-blue-500/20 hover:bg-blue-500/20 transition-all">
+                      className="flex items-center justify-center gap-3 bg-blue-500/10 text-blue-500 py-4 rounded-none font-black text-[10px] uppercase border border-blue-500/20 hover:bg-blue-500/20 transition-all">
                       <FileText className="w-4 h-4" /> View Resume
                     </a>
-                  : <div className="flex items-center justify-center gap-3 opacity-30 bg-slate-500/5 py-4 rounded-2xl font-black text-[10px] uppercase border border-dashed border-[var(--border-color)] cursor-not-allowed">
+                  : <div className="flex items-center justify-center gap-3 opacity-30 bg-slate-500/5 py-4 rounded-none font-black text-[10px] uppercase border border-dashed border-[var(--border-color)] cursor-not-allowed">
                       <X className="w-4 h-4" /> No Resume
                     </div>
                 }
@@ -251,12 +251,12 @@ export default function TalentPool() {
       {showOfferModal && selectedTalent && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={() => setShowOfferModal(false)} />
-          <div className="relative w-full max-w-lg bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+          <div className="relative w-full max-w-lg bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-none shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
 
             {/* Header */}
             <div className="p-8 pb-0">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-emerald-500/20 overflow-hidden shrink-0">
+                <div className="w-12 h-12 rounded-none bg-slate-800 border border-emerald-500/20 overflow-hidden shrink-0">
                   {selectedTalent.avatar_url
                     ? <img src={selectedTalent.avatar_url} className="w-full h-full object-cover" alt="" />
                     : <div className="w-full h-full flex items-center justify-center text-lg font-black text-slate-500">{selectedTalent.full_name?.charAt(0)}</div>
@@ -268,7 +268,7 @@ export default function TalentPool() {
                   <p className="text-xs font-bold text-slate-400">{selectedTalent.primary_role}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 mb-6">
+              <div className="flex items-start gap-3 p-3 rounded-none bg-emerald-500/5 border border-emerald-500/10 mb-6">
                 <AlertCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
                   This sends a <strong className="text-slate-600 dark:text-slate-300">formal job offer</strong>. {selectedTalent.full_name.split(" ")[0]} will receive a notification and can accept or decline from their Flowboard dashboard.
@@ -282,7 +282,7 @@ export default function TalentPool() {
                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Role title *</label>
                 <input value={offerForm.role_title} onChange={e => updateOffer("role_title", e.target.value)}
                   placeholder="e.g. Senior Frontend Engineer"
-                  className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all" />
+                  className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all" />
               </div>
 
               <div>
@@ -290,7 +290,7 @@ export default function TalentPool() {
                 <div className="grid grid-cols-3 gap-2">
                   {[{ value: "full_time", label: "Full-time" }, { value: "contract", label: "Contract" }, { value: "part_time", label: "Part-time" }].map(t => (
                     <button key={t.value} type="button" onClick={() => updateOffer("role_type", t.value)}
-                      className={`py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
+                      className={`py-2.5 rounded-none text-[10px] font-black uppercase tracking-wider transition-all border ${
                         offerForm.role_type === t.value
                           ? "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20"
                           : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
@@ -306,14 +306,14 @@ export default function TalentPool() {
                   </label>
                   <input value={offerForm.salary_monthly} onChange={e => updateOffer("salary_monthly", e.target.value)}
                     placeholder="e.g. 5000" type="number"
-                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all" />
+                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all" />
                 </div>
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
                     <Calendar className="inline w-3 h-3" />Start date
                   </label>
                   <input type="date" value={offerForm.start_date} onChange={e => updateOffer("start_date", e.target.value)}
-                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all" />
+                    className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all" />
                 </div>
               </div>
 
@@ -324,7 +324,7 @@ export default function TalentPool() {
                   </label>
                   <div className="relative">
                     <select value={offerForm.contract_length} onChange={e => updateOffer("contract_length", e.target.value)}
-                      className="w-full appearance-none bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all cursor-pointer">
+                      className="w-full appearance-none bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none px-4 py-3 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all cursor-pointer">
                       {["1 month","3 months","6 months","1 year","2 years","Indefinite"].map(l => <option key={l}>{l}</option>)}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
@@ -337,14 +337,14 @@ export default function TalentPool() {
                 <textarea value={offerForm.offer_message} onChange={e => updateOffer("offer_message", e.target.value)}
                   rows={4}
                   placeholder="Dear [Name], we're excited to extend this offer... describe the role, team, expectations and why you want them."
-                  className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all resize-none" />
+                  className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-none p-4 text-sm font-medium outline-none focus:border-emerald-500/50 transition-all resize-none" />
               </div>
             </div>
 
             {/* Footer */}
             <div className="p-8 pt-5 flex flex-col gap-3">
               <button onClick={handleSendOffer} disabled={isSending || !offerForm.role_title.trim() || !offerForm.offer_message.trim()}
-                className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/20">
+                className="w-full bg-emerald-500 text-white py-4 rounded-none font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-400 transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/20">
                 {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Send formal offer</>}
               </button>
               <button type="button" onClick={() => setShowOfferModal(false)}

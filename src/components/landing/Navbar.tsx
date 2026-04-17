@@ -89,7 +89,7 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
             {/* Hamburger Icon for Mobile */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`lg:hidden p-2 rounded-xl ${hoverBg} transition-colors`}
+              className={`lg:hidden p-2 rounded-none ${hoverBg} transition-colors`}
             >
               {isMobileMenuOpen ? (
                 <X className={iconColor} />
@@ -134,14 +134,14 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
           <div className="flex items-center gap-3 relative" ref={dropdownRef}>
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={`p-2.5 rounded-full ${hoverBg} transition hidden sm:block`}
+              className={`p-2.5 rounded-none ${hoverBg} transition hidden sm:block`}
             >
               <Search className={`w-5 h-5 ${iconColor}`} />
             </button>
 
             <button
               onClick={() => setIsAuthDropdownOpen(!isAuthDropdownOpen)}
-              className={`flex items-center gap-2 p-1.5 pl-3 rounded-full border transition-all ${
+              className={`flex items-center gap-2 p-1.5 pl-3 rounded-none border transition-all ${
                 isOverHero
                   ? "bg-white/10 border-white/20 text-white hover:bg-white/20"
                   : "bg-slate-50 border-slate-200 text-slate-900 hover:bg-slate-100"
@@ -150,7 +150,7 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
               <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">
                 {user ? "Account" : "Join Network"}
               </span>
-              <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+              <div className="w-8 h-8 rounded-none bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
                 <User className="w-4 h-4" />
               </div>
             </button>
@@ -162,7 +162,7 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-4 w-72 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-6 overflow-hidden"
+                  className="absolute right-0 top-full mt-4 w-72 bg-white rounded-none shadow-2xl border border-slate-100 p-6 overflow-hidden"
                 >
                   <div className="space-y-8">
                     <div>
@@ -237,7 +237,7 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
                     key={label}
                     href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-lg font-bold text-slate-900 px-4 py-2 hover:bg-slate-50 rounded-xl transition-colors"
+                    className="text-lg font-bold text-slate-900 px-4 py-2 hover:bg-slate-50 rounded-none transition-colors"
                   >
                     {label}
                   </a>
@@ -263,10 +263,10 @@ function AuthLink({
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors group"
+      className="w-full flex items-center justify-between p-3 rounded-none hover:bg-slate-50 transition-colors group"
     >
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+        <div className="w-8 h-8 rounded-none bg-slate-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
           <Icon className="w-4 h-4" />
         </div>
         <span className="text-sm font-bold text-slate-700">{label}</span>
