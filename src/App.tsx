@@ -57,6 +57,27 @@ import TermsPage   from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import FAQPage     from "./pages/FAQPage";
 
+// --- 4. PUBLIC MEGA MENU PAGES ---
+import ApplicantTracking from "./pages/public/platform/ApplicantTracking";
+import QualityAssurance from "./pages/public/platform/QualityAssurance";
+import GlobalTalentCloud from "./pages/public/platform/GlobalTalentCloud";
+import GlobalPayroll from "./pages/public/platform/GlobalPayroll";
+
+import Startups from "./pages/public/solutions/Startups";
+import Enterprises from "./pages/public/solutions/Enterprises";
+import RemoteTeams from "./pages/public/solutions/RemoteTeams";
+import IntelligentSourcing from "./pages/public/solutions/IntelligentSourcing";
+import PerformanceTracking from "./pages/public/solutions/PerformanceTracking";
+import ComplianceAutomation from "./pages/public/solutions/ComplianceAutomation";
+
+import CaseStudies from "./pages/public/resources/CaseStudies";
+import Videos from "./pages/public/resources/Videos";
+import Blog from "./pages/public/resources/Blog";
+import Webinars from "./pages/public/resources/Webinars";
+import ResourceHub from "./pages/public/resources/ResourceHub";
+import PartnerApply from "./pages/public/partners/Apply";
+import OpenPositions from "./pages/public/careers/OpenPositions";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -68,6 +89,24 @@ const App = () => (
 
           {/* ── Public ────────────────────────────────────────────── */}
           <Route path="/" element={<Index />} />
+
+          {/* Platform Options */}
+          <Route path="/platform/applicant-tracking" element={<ApplicantTracking />} />
+          <Route path="/platform/quality-assurance" element={<QualityAssurance />} />
+          <Route path="/platform/global-talent-cloud" element={<GlobalTalentCloud />} />
+          <Route path="/platform/global-payroll" element={<GlobalPayroll />} />
+
+          {/* Solutions Options */}
+          <Route path="/solutions/startups" element={<Startups />} />
+          <Route path="/solutions/enterprises" element={<Enterprises />} />
+          <Route path="/solutions/remote-teams" element={<RemoteTeams />} />
+          <Route path="/solutions/intelligent-sourcing" element={<IntelligentSourcing />} />
+          <Route path="/solutions/performance-tracking" element={<PerformanceTracking />} />
+          <Route path="/solutions/compliance-automation" element={<ComplianceAutomation />} />
+
+          <Route path="/resources/hub" element={<ResourceHub />} />
+          <Route path="/partners/apply" element={<PartnerApply />} />
+          <Route path="/careers/open-positions" element={<OpenPositions />} />
 
           {/* Talent Auth */}
           <Route path="/talent/signup"          element={<TalentSignup />} />

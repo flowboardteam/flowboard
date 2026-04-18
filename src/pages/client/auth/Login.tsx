@@ -103,44 +103,61 @@ export default function ClientLogin() {
   return (
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
-        {/* --- LEFT SIDE: Client Branding (Indigo/Navy) --- */}
-        <div className="hidden lg:flex flex-col justify-between bg-[#0A1229] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
+        {/* --- LEFT SIDE: Client Branding (Premium Image Background) --- */}
+        <div className="hidden lg:flex flex-col justify-between p-16 text-white relative overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="/clientloginimage.jpg" 
+              className="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]" 
+              alt="Professional Background" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A1229] via-[#0A1229]/60 to-transparent" />
+            <div className="absolute inset-0 bg-indigo-900/10 mix-blend-multiply" />
+          </div>
           
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black tracking-tighter">Flowboard</span>
             </Link>
-
+ 
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold mb-6">
-                <Building2 size={14} /> Partner Portal
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
+                <Building2 size={12} /> Client Portal
               </div>
-              <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
+              <h2 className="text-6xl font-black leading-[1.05] mb-8 tracking-tighter">
                 Manage your <br />
-                <span className="text-indigo-400">AI workforce.</span>
+                <span className="text-white">entire workforce.</span>
               </h2>
-              <div className="flex items-center gap-4 text-slate-400">
-                <div className="w-10 h-10 rounded-none bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-indigo-500" />
+              <div className="flex items-center gap-4 text-white/80">
+                <div className="w-10 h-10 rounded-none bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-white" />
                 </div>
-                <p className="text-lg font-medium text-slate-300">
-                  Secure access to your hiring pipeline and contracts.
+                <p className="text-lg font-medium tracking-tight text-white/90">
+                  Secure access to your hiring and people management suite.
                 </p>
               </div>
             </motion.div>
           </div>
-
-          <div className="relative z-10 p-6 bg-white/5 backdrop-blur-md rounded-none border border-white/10">
-            <p className="text-sm text-slate-400 font-medium italic">
+ 
+          <div className="relative z-10 p-10 bg-black/40 backdrop-blur-xl rounded-none border border-white/10 max-w-lg">
+             <div className="mb-4">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <span key={s} className="text-xs text-amber-400 mr-0.5">★</span>
+                ))}
+             </div>
+            <p className="text-lg text-white font-medium leading-relaxed tracking-tight mb-6">
               "Centralizing our hiring process through Flowboard saved us over 40 hours of technical screening per month."
             </p>
-            <p className="mt-2 text-xs font-bold text-indigo-400">— Head of Engineering, Quantum Labs</p>
+            <div className="flex items-center gap-3">
+               <div className="w-8 h-px bg-white/30" />
+               <p className="text-xs font-bold text-white uppercase tracking-widest">— Head of Engineering, Nozolio Labs Inc.</p>
+            </div>
           </div>
         </div>
 
@@ -149,7 +166,7 @@ export default function ClientLogin() {
           <div className="absolute top-8 right-8 text-sm font-medium text-slate-500">
             Need an account?{" "}
             <Link to="/client/signup" className="text-indigo-600 font-bold hover:text-indigo-700 ml-1">
-              Join as Partner
+              Join as Business
             </Link>
           </div>
 

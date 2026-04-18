@@ -107,45 +107,49 @@ const handleSocialLogin = async (provider: "google" | "github") => {
   return (
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
-        {/* --- LEFT SIDE: Talent Branding --- */}
-        <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
+        {/* --- LEFT SIDE: Talent Branding (Premium Image Background) --- */}
+        <div className="hidden lg:flex flex-col p-16 text-white relative overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="/talentlogin.jpg" 
+              className="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]" 
+              alt="Global Talent" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050B1E] via-[#050B1E]/60 to-transparent" />
+            <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply" />
+          </div>
           
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black tracking-tighter">Flowboard</span>
             </Link>
-
+          </div>
+ 
+          <div className="relative z-10 flex-1 flex flex-col justify-center">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
-                <Sparkles size={14} /> AI-Powered Talent Network
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
+                Flowboard Talent Cloud
               </div>
-              <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
-                Resume your <br />
-                <span className="text-blue-400">global journey.</span>
+              <h2 className="text-6xl font-black leading-[1.05] mb-8 tracking-tighter text-white">
+                Your global corporate <br />
+                <span className="text-white">journey starts here.</span>
               </h2>
-              <div className="flex items-center gap-4 text-slate-400">
-                <div className="w-10 h-10 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-blue-500" />
+              <div className="flex items-center gap-4 text-white/80">
+                <div className="w-10 h-10 rounded-none bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-white" />
                 </div>
-                <p className="text-lg font-medium text-slate-300">
+                <p className="text-lg font-medium tracking-tight">
                   Your profile is protected by enterprise-grade security.
                 </p>
               </div>
             </motion.div>
           </div>
-
-          {/* <div className="relative z-10 p-6 bg-white/5 backdrop-blur-md rounded-none border border-white/10">
-            <p className="text-sm text-slate-400 font-medium italic">
-              "The transition from application to interview was seamless. Flowboard actually understands my technical stack."
-            </p>
-            <p className="mt-2 text-xs font-bold text-blue-400">— Senior DevOps Engineer</p>
-          </div> */}
         </div>
 
         {/* --- RIGHT SIDE: Login Form --- */}

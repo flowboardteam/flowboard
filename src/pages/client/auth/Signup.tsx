@@ -141,67 +141,84 @@ export default function ClientSignUp() {
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
         {/* LEFT SIDE: Brand Experience (Hiring Focused) */}
-        <div className="hidden lg:flex flex-col justify-between bg-[#0A1229] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
+        <div className="hidden lg:flex flex-col justify-between p-16 text-white relative overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="/clientloginimage.jpg" 
+              className="w-full h-full object-cover grayscale-[0.1] contrast-[1.05]" 
+              alt="Hiring Professional" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A1229] via-[#0A1229]/60 to-transparent" />
+            <div className="absolute inset-0 bg-indigo-900/10 mix-blend-multiply" />
+          </div>
           
           <div className="relative z-10">
-            <Link to="/" className="flex items-center gap-2 mb-20">
+            <Link to="/" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black tracking-tighter text-white">Flowboard</span>
             </Link>
-
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight text-white">
-                Hire the top 1% <br />
-                <span className="text-indigo-400 text-6xl italic">AI Engineers.</span>
+ 
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
+                <Users size={12} /> Elite Talent Cloud
+              </div>
+              <h2 className="text-6xl font-black leading-[1.05] mb-10 tracking-tighter text-white">
+                Hire top <br />
+                <span className="font-serif font-medium">AI Engineer.</span>
               </h2>
-
+ 
               <div className="space-y-6">
                 {[
-                  { text: "Vetted AI Specialists & LLM Experts", icon: Users },
-                  { text: "Seamless contract & payroll management", icon: Globe },
-                  { text: "Scale your engineering team in days", icon: Briefcase },
+                  { text: "Vetted AI Specialists & LLM Experts", icon: CheckCircle2 },
+                  { text: "Seamless contract & payroll management", icon: CheckCircle2 },
+                  { text: "Scale your engineering team in days", icon: CheckCircle2 },
                 ].map((item) => (
                   <div key={item.text} className="flex items-center gap-4">
-                    <div className="w-6 h-6 rounded-none bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                      <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+                    <div className="w-6 h-6 rounded-none bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                      <item.icon className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-gray-300 text-lg font-medium">{item.text}</span>
+                    <span className="text-white/90 text-lg font-medium tracking-tight">{item.text}</span>
                   </div>
                 ))}
               </div>
             </motion.div>
           </div>
-
-          <div className="relative z-10 p-8 bg-white/5 backdrop-blur-xl rounded-none border border-white/10">
-            <p className="text-lg text-indigo-100/90 leading-relaxed mb-6 font-medium italic">
-              "Flowboard is the first platform that actually understands the specific technical needs of AI startups."
+ 
+          <div className="relative z-10 p-8 bg-black/40 backdrop-blur-xl rounded-none border border-white/10 max-w-md mt-12">
+             <div className="mb-3">
+                {[1, 2, 3, 4, 5].map((s) => (
+                   <span key={s} className="text-[10px] text-amber-400 mr-0.5">★</span>
+                ))}
+             </div>
+            <p className="text-base text-white font-medium leading-relaxed tracking-tight mb-6">
+              "Flowboard is the first platform that actually understands the specific technical needs of startups."
             </p>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-none bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-bold">JD</div>
+              <div className="w-10 h-10 rounded-none bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg text-sm">JD</div>
               <div>
-                <p className="font-bold text-white">James D.</p>
-                <p className="text-sm text-indigo-400/80 font-medium font-mono">CTO, NeuralSync</p>
+                <p className="font-bold text-white tracking-tight text-sm">James D.</p>
+                <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest font-sans">CTO, NEURALSYNC</p>
               </div>
             </div>
           </div>
         </div>
-
+ 
         {/* RIGHT SIDE: Signup Form */}
         <div className="flex flex-col justify-center px-6 py-12 lg:px-24 bg-white relative">
           <div className="absolute top-8 right-8 text-sm font-medium text-slate-500">
             Need to hire? <Link to="/client/login" className="text-indigo-600 font-bold hover:text-indigo-700 ml-1">Log in</Link>
           </div>
-
+ 
           <div className="max-w-[420px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-4">
-                <Building2 size={12} /> Partner Signup
+                <Building2 size={12} /> Business Signup
               </div>
               <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Join as a Client</h1>
               <p className="text-slate-500 font-medium">Access the world's most elite AI talent pool.</p>
             </div>
-
+ 
             <div className="grid grid-cols-2 gap-4 mb-8">
               <Button variant="outline" onClick={() => handleSocialLogin("google")} className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50">
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
@@ -210,27 +227,27 @@ export default function ClientSignUp() {
                 <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
               </Button>
             </div>
-
+ 
             <div className="relative mb-8">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
               <div className="relative flex justify-center text-[10px] uppercase text-slate-400 font-black tracking-widest"><span className="bg-white px-4">Corporate Email Signup</span></div>
             </div>
-
+ 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Hiring Manager Name</Label>
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" className="h-12 rounded-none border-slate-200 shadow-sm" required />
+                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" className="h-12 rounded-none border-slate-200 shadow-sm outline-none" required />
               </div>
-
+ 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Work Email Address</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="h-12 rounded-none border-slate-200 shadow-sm" required />
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" className="h-12 rounded-none border-slate-200 shadow-sm outline-none" required />
               </div>
-
+ 
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">Create Password</Label>
                 <div className="relative group">
-                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-none border-slate-200 shadow-sm" required />
+                  <Input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 pr-12 rounded-none border-slate-200 shadow-sm outline-none" required />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -252,16 +269,16 @@ export default function ClientSignUp() {
                   </motion.div>
                 )}
               </div>
-
+ 
               <div className="flex items-start space-x-3 py-2">
                 <Checkbox id="terms" checked={agreed} onCheckedChange={(checked) => setAgreed(checked as boolean)} className="data-[state=checked]:bg-indigo-600 border-slate-300" />
                 <Label htmlFor="terms" className="text-xs text-slate-500 leading-relaxed cursor-pointer select-none">
                   By signing up, I agree to the <a href="/terms" className="text-indigo-600 font-bold hover:underline">Terms of Service</a>.
                 </Label>
               </div>
-
+ 
               <Button className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-none shadow-xl shadow-indigo-900/10 gap-2 transition-all" disabled={isLoading || !agreed || !isPasswordValid}>
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Partner Account <ArrowRight size={18} /></>}
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Create Business Account <ArrowRight size={18} /></>}
               </Button>
             </form>
           </div>

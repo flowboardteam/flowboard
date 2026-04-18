@@ -19,6 +19,7 @@ import {
   Sparkles,
   Rocket,
   ShieldCheck,
+  Users,
   Check,
   X
 } from "lucide-react";
@@ -152,48 +153,60 @@ const handleSocialLogin = async (provider: "google" | "github") => {
   return (
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
-        {/* LEFT SIDE: Brand Experience */}
-        <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-none -mr-48 -mt-48" />
+        {/* LEFT SIDE: Brand Experience (Premium Image Background) */}
+        <div className="hidden lg:flex flex-col justify-between p-16 text-white relative overflow-hidden">
+          {/* Background Image with Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src="/talentlogin.jpg" 
+              className="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]" 
+              alt="Global Talent" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050B1E] via-[#050B1E]/60 to-transparent" />
+            <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply" />
+          </div>
           
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-black tracking-tighter">Flowboard</span>
+              <span className="text-2xl font-black tracking-tighter text-white">Flowboard</span>
             </Link>
-
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
+ 
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
+                <Users size={12} /> Global Talent Cloud
+              </div>
+              <h2 className="text-6xl font-black leading-[1.05] mb-10 tracking-tighter text-white">
                 Join the global <br />
-                <span className="text-blue-400 text-6xl">Talent Cloud.</span>
+                <span className="font-serif font-medium">Talent Cloud.</span>
               </h2>
-
+ 
               <div className="space-y-6">
                 {[
-                  { text: "Access exclusive high-ticket AI roles", icon: Sparkles },
-                  { text: "Automated profile matching with Top Orgs", icon: Zap },
-                  { text: "Secure payments & contract compliance", icon: ShieldCheck },
+                  { text: "Access exclusive high-ticket AI roles", icon: CheckCircle2 },
+                  { text: "Automated profile matching with Top Orgs", icon: CheckCircle2 },
+                  { text: "Secure payments & contract compliance", icon: CheckCircle2 },
                 ].map((item) => (
-                  <div key={item.text} className="flex items-center gap-4 group">
-                    <div className="w-6 h-6 rounded-none bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                      <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                  <div key={item.text} className="flex items-center gap-4">
+                    <div className="w-6 h-6 rounded-none bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                      <item.icon className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-gray-300 text-lg font-medium">{item.text}</span>
+                    <span className="text-white/90 text-lg font-medium tracking-tight">{item.text}</span>
                   </div>
                 ))}
               </div>
             </motion.div>
           </div>
-
-          <div className="relative z-10 p-8 bg-white/5 backdrop-blur-xl rounded-none border border-white/10">
-            <p className="text-lg text-blue-100/90 leading-relaxed mb-6 font-medium italic">
-              "Flowboard isn't just a job board; it's a career accelerator for engineers in the AI era."
+ 
+          <div className="relative z-10 p-8 bg-black/40 backdrop-blur-xl rounded-none border border-white/10 max-w-md mt-12">
+            <p className="text-lg text-white font-medium leading-relaxed tracking-tight mb-8">
+              "Flowboard isn't just a job board; it's a career accelerator for tech engineers and professional working in the tech space."
             </p>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-none bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center font-bold">AK</div>
+              <div className="w-12 h-12 rounded-none bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/40">AK</div>
               <div>
-                <p className="font-bold text-white">Amara K.</p>
-                <p className="text-sm text-blue-400/80 font-medium font-mono">Senior AI Engineer</p>
+                <p className="font-bold text-white tracking-tight">Amara K.</p>
+                <p className="text-xs text-blue-300 font-bold uppercase tracking-widest font-sans">SENIOR AI ENGINEER</p>
               </div>
             </div>
           </div>
