@@ -84,7 +84,20 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       setLoading(false);
     };
 
-    checkUser();
+    const checkUserWithTimeout = async () => {
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Auth timeout")), 10000)
+      );
+
+      try {
+        await Promise.race([checkUser(), timeoutPromise]);
+      } catch (err) {
+        console.error("Auth check failed or timed out:", err);
+        setLoading(false); // Let the children handle the missing state or show an error
+      }
+    };
+
+    checkUserWithTimeout();
   }, [navigate, location.pathname]);
 
   if (loading) {

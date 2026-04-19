@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoutes";
 import { TalentPublicProfile } from "./pages/TalentPublicProfile";
+import JobPosting from "./pages/public/jobs/JobPosting";
 
 // Talent Auth
 import TalentSignup from "./pages/talent/auth/Signup";
@@ -30,6 +31,8 @@ import ContractsDiscovery from "./pages/talent/contracts/page";
 import SystemPrefs from "./pages/talent/dashboard/SystemPrefs";
 import TalentOffersPage from "./pages/talent/offers/TalentOffersPage";
 import TalentContractChangesPage from "./pages/talent/contract-changes/TalentContractChangesPage";
+import TalentJobsPage from "./pages/talent/jobs/TalentJobsPage";
+
 
 // --- 3. CLIENT PAGES ---
 import ClientOnboarding from "./pages/client/onboarding/index";
@@ -45,6 +48,7 @@ import RoleShortlistPage from "./pages/client/roles/RoleShortlistPage";
 import ActiveWorkforcePage from "./pages/client/workforce/ActiveWorkforcePage";
 import ClientOffersPage from "./pages/client/offers/ClientOffersPage";
 import Haraka from "./pages/client/haraka";
+import GroupsPage from "./pages/client/settings/Groups";
 
 // Shared
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
@@ -107,6 +111,7 @@ const App = () => (
           <Route path="/resources/hub" element={<ResourceHub />} />
           <Route path="/partners/apply" element={<PartnerApply />} />
           <Route path="/careers/open-positions" element={<OpenPositions />} />
+          <Route path="/jobs/:roleId" element={<JobPosting />} />
 
           {/* Talent Auth */}
           <Route path="/talent/signup"          element={<TalentSignup />} />
@@ -139,6 +144,7 @@ const App = () => (
             <Route path="offers"           element={<TalentOffersPage />} />
             <Route path="contract-changes" element={<TalentContractChangesPage />} />
             <Route path="project" element={<TalentProjectPage />} />
+            <Route path="jobs" element={<TalentJobsPage />} />
             
             {/* Placeholders */}
             <Route path="tracker"          element={<ComingSoon />} />
@@ -158,6 +164,7 @@ const App = () => (
             <Route path="dashboard"    element={<ClientDashboardIndex />} />
             <Route path="profile"      element={<ClientProfileSettings />} />
             <Route path="settings"     element={<ClientSystemPrefs />} />
+            <Route path="settings/groups" element={<GroupsPage />} />
             <Route path="applications" element={<ApplicationsPage />} />
 
             {/* Talent & AI */}

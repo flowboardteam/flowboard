@@ -283,19 +283,19 @@ export default function ProfileSettings() {
   if (loading)
     return (
       <div className="min-h-[60vh] flex items-center bg-[var(--background)] justify-center">
-        <div className="w-10 h-10 border-4 border-[#00A86B] border-t-transparent rounded-none animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-[#00A86B] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8 pb-32 bg-[var(--background)] dark:bg-[#020617] min-h-screen transition-colors duration-300">
       {/* TOP ACTION BAR */}
-      <div className="flex flex-col sm:flex-row items-center justify-between bg-[var(--card-bg)] border border-[var(--border-color)] p-4 rounded-none shadow-sm gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between bg-[var(--card-bg)] border border-[var(--border-color)] p-4 rounded-xl shadow-sm gap-4">
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <div className="relative h-12 w-12 md:h-14 md:w-14 flex items-center justify-center flex-shrink-0">
             {/* Muted background for the percentage, text color is dynamic */}
             <div
-              className="h-10 w-10 md:h-12 md:w-12 bg-slate-500/5 dark:bg-slate-400/5 rounded-none flex items-center justify-center text-xs md:text-sm font-black border border-[var(--border-color)] relative z-10"
+              className="h-10 w-10 md:h-12 md:w-12 bg-slate-500/5 dark:bg-slate-400/5 rounded-xl flex items-center justify-center text-xs md:text-sm font-black border border-[var(--border-color)] relative z-10"
               style={{
                 color:
                   calculateCompletion() < 40
@@ -308,7 +308,7 @@ export default function ProfileSettings() {
               {calculateCompletion()}%
             </div>
             {/* Optional: Subtle decorative ring */}
-            <div className="absolute inset-0 border border-dashed border-slate-200 dark:border-slate-800 rounded-none animate-[spin_10s_linear_infinite]" />
+            <div className="absolute inset-0 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl animate-[spin_10s_linear_infinite]" />
           </div>
 
           <div className="flex-1 min-w-0">
@@ -316,7 +316,7 @@ export default function ProfileSettings() {
               Profile Strength
             </p>
             {/* THE PROGRESS BAR - Muted track */}
-            <div className="w-full h-1.5 bg-slate-500/10 dark:bg-slate-400/10 rounded-none mt-1 overflow-hidden">
+            <div className="w-full h-1.5 bg-slate-500/10 dark:bg-slate-400/10 rounded-full mt-1 overflow-hidden">
               <div
                 className="h-full transition-all duration-1000 ease-out"
                 style={{
@@ -337,11 +337,11 @@ export default function ProfileSettings() {
         <button
           onClick={handleUpdate}
           disabled={updating}
-          className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-[#00A86B] dark:hover:bg-[#00A86B] hover:text-white dark:hover:text-white font-black text-[10px] uppercase tracking-[0.2em] px-8 py-3.5 rounded-none transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+          className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-[#00A86B] dark:hover:bg-[#00A86B] hover:text-white dark:hover:text-white font-black text-[10px] uppercase tracking-[0.2em] px-8 py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
         >
           {updating ? (
             <span className="flex items-center gap-2">
-              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-none animate-spin" />
+              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
               Syncing...
             </span>
           ) : (
@@ -354,8 +354,8 @@ export default function ProfileSettings() {
 
       {/* COMPLETION WARNING NUDGE */}
       {calculateCompletion() < 70 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-none p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="h-10 w-10 bg-amber-100 rounded-none flex items-center justify-center flex-shrink-0">
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="h-10 w-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
             <Target className="w-5 h-5 text-amber-600" />
           </div>
           <div className="flex-1">
@@ -382,9 +382,9 @@ export default function ProfileSettings() {
       )}
 
       {/* HEADER / AVATAR */}
-      <header className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-5 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 shadow-sm text-center md:text-left overflow-hidden">
+      <header className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-5 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 shadow-sm text-center md:text-left overflow-hidden">
         <div className="relative flex-shrink-0">
-          <div className="w-32 h-32 md:w-44 md:h-44 rounded-none bg-slate-500/10 dark:bg-slate-900/50 border border-[var(--border-color)] overflow-hidden flex items-center justify-center group relative shadow-inner">
+          <div className="w-32 h-32 md:w-44 md:h-44 rounded-2xl bg-slate-500/10 dark:bg-slate-900/50 border border-[var(--border-color)] overflow-hidden flex items-center justify-center group relative shadow-inner">
             {previewUrl || profile.avatar_url ? (
               <img
                 src={previewUrl || profile.avatar_url}
@@ -399,7 +399,7 @@ export default function ProfileSettings() {
           {/* The Trigger Button */}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 p-3 md:p-4 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-all group z-10"
+            className="absolute -bottom-1 -right-1 p-3 md:p-4 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-all group z-10"
           >
             <Camera className="w-4 h-4 md:w-5 h-5 text-slate-400 group-hover:text-[#00A86B]" />
           </button>
@@ -444,7 +444,7 @@ export default function ProfileSettings() {
           {/* BADGES */}
           <div className="flex flex-wrap justify-center md:justify-start gap-3 w-full">
             <div className="max-w-full">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-500/5 dark:bg-slate-400/5 text-slate-500 dark:text-slate-400 border border-[var(--border-color)] rounded-none text-[10px] md:text-[11px] font-black uppercase tracking-widest w-full">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-slate-500/5 dark:bg-slate-400/5 text-slate-500 dark:text-slate-400 border border-[var(--border-color)] rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest w-full">
                 <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                 <span className="truncate max-w-[180px] sm:max-w-[300px] md:max-w-[400px]">
                   {profile.email}
@@ -452,7 +452,7 @@ export default function ProfileSettings() {
               </span>
             </div>
 
-            <span className="inline-flex items-center px-4 py-2 bg-slate-500/10 text-slate-600 dark:text-slate-300 border border-transparent rounded-none text-[10px] md:text-[11px] font-black uppercase tracking-widest whitespace-nowrap">
+            <span className="inline-flex items-center px-4 py-2 bg-slate-500/10 text-slate-600 dark:text-slate-300 border border-transparent rounded-lg text-[10px] md:text-[11px] font-black uppercase tracking-widest whitespace-nowrap">
               {profile.role_type || "Member"}
             </span>
           </div>
@@ -462,7 +462,7 @@ export default function ProfileSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
           {/* 1. PROFESSIONAL OVERVIEW & BIO */}
-          <section className=" dark:bg-[#0B1120] dark:bg-[#0B1120] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-8 space-y-8 shadow-sm">
+          <section className=" dark:bg-[#0B1120] dark:bg-[#0B1120] bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 space-y-8 shadow-sm">
             <div className="space-y-4">
               <h3 className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#00A86B]">
                 <Sparkles className="w-4 h-4" /> Neural Biography
@@ -474,7 +474,7 @@ export default function ProfileSettings() {
                   setProfile({ ...profile, bio: e.target.value })
                 }
                 placeholder="Describe your expertise..."
-                className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-none p-5 text-base outline-none focus:border-[#00A86B] focus:ring-4 focus:ring-emerald-500/5 transition-all text-[var(--foreground)]"
+                className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl p-5 text-base outline-none focus:border-[#00A86B] focus:ring-4 focus:ring-emerald-500/5 transition-all text-[var(--foreground)]"
               />
             </div>
 
@@ -491,7 +491,7 @@ export default function ProfileSettings() {
                       setProfile({ ...profile, primary_role: e.target.value })
                     }
                     placeholder="e.g. Senior Fullstack Engineer"
-                    className="w-full dark:bg-slate-900/50 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#00A86B] dark:bg-[#0B1120] dark:bg-[#0B1120] transition-all"
+                    className="w-full dark:bg-slate-900/50 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#00A86B] dark:bg-[#0B1120] dark:bg-[#0B1120] transition-all"
                   />
                 </div>
               </div>
@@ -511,7 +511,7 @@ export default function ProfileSettings() {
                       })
                     }
                     placeholder="e.g. FlowBoard Labs"
-                    className="w-full dark:bg-slate-900/50 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#00A86B] dark:bg-[#0B1120] dark:bg-[#0B1120] transition-all"
+                    className="w-full dark:bg-slate-900/50 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#00A86B] dark:bg-[#0B1120] dark:bg-[#0B1120] transition-all"
                   />
                 </div>
               </div>
@@ -519,18 +519,18 @@ export default function ProfileSettings() {
           </section>
 
           {/* 2. CAPABILITIES: SKILLS & TOOLS */}
-          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-8 space-y-10 shadow-sm">
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 space-y-10 shadow-sm">
             {/* Skills Stack */}
             <div className="space-y-5">
               <h3 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
                 <Zap className="w-4 h-4 text-[#00A86B]" /> Skill Matrix
               </h3>
-              <div className="flex flex-wrap gap-3 p-4 bg-slate-500/5 dark:bg-slate-900/50 rounded-none border border-dashed border-[var(--border-color)]">
+              <div className="flex flex-wrap gap-3 p-4 bg-slate-500/5 dark:bg-slate-900/50 rounded-2xl border border-dashed border-[var(--border-color)]">
                 {profile.skills?.map((skill: string) => (
                   <motion.span
                     layout
                     key={skill}
-                    className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none text-[10px] font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 flex items-center gap-3 shadow-sm transition-all group hover:border-[#00A86B]/30"
+                    className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 flex items-center gap-3 shadow-sm transition-all group hover:border-[#00A86B]/30"
                   >
                     {skill}
                     <X
@@ -571,7 +571,7 @@ export default function ProfileSettings() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-full mb-2 left-0 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none shadow-2xl z-[100] overflow-hidden"
+                        className="absolute bottom-full mb-2 left-0 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] overflow-hidden"
                       >
                         {skillSuggestions.map((s) => (
                           <button
@@ -601,12 +601,12 @@ export default function ProfileSettings() {
               <h3 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
                 <Wrench className="w-4 h-4 text-[#00A86B]" /> Tech Stack
               </h3>
-              <div className="flex flex-wrap gap-3 p-4 bg-slate-500/5 dark:bg-slate-900/50 rounded-none border border-dashed border-[var(--border-color)]">
+              <div className="flex flex-wrap gap-3 p-4 bg-slate-500/5 dark:bg-slate-900/50 rounded-2xl border border-dashed border-[var(--border-color)]">
                 {profile.tools?.map((tool: string) => (
                   <motion.span
                     layout
                     key={tool}
-                    className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none text-[10px] font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 flex items-center gap-3 shadow-sm transition-all group hover:border-[#00A86B]/30"
+                    className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 flex items-center gap-3 shadow-sm transition-all group hover:border-[#00A86B]/30"
                   >
                     {tool}
                     <X
@@ -647,7 +647,7 @@ export default function ProfileSettings() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-full mb-2 left-0 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none shadow-2xl z-[100] overflow-hidden"
+                        className="absolute bottom-full mb-2 left-0 w-48 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-2xl z-[100] overflow-hidden"
                       >
                         {toolSuggestions.map((t) => (
                           <button
@@ -674,11 +674,11 @@ export default function ProfileSettings() {
           </section>
 
           {/* LOGISTICS GRID */}
-          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none md:rounded-none p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 shadow-sm">
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl md:rounded-2xl p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 shadow-sm">
             {/* Left Side: Marketplace Info */}
             <div className="space-y-6">
               <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                <MapPin className="w-3 h-3 text-[#00A86B]" /> Marketplace Info
+                <MapPin className="w-3 h-3 text-[#00A86B]" /> Talent Account Info
               </h4>
               <div className="space-y-4">
                 {/* Location Node */}
@@ -747,7 +747,7 @@ export default function ProfileSettings() {
                         experience_level: e.target.value,
                       })
                     }
-                    className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-none px-4 py-3 text-xs font-black uppercase tracking-tight outline-none focus:border-slate-400 text-[var(--foreground)] transition-all cursor-pointer appearance-none"
+                    className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-tight outline-none focus:border-slate-400 text-[var(--foreground)] transition-all cursor-pointer appearance-none"
                   >
                     <option className="bg-[var(--card-bg)]">Junior</option>
                     <option className="bg-[var(--card-bg)]">Mid-Level</option>
@@ -772,7 +772,7 @@ export default function ProfileSettings() {
                           employment_status: e.target.value,
                         })
                       }
-                      className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-none px-4 py-3 text-xs font-black outline-none text-[var(--foreground)] group-hover:border-[#00A86B]/50 transition-all cursor-pointer appearance-none uppercase tracking-widest"
+                      className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black outline-none text-[var(--foreground)] group-hover:border-[#00A86B]/50 transition-all cursor-pointer appearance-none uppercase tracking-widest"
                     >
                       <option className="bg-[var(--card-bg)]">
                         Open to Work
@@ -788,7 +788,7 @@ export default function ProfileSettings() {
                       </option>
                     </select>
                     {/* Minimalist status dot - the only bright green part */}
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#00A86B] shadow-[0_0_8px_rgba(0,168,107,0.4)] animate-pulse pointer-events-none" />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#00A86B] shadow-[0_0_8px_rgba(0,168,107,0.4)] animate-pulse pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -796,20 +796,20 @@ export default function ProfileSettings() {
           </section>
 
           {/* LANGUAGES SECTION */}
-          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-8 space-y-6 shadow-sm">
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 space-y-6 shadow-sm">
             <h3 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400">
               <Languages className="w-4 h-4 text-[#00A86B]" /> Communication
               Nodes
             </h3>
 
-            <div className="flex flex-wrap gap-3 p-4 bg-slate-500/5 dark:bg-slate-900/50 rounded-none border border-dashed border-[var(--border-color)]">
+            <div className="flex flex-wrap gap-3 p-4 bg-slate-500/5 dark:bg-slate-900/50 rounded-2xl border border-dashed border-[var(--border-color)]">
               {profile.languages?.map((lang: string) => (
                 <motion.span
                   layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   key={lang}
-                  className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none text-[10px] font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 flex items-center gap-3 shadow-sm group transition-all hover:border-[#00A86B]/30"
+                  className="px-4 py-2 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 flex items-center gap-3 shadow-sm group transition-all hover:border-[#00A86B]/30"
                 >
                   {lang}
                   <X
@@ -842,7 +842,7 @@ export default function ProfileSettings() {
                 />
                 <button
                   onClick={addLanguage}
-                  className="p-1.5 hover:bg-emerald-500/10 rounded-none transition-colors group"
+                  className="p-1.5 hover:bg-emerald-500/10 rounded-xl transition-colors group"
                 >
                   <Plus className="w-4 h-4 text-[#00A86B] group-hover:scale-110 transition-transform" />
                 </button>
@@ -853,12 +853,12 @@ export default function ProfileSettings() {
 
         {/* RIGHT COLUMN: LINKS */}
         <div className="lg:col-span-4 space-y-8">
-          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-8 space-y-5 shadow-sm">
+          <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 space-y-5 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                 External Nodes
               </h3>
-              <div className="w-2 h-2 rounded-none bg-[#00A86B] animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-[#00A86B] animate-pulse" />
             </div>
 
             {[
@@ -882,10 +882,10 @@ export default function ProfileSettings() {
                     setProfile({ ...profile, [item.key]: e.target.value })
                   }
                   placeholder={item.label}
-                  className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-none pl-11 pr-4 py-3.5 text-[11px] font-bold outline-none transition-all focus:border-[#00A86B] focus:ring-4 focus:ring-emerald-500/5 text-[var(--foreground)] placeholder:text-slate-500 placeholder:font-medium"
+                  className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-11 pr-4 py-3.5 text-[11px] font-bold outline-none transition-all focus:border-[#00A86B] focus:ring-4 focus:ring-emerald-500/5 text-[var(--foreground)] placeholder:text-slate-500 placeholder:font-medium"
                 />
                 {/* Subtle hover indicator line */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-0 group-focus-within:h-1/2 bg-[#00A86B] transition-all duration-300 rounded-none" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-0 group-focus-within:h-1/2 bg-[#00A86B] transition-all duration-300 rounded-full" />
               </div>
             ))}
           </section>

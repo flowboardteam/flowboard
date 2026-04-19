@@ -21,6 +21,7 @@ export default {
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
         lancelot: ["Lancelot", "serif"],
+        jakarta: ['"Plus Jakarta Sans"', "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

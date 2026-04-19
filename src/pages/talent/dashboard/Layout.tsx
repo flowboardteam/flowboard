@@ -114,53 +114,45 @@ useEffect(() => {
 
   const themeStyles = theme === "light"
   ? {
-      "--bg-main": "#F8FAFC",
+      "--bg-main": "#F9F9FB",
       "--sidebar-bg": "#FFFFFF",
-      "--text-main": "#0F172A",
-      "--border-color": "#E2E8F0",
+      "--text-main": "#1A1C21",
+      "--border-color": "#EEEEF0",
       "--card-bg": "#FFFFFF",
-      "--brand-primary": "#3b82f6", // Electric Blue from Landing
+      "--brand-primary": "#00A86B",
     }
   : {
-      "--bg-main": "#050B1E",       // Exact Hero Background
-      "--sidebar-bg": "#0A1229",    // Slightly lighter deep blue
+      "--bg-main": "#050B1E",
+      "--sidebar-bg": "#0A1229",
       "--text-main": "#FFFFFF",
       "--border-color": "#1E293B",
       "--card-bg": "#0F172A",
-      "--brand-primary": "#3b82f6", // Electric Blue
-      "--card-backdrop": "blur(12px)",      // The magic "glass" effect
+      "--brand-primary": "#00A86B",
+      "--card-backdrop": "blur(12px)",
     };
 
   return (
     <div
       style={themeStyles as any}
-      className="flex h-screen w-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300 overflow-hidden"
+      className="flex flex-col h-screen w-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300 overflow-hidden font-jakarta"
     >
-      {/* Sidebar - Desktop Only */}
-      <div className="hidden lg:block shrink-0 h-full overflow-y-auto border-r border-[var(--border-color)] bg-[var(--sidebar-bg)]">
-        <div className="w-72">
-          <Sidebar />
-        </div>
-      </div>
-
       <MobileSidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
 
-      <div className="flex-grow flex flex-col min-w-0">
-        <DashboardHeader
-          unreadCount={unreadCount}
-          onMenuClick={() => setIsMobileMenuOpen(true)}
-          theme={theme}
-          toggleTheme={toggleTheme}
-        />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
-          <div className="max-w-6xl mx-auto">
-            <Outlet context={{ theme, toggleTheme }} />
-          </div>
-        </main>
-      </div>
+      <DashboardHeader
+        unreadCount={unreadCount}
+        onMenuClick={() => setIsMobileMenuOpen(true)}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
+
+      <main className="flex-1 overflow-y-auto p-6 lg:p-10 scroll-smooth">
+        <div className="max-w-6xl mx-auto">
+          <Outlet context={{ theme, toggleTheme }} />
+        </div>
+      </main>
     </div>
   );
 }

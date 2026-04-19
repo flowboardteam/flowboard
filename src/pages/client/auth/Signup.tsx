@@ -139,7 +139,7 @@ export default function ClientSignUp() {
 };
   return (
     <>
-      <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
+      <div className="min-h-screen grid lg:grid-cols-2 font-jakarta bg-white overflow-x-hidden">
         {/* LEFT SIDE: Brand Experience (Hiring Focused) */}
         <div className="hidden lg:flex flex-col justify-between p-16 text-white relative overflow-hidden">
           {/* Background Image with Overlay */}
@@ -198,7 +198,7 @@ export default function ClientSignUp() {
               <div className="w-10 h-10 rounded-none bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg text-sm">JD</div>
               <div>
                 <p className="font-bold text-white tracking-tight text-sm">James D.</p>
-                <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest font-sans">CTO, NEURALSYNC</p>
+                <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest font-jakarta">CTO, NEURALSYNC</p>
               </div>
             </div>
           </div>

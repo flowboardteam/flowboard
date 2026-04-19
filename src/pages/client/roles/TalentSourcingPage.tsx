@@ -128,19 +128,19 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className={`p-6 rounded-none bg-[var(--card-bg)] border transition-all flex flex-col relative ${
+      className={`p-6 rounded-2xl bg-[var(--card-bg)] border transition-all flex flex-col relative ${
         score >= 80
           ? "border-emerald-500/30 hover:border-emerald-500/60"
           : "border-[var(--border-color)] hover:border-blue-500/40"
       }`}
     >
-      <div className={`absolute top-5 right-5 flex flex-col items-center px-2.5 py-1.5 rounded-none border text-center ${label.bg}`}>
+      <div className={`absolute top-5 right-5 flex flex-col items-center px-2.5 py-1.5 rounded-xl border text-center ${label.bg}`}>
         <span className={`text-base font-black leading-none ${label.color}`}>{score}%</span>
         <span className={`text-[8px] font-black uppercase tracking-wider mt-0.5 ${label.color}`}>match</span>
       </div>
 
       <div className="flex items-start gap-4 mb-4 pr-16">
-        <div className="w-12 h-12 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
           {talent.avatar_url
             ? <img src={talent.avatar_url} alt={talent.full_name} className="w-full h-full object-cover" />
             : <span className="text-lg font-black text-slate-400 uppercase">{talent.full_name?.charAt(0) ?? "T"}</span>
@@ -165,19 +165,19 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
           <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Skills</p>
           <div className="flex flex-wrap gap-1.5">
             {matchedSkills.map(s => (
-              <span key={s} className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded-none">
+              <span key={s} className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded-lg">
                 <CheckCircle2 className="w-2.5 h-2.5" /> {s}
               </span>
             ))}
             {missingSkills.slice(0, 2).map(s => (
-              <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-400 px-2 py-0.5 rounded-none">{s}</span>
+              <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-400 px-2 py-0.5 rounded-lg">{s}</span>
             ))}
           </div>
         </div>
       )}
 
       <div className="mb-4">
-        <div className="flex gap-0.5 h-1.5 rounded-none overflow-hidden">
+        <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden">
           <div className="bg-emerald-500" style={{ width: `${breakdown.skills}%`   }} />
           <div className="bg-blue-500"    style={{ width: `${breakdown.level}%`    }} />
           <div className="bg-amber-500"   style={{ width: `${breakdown.location}%` }} />
@@ -192,7 +192,7 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
             { label: "Rate",     color: "bg-purple-500"  },
           ].map(b => (
             <span key={b.label} className="flex items-center gap-1 text-[8px] font-black text-slate-400 uppercase tracking-wider">
-              <span className={`w-1.5 h-1.5 rounded-none ${b.color}`} />{b.label}
+              <span className={`w-1.5 h-1.5 rounded-full ${b.color}`} />{b.label}
             </span>
           ))}
         </div>
@@ -205,13 +205,13 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
       <div className="flex gap-2 mt-auto pt-4 border-t border-[var(--border-color)]">
         <button
           onClick={() => onReview(talent)}
-          className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-slate-500/20 transition-all"
+          className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all"
         >
           View profile
         </button>
         <button
           onClick={() => onShortlist(talent, score, breakdown)}
-          className={`flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-none transition-all ${
+          className={`flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
             isShortlisted
               ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
               : "bg-blue-600 text-white hover:bg-blue-500 shadow-md shadow-blue-600/20"
@@ -248,7 +248,7 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
         <div className="p-8">
           <div className="flex items-start justify-between mb-8">
             <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+              <div className="w-16 h-16 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
                 {talent.avatar_url
                   ? <img src={talent.avatar_url} alt={talent.full_name} className="w-full h-full object-cover" />
                   : <span className="text-2xl font-black text-slate-400 uppercase">{talent.full_name?.charAt(0)}</span>
@@ -263,19 +263,19 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="p-2 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors">
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className={`p-4 rounded-none border mb-6 ${label.bg}`}>
+          <div className={`p-4 rounded-2xl border mb-6 ${label.bg}`}>
             <div className="flex items-center justify-between mb-3">
               <span className={`text-[10px] font-black uppercase tracking-widest ${label.color}`}>
                 Match score for {role?.title ?? "this role"}
               </span>
               <span className={`text-2xl font-black ${label.color}`}>{score}%</span>
             </div>
-            <div className="flex gap-0.5 h-2 rounded-none overflow-hidden mb-3">
+            <div className="flex gap-0.5 h-2 rounded-full overflow-hidden mb-3">
               <div className="bg-emerald-500" style={{ width: `${breakdown.skills}%`   }} />
               <div className="bg-blue-500"    style={{ width: `${breakdown.level}%`    }} />
               <div className="bg-amber-500"   style={{ width: `${breakdown.location}%` }} />
@@ -311,7 +311,7 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
                 {talent.skills.map(s => {
                   const matched = (role?.skills ?? []).map(x => x.toLowerCase()).includes(s.toLowerCase());
                   return (
-                    <span key={s} className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-none border ${matched ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-slate-500/10 text-slate-500 border-slate-500/10"}`}>
+                    <span key={s} className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border ${matched ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-slate-500/10 text-slate-500 border-slate-500/10"}`}>
                       {matched && <CheckCircle2 className="inline w-2.5 h-2.5 mr-1" />}{s}
                     </span>
                   );
@@ -327,7 +327,7 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
               { label: "Industry",      value: talent.industry || "—" },
               { label: "Availability",  value: talent.availability || "Open to work" },
             ].map(m => (
-              <div key={m.label} className="bg-slate-500/5 rounded-none p-3">
+              <div key={m.label} className="bg-slate-500/5 rounded-xl p-3">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{m.label}</p>
                 <p className="text-sm font-black dark:text-white">{m.value}</p>
               </div>
@@ -336,7 +336,7 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
 
           <button
             onClick={() => onShortlist(talent, score, breakdown)}
-            className={`w-full py-3.5 text-[10px] font-black uppercase tracking-widest rounded-none flex items-center justify-center gap-2 transition-all ${
+            className={`w-full py-3.5 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all ${
               isShortlisted
                 ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
                 : "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20"
@@ -527,7 +527,7 @@ export default function TalentSourcingPage() {
     return (
       <div className="max-w-7xl mx-auto pb-20 flex flex-col items-center justify-center py-32 gap-4">
         <p className="text-sm font-bold text-red-500">{roleError}</p>
-        <button onClick={() => navigate("/client/roles")} className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all">
+        <button onClick={() => navigate("/client/roles")} className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
         </button>
       </div>
@@ -560,7 +560,7 @@ export default function TalentSourcingPage() {
           </div>
 
           {roleLoading
-            ? <div className="h-12 w-72 bg-slate-500/10 rounded-none animate-pulse" />
+            ? <div className="h-12 w-72 bg-slate-500/10 rounded-xl animate-pulse" />
             : (
               <h1 className="text-4xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
                 Source for <span className="text-blue-600">{role?.title ?? "role"}.</span>
@@ -571,10 +571,10 @@ export default function TalentSourcingPage() {
           {!roleLoading && role && (
             <div className="flex flex-wrap items-center gap-2">
               {[role.department, role.type, role.location, role.experience_level].filter(Boolean).map(tag => (
-                <span key={tag} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 px-2.5 py-1 rounded-none">{tag}</span>
+                <span key={tag} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 px-2.5 py-1 rounded-lg">{tag}</span>
               ))}
               {role.skills?.slice(0, 4).map(s => (
-                <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-none">{s}</span>
+                <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-lg">{s}</span>
               ))}
               {(role.skills?.length ?? 0) > 4 && (
                 <span className="text-[10px] font-black text-slate-400">+{role.skills.length - 4} skills</span>
@@ -595,23 +595,23 @@ export default function TalentSourcingPage() {
           <button
             onClick={handleSearchDeeper}
             disabled={!role}
-            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-emerald-500/30 rounded-none text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-500/5 hover:border-emerald-500/60 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
+            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-500/5 hover:border-emerald-500/60 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
           >
             <BrainCircuit className="w-3.5 h-3.5 group-hover:animate-pulse" />
             Search deeper
-            <span className="text-[8px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-none border border-emerald-500/20 font-black uppercase tracking-wider">
+            <span className="text-[8px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-lg border border-emerald-500/20 font-black uppercase tracking-wider">
               Haraka-01
             </span>
           </button>
 
           <Link
             to={`/client/roles/${roleId}/shortlist`}
-            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-blue-500/40 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-blue-500/40 transition-all"
           >
             <ListChecks className="w-3.5 h-3.5" />
             View shortlist
             {shortlisted.size > 0 && (
-              <span className="bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-none">{shortlisted.size}</span>
+              <span className="bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{shortlisted.size}</span>
             )}
           </Link>
         </div>
@@ -622,7 +622,7 @@ export default function TalentSourcingPage() {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between gap-4 p-4 rounded-none bg-emerald-500/5 border border-emerald-500/20"
+          className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20"
         >
           <div className="flex items-center gap-3">
             <BrainCircuit className="w-5 h-5 text-emerald-500 flex-shrink-0" />
@@ -635,7 +635,7 @@ export default function TalentSourcingPage() {
           </div>
           <button
             onClick={handleSearchDeeper}
-            className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+            className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
           >
             <Zap className="w-3.5 h-3.5 fill-current" /> Search deeper
           </button>
@@ -643,26 +643,26 @@ export default function TalentSourcingPage() {
       )}
 
       {/* ── Search + Sort + Filters ── */}
-      <div className="p-5 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm space-y-4">
+      <div className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search by name, role, or skill..."
-              className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-none text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+              className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-xl text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
             />
           </div>
           <div className="flex gap-2">
             <div className="relative">
               <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                className="appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-none pl-4 pr-8 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none cursor-pointer">
+                className="appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl pl-4 pr-8 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none cursor-pointer">
                 {SORT_OPTIONS.map(o => <option key={o}>{o}</option>)}
               </select>
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
             </div>
             <button onClick={() => setFiltersOpen(v => !v)}
-              className={`flex items-center gap-2 px-4 py-3 border rounded-none text-xs font-black uppercase tracking-widest transition-all ${filtersOpen ? "bg-blue-600 text-white border-blue-600" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
+              className={`flex items-center gap-2 px-4 py-3 border rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filtersOpen ? "bg-blue-600 text-white border-blue-600" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
               <SlidersHorizontal className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -678,7 +678,7 @@ export default function TalentSourcingPage() {
                 ].map((f, i) => (
                   <div key={i} className="relative">
                     <select value={f.value} onChange={e => f.setter(e.target.value)}
-                      className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-none px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none cursor-pointer">
+                      className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none cursor-pointer">
                       {f.options.map(o => <option key={o}>{o}</option>)}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
@@ -698,7 +698,7 @@ export default function TalentSourcingPage() {
             { color: "bg-purple-500",  label: "Rate (15pt)"     },
           ].map(b => (
             <span key={b.label} className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-              <span className={`w-2 h-2 rounded-none ${b.color}`} />{b.label}
+              <span className={`w-2 h-2 rounded-full ${b.color}`} />{b.label}
             </span>
           ))}
         </div>
@@ -712,7 +712,7 @@ export default function TalentSourcingPage() {
           { label: "Shortlisted",      value: shortlisted.size },
           { label: "AI scored",        value: aiLoading ? "…" : Object.keys(aiScores).length },
         ].map(s => (
-          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-4">
+          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4">
             <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
             <p className="text-xl font-black dark:text-white">{s.value}</p>
           </div>
@@ -746,14 +746,14 @@ export default function TalentSourcingPage() {
             </motion.div>
           ) : (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="py-24 text-center space-y-5 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]">
+              className="py-24 text-center space-y-5 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
               <Users className="w-12 h-12 text-slate-300 mx-auto" />
               <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">No platform talents found</h3>
               <p className="text-sm text-slate-400 font-medium">Try adjusting your filters, or search GitHub's global pool with Haraka-01</p>
               {role && (
                 <button
                   onClick={handleSearchDeeper}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
                 >
                   <BrainCircuit className="w-3.5 h-3.5" /> Search deeper with Haraka-01
                 </button>

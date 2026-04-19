@@ -455,7 +455,7 @@ export default function TalentOffersPage() {
       {/* ── Header ── */}
       <div className="space-y-1">
         <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
-          <Inbox className="w-3.5 h-3.5" /> Hire Offers
+          <Inbox className="w-3.5 h-3.5" /> Offers
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">
           Your <span className="text-blue-600">offers.</span>

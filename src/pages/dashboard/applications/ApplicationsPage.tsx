@@ -1,8 +1,47 @@
-import { mockApplications } from "./mockApplications";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { ApplicationCard } from "./ApplicationCard";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Loader2, Inbox } from "lucide-react";
 
 export default function ApplicationsPage() {
+  const [apps, setApps] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    async function fetchApps() {
+      try {
+        setLoading(true);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from("job_applications")
+          .select(`
+            id,
+            status,
+            created_at,
+            role:roles(title, location, organization:profiles(company_name, avatar_url))
+          `)
+          .eq("talent_id", user.id)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        setApps(data || []);
+      } catch (err) {
+        console.error("Fetch apps error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchApps();
+  }, []);
+
+  const filteredApps = apps.filter(app => 
+    (app.role?.title || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (app.role?.organization?.company_name || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
       
@@ -20,6 +59,8 @@ export default function ApplicationsPage() {
               type="text" 
               placeholder="Search apps..." 
               className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-none text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <button className="p-2.5 bg-white border border-slate-200 rounded-none hover:bg-slate-50 transition-colors">
@@ -30,9 +71,22 @@ export default function ApplicationsPage() {
 
       {/* APPLICATIONS LIST */}
       <div className="grid grid-cols-1 gap-4">
-        {mockApplications.map((app) => (
-          <ApplicationCard key={app.id} app={app} />
-        ))}
+        {loading ? (
+          <div className="py-20 text-center">
+            <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-4" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Applications...</p>
+          </div>
+        ) : filteredApps.length > 0 ? (
+          filteredApps.map((app) => (
+            <ApplicationCard key={app.id} app={app} />
+          ))
+        ) : (
+          <div className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-slate-200">
+            <Inbox className="w-12 h-12 text-slate-300 mx-auto" />
+            <h3 className="text-xl font-black tracking-tighter uppercase">No applications yet</h3>
+            <p className="text-sm text-slate-400 font-medium">You haven't applied to any missions yet. Visit the Job Board to find your next goal.</p>
+          </div>
+        )}
       </div>
     </div>
   );

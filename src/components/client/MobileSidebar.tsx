@@ -19,7 +19,7 @@ export default function MobileSidebar({ isOpen, onClose }: any) {
           >
             <div className="h-full flex flex-col">
               <div className="p-4 flex justify-end">
-                <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 rounded-none">
+                <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 rounded-xl">
                   <X className="w-6 h-6" />
                 </button>
               </div>

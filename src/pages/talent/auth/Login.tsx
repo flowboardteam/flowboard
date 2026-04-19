@@ -106,7 +106,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
 
   return (
     <>
-      <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
+      <div className="min-h-screen grid lg:grid-cols-2 font-jakarta bg-white overflow-x-hidden">
         {/* --- LEFT SIDE: Talent Branding (Premium Image Background) --- */}
         <div className="hidden lg:flex flex-col p-16 text-white relative overflow-hidden">
           {/* Background Image with Overlay */}

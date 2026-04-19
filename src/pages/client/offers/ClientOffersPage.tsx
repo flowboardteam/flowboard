@@ -61,15 +61,15 @@ function ConfirmDialog({title,message,confirmLabel="Confirm",onConfirm,onCancel,
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
         <motion.div initial={{opacity:0,scale:0.95,y:16}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:0.95,y:16}}
           onClick={e=>e.stopPropagation()}
-          className="w-full max-w-sm bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-6 shadow-2xl">
-          <div className={`w-10 h-10 rounded-none flex items-center justify-center mb-4 ${danger?"bg-red-500/10":"bg-amber-500/10"}`}>
+          className="w-full max-w-sm bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-6 shadow-2xl">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${danger?"bg-red-500/10":"bg-amber-500/10"}`}>
             <AlertCircle className={`w-5 h-5 ${danger?"text-red-500":"text-amber-500"}`}/>
           </div>
           <h3 className="text-base font-black dark:text-white tracking-tight mb-2">{title}</h3>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-6">{message}</p>
           <div className="flex gap-3">
-            <button onClick={onCancel} className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all">Cancel</button>
-            <button onClick={onConfirm} className={`flex-1 py-3 text-white text-[10px] font-black uppercase tracking-widest rounded-none transition-all flex items-center justify-center gap-2 ${danger?"bg-red-500 hover:bg-red-400 shadow-md shadow-red-500/20":"bg-amber-500 hover:bg-amber-400"}`}>
+            <button onClick={onCancel} className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">Cancel</button>
+            <button onClick={onConfirm} className={`flex-1 py-3 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 ${danger?"bg-red-500 hover:bg-red-400 shadow-md shadow-red-500/20":"bg-amber-500 hover:bg-amber-400"}`}>
               {confirmLabel}
             </button>
           </div>
@@ -123,16 +123,16 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className="p-4 sm:p-5 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-3 hover:border-blue-500/30 transition-all"
+      className="p-4 sm:p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-3 hover:border-blue-500/30 transition-all"
     >
       {/* Status + source + date */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border ${cfg.bg} ${cfg.color}`}>
-          <span className={`w-1.5 h-1.5 rounded-none ${cfg.dot}`} />
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${cfg.bg} ${cfg.color}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
           {cfg.label}
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-500/10 px-2 py-0.5 rounded-none">
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 bg-slate-500/10 px-2 py-0.5 rounded-lg">
             {SOURCE_LABEL[offer.source] ?? offer.source}
           </span>
           <span className="text-[10px] font-bold text-slate-400">{fmtDate(offer.created_at)}</span>
@@ -141,7 +141,7 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
 
       {/* Talent info */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
           {talent?.avatar_url
             ? <img src={talent.avatar_url} alt={talent.full_name} className="w-full h-full object-cover" />
             : <span className="text-sm font-black text-slate-400">{getInitials(talent?.full_name ?? "?")}</span>
@@ -155,14 +155,14 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
         </div>
         {/* Accepted badge — links to workforce */}
         {offer.status === "accepted" && (
-          <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-none border border-emerald-500/20 shrink-0">
+          <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20 shrink-0">
             <CheckCircle2 className="w-3 h-3" /> In workforce
           </span>
         )}
       </div>
 
       {/* Role + offer details */}
-      <div className="p-3 rounded-none bg-slate-500/5 border border-[var(--border-color)]">
+      <div className="p-3 rounded-xl bg-slate-500/5 border border-[var(--border-color)]">
         <p className="text-xs font-black dark:text-white mb-2 truncate">
           {offer.role_title ?? "Role not specified"}
         </p>
@@ -188,7 +188,7 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
 
       {/* Decline reason */}
       {offer.status === "declined" && offer.decline_reason && (
-        <div className="flex items-start gap-2 p-3 rounded-none bg-red-500/5 border border-red-500/10">
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/5 border border-red-500/10">
           <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
           <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
             <span className="font-black text-red-500">Reason: </span>
@@ -208,14 +208,14 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
       <div className="flex gap-2 pt-2 border-t border-[var(--border-color)]">
         <button
           onClick={() => onView(offer)}
-          className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-slate-500/20 transition-all"
+          className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all"
         >
           View offer
         </button>
         {canWithdraw && (
           <button
             onClick={() => onConfirmWithdraw(offer.id)}
-            className="flex items-center gap-1.5 px-3 py-2.5 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-red-500/20 transition-all border border-red-500/10 shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2.5 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500/20 transition-all border border-red-500/10 shrink-0"
           >
             <Trash2 className="w-3 h-3" />
             <span className="hidden sm:inline">Withdraw</span>
@@ -224,7 +224,7 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
         {offer.status === "accepted" && (
           <button
             onClick={() => navigate("/client/workforce")}
-            className="flex items-center gap-1.5 px-3 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-emerald-500/20 transition-all border border-emerald-500/10 shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-500/20 transition-all border border-emerald-500/10 shrink-0"
           >
             <ArrowUpRight className="w-3 h-3" />
             <span className="hidden sm:inline">Workforce</span>
@@ -255,18 +255,18 @@ function OfferDetailModal({ offer, onClose }: {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
           onClick={e => e.stopPropagation()}
-          className="w-full sm:max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none[2rem] sm:rounded-none shadow-2xl overflow-hidden"
+          className="w-full sm:max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
         >
           {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1 sm:hidden">
-            <div className="w-10 h-1 rounded-none bg-slate-500/30" />
+            <div className="w-10 h-1 rounded-full bg-slate-500/30" />
           </div>
 
           {/* Header */}
           <div className="px-6 pt-4 pb-4 border-b border-[var(--border-color)]">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
                   {talent?.avatar_url
                     ? <img src={talent.avatar_url} alt={talent.full_name} className="w-full h-full object-cover" />
                     : <span className="text-sm font-black text-slate-400">{getInitials(talent?.full_name ?? "?")}</span>
@@ -277,13 +277,13 @@ function OfferDetailModal({ offer, onClose }: {
                   <p className="text-[10px] font-bold text-slate-400 truncate">{talent?.primary_role ?? "—"}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors flex-shrink-0">
+              <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors flex-shrink-0">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-none border mb-3 ${cfg.bg} ${cfg.color}`}>
-              <span className={`w-1.5 h-1.5 rounded-none ${cfg.dot}`} />{cfg.label}
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border mb-3 ${cfg.bg} ${cfg.color}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />{cfg.label}
             </span>
 
             <p className="text-base font-black dark:text-white">{offer.role_title ?? "Role not specified"}</p>
@@ -295,7 +295,7 @@ function OfferDetailModal({ offer, onClose }: {
                 { label: "Starts",   value: fmtDate(offer.start_date) },
                 { label: "Duration", value: offer.contract_length ?? (offer.role_type === "full_time" ? "Permanent" : "—") },
               ].map(m => (
-                <div key={m.label} className="bg-slate-500/5 rounded-none p-3">
+                <div key={m.label} className="bg-slate-500/5 rounded-xl p-3">
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{m.label}</p>
                   <p className="text-xs font-black dark:text-white capitalize truncate">{m.value}</p>
                 </div>
@@ -314,7 +314,7 @@ function OfferDetailModal({ offer, onClose }: {
           {/* Decline reason */}
           {offer.status === "declined" && offer.decline_reason && (
             <div className="px-6 pb-4">
-              <div className="flex items-start gap-2 p-3 rounded-none bg-red-500/5 border border-red-500/10">
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/5 border border-red-500/10">
                 <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-1">Decline reason</p>
@@ -326,7 +326,7 @@ function OfferDetailModal({ offer, onClose }: {
 
           <div className="px-6 pb-6">
             <button onClick={onClose}
-              className="w-full py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-none hover:bg-slate-500/5 transition-all">
+              className="w-full py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">
               Close
             </button>
           </div>
@@ -448,7 +448,7 @@ export default function ClientOffersPage() {
       <div className="w-full flex flex-col items-center justify-center py-32 gap-4">
         <p className="text-sm font-bold text-red-500">{error}</p>
         <button onClick={fetchOffers}
-          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all">
+          className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all">
           <RefreshCw className="w-3.5 h-3.5" /> Retry
         </button>
       </div>
@@ -477,7 +477,7 @@ export default function ClientOffersPage() {
         </div>
         <button
           onClick={() => navigate("/client/talent-pool")}
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20"
         >
           <Users className="w-3.5 h-3.5" /> Find more talent
         </button>
@@ -491,7 +491,7 @@ export default function ClientOffersPage() {
           { label: "Accepted",     value: counts.accepted, color: "text-emerald-600"                },
           { label: "Declined",     value: counts.declined, color: "text-red-500"                    },
         ].map(s => (
-          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-4">
+          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4">
             <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
             <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
           </div>
@@ -505,7 +505,7 @@ export default function ClientOffersPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search by talent name or role..."
-          className="w-full pl-10 pr-4 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+          className="w-full pl-10 pr-4 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
         />
       </div>
 
@@ -515,7 +515,7 @@ export default function ClientOffersPage() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-shrink-0 px-4 py-2 rounded-none text-[11px] font-black uppercase tracking-widest transition-all border ${
+            className={`flex-shrink-0 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${
               activeTab === tab
                 ? "bg-[var(--card-bg)] text-blue-600 border-blue-500/20 shadow-sm"
                 : "border-transparent text-slate-400 hover:text-slate-600"
@@ -545,7 +545,7 @@ export default function ClientOffersPage() {
           </motion.div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]">
+            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
             <Send className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="text-lg font-black tracking-tighter uppercase dark:text-white">
               {search ? "No offers match your search" : activeTab === "all" ? "No offers sent yet" : `No ${activeTab} offers`}
@@ -555,7 +555,7 @@ export default function ClientOffersPage() {
             </p>
             {!search && activeTab === "all" && (
               <button onClick={() => navigate("/client/talent-pool")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
                 <Users className="w-3.5 h-3.5" /> Go to talent pool
               </button>
             )}

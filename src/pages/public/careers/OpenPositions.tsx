@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function OpenPositions() {
   return (
-    <main className="min-h-screen bg-[#f4f2ee] font-sans selection:bg-[#ffb038] selection:text-[#111] overflow-x-hidden">
+    <main className="min-h-screen bg-[#f4f2ee] font-jakarta selection:bg-[#ffb038] selection:text-[#111] overflow-x-hidden">
       <PreparedNavbar />
       
       <section className="relative w-full pt-40 pb-32">
@@ -17,7 +17,7 @@ export default function OpenPositions() {
             <span className="absolute top-[8%] left-[4%] text-[8rem] font-black text-[#111]/[0.02] tracking-tighter uppercase whitespace-nowrap">HIRING</span>
             <span className="absolute top-[25%] right-[2%] text-[6rem] font-black text-[#111]/[0.02] tracking-tighter uppercase whitespace-nowrap rotate-6">TALENT POOL</span>
             <span className="absolute bottom-[30%] left-[-5%] text-[10rem] font-black text-[#111]/[0.02] tracking-tighter uppercase whitespace-nowrap -rotate-3">CAREERS</span>
-            <span className="absolute bottom-[10%] right-[10%] text-[5rem] font-black text-[#111]/[0.02] tracking-tighter uppercase whitespace-nowrap">MISSION</span>
+            <span className="absolute bottom-[10%] right-[10%] text-[5rem] font-black text-[#111]/[0.02] tracking-tighter uppercase whitespace-nowrap">TEAM</span>
           </div>
 
           {/* Faded vertical track lines */}
@@ -29,15 +29,15 @@ export default function OpenPositions() {
           </div>
 
           <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
-            <div className="text-center mb-24">
-               <span className="text-[10px] font-mono tracking-[0.2em] text-[#555] mb-6 uppercase block">Work with us</span>
-               <h1 className="text-[64px] lg:text-[84px] font-medium tracking-tight text-[#111] leading-[1.05] mb-8">
-                 Join the <span className="italic font-serif">Mission</span>
-               </h1>
-               <p className="text-2xl text-[#222] font-medium leading-[1.3] max-w-2xl mx-auto tracking-tight">
-                 We're building the infrastructure for the future of work. Help us unlock human potential across borders.
-               </p>
-            </div>
+             <div className="text-center mb-24">
+                <span className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400 mb-6 block">Work with us</span>
+                <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111] leading-[1.1] mb-8">
+                  Join Flowboard Team
+                </h1>
+                <p className="text-lg text-slate-500 font-medium leading-[1.6] max-w-xl mx-auto tracking-tight">
+                  We're building the infrastructure for the future of work. Help us move the needle on human potential across borders.
+                </p>
+             </div>
             
             <div className="max-w-[1000px] mx-auto bg-white/40 backdrop-blur-xl border border-white/60 p-4 lg:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.1)] relative z-20">
                <iframe 
@@ -63,12 +63,12 @@ export default function OpenPositions() {
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent opacity-30 blur-2xl"></div>
                   <div className="relative z-10 w-full flex flex-col md:flex-row md:items-center justify-between gap-8 text-white">
                       <div className="flex flex-col">
-                         <span className="text-[12px] font-mono tracking-[0.2em] text-white/70 mb-6 uppercase">CONNECT WITH US</span>
+                          <span className="text-[12px] tracking-[0.2em] text-white/70 mb-6 uppercase font-jakarta">CONNECT WITH US</span>
                          <h2 className="text-[56px] lg:text-[72px] font-medium tracking-tight leading-[1] max-w-lg mb-8">
                              Let's build the future together.
                          </h2>
                          <div>
-                            <Link to="/partners/apply" className="px-8 py-4 border-2 border-white text-white font-bold hover:bg-white hover:text-black transition-all rounded-sm uppercase tracking-widest text-xs">
+                            <Link to="/partners/apply" className="px-8 py-4 border border-white text-white font-black hover:bg-white hover:text-black transition-all rounded-none uppercase tracking-[0.2em] text-[10px]">
                                 Partner with us
                             </Link>
                          </div>

@@ -30,24 +30,24 @@ export default function ContractsPage() {
       {/* 1. Header Section */}
       <header className="flex flex-col gap-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black italic uppercase tracking-tighter">
-            Contract <span className="text-blue-500">Registry</span>
+          <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter">
+            CONTRACTS
           </h1>
           <p className="text-slate-500 font-medium text-sm">
-            Vetted missions via FlowAI.
+            Vetted missions via Haraka01.
           </p>
         </div>
 
         {/* Stats Blocks */}
         <div className="grid grid-cols-2 gap-3 md:flex md:gap-4">
-          <div className="flex-1 px-4 py-3 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)]">
+          <div className="flex-1 px-4 py-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
             <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Active Nodes</p>
-            <p className="text-lg font-black italic text-[var(--foreground)]">124</p>
+            <p className="text-lg font-black text-[var(--foreground)]">124</p>
           </div>
-          <div className="flex-1 px-4 py-3 rounded-none bg-[#050B1E] text-white border border-white/5 relative overflow-hidden">
+          <div className="flex-1 px-4 py-3 rounded-xl bg-[#050B1E] text-white border border-white/5 relative overflow-hidden">
              <div className="relative z-10">
-               <p className="text-blue-300 text-[8px] font-black uppercase tracking-widest">Sync Rate</p>
-               <p className="text-lg font-black italic">98%</p>
+                <p className="text-slate-100 text-[8px] font-black uppercase tracking-widest">Sync Rate</p>
+               <p className="text-lg font-black">98%</p>
              </div>
              <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-[#0B2A52] to-[#3b82f6]" />
           </div>
@@ -60,20 +60,20 @@ export default function ContractsPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input 
             placeholder="FILTER MISSIONS..."
-            className="w-full bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none py-4 pl-12 pr-4 text-[10px] font-black tracking-widest outline-none focus:border-blue-500 transition-all uppercase text-[var(--foreground)]"
+            className="w-full bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest outline-none focus:border-blue-500 transition-all uppercase text-[var(--foreground)]"
           />
         </div>
         
-        <div className="hidden sm:flex items-center gap-1 bg-[var(--card-bg)] border border-[var(--border-color)] p-1 rounded-none">
+        <div className="hidden sm:flex items-center gap-1 bg-[var(--card-bg)] border border-[var(--border-color)] p-1 rounded-xl">
            <button 
              onClick={() => setViewMode('list')}
-             className={`p-2 rounded-none transition-all ${viewMode === 'list' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200'}`}
+             className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200'}`}
            >
              <List className="w-4 h-4" />
            </button>
            <button 
              onClick={() => setViewMode('grid')}
-             className={`p-2 rounded-none transition-all ${viewMode === 'grid' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200'}`}
+             className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200'}`}
            >
              <LayoutGrid className="w-4 h-4" />
            </button>

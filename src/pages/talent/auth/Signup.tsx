@@ -152,7 +152,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
 
   return (
     <>
-      <div className="min-h-screen grid lg:grid-cols-2 font-sans bg-white overflow-x-hidden">
+      <div className="min-h-screen grid lg:grid-cols-2 font-jakarta bg-white overflow-x-hidden">
         {/* LEFT SIDE: Brand Experience (Premium Image Background) */}
         <div className="hidden lg:flex flex-col justify-between p-16 text-white relative overflow-hidden">
           {/* Background Image with Overlay */}
@@ -206,7 +206,7 @@ const handleSocialLogin = async (provider: "google" | "github") => {
               <div className="w-12 h-12 rounded-none bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/40">AK</div>
               <div>
                 <p className="font-bold text-white tracking-tight">Amara K.</p>
-                <p className="text-xs text-blue-300 font-bold uppercase tracking-widest font-sans">SENIOR AI ENGINEER</p>
+                <p className="text-xs text-blue-300 font-bold uppercase tracking-widest font-jakarta">SENIOR AI ENGINEER</p>
               </div>
             </div>
           </div>

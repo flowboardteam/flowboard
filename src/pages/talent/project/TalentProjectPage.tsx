@@ -79,7 +79,7 @@ function ProjectCard({ project }: { project: Project }) {
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-none bg-[var(--card-bg)] border overflow-hidden transition-all ${
+      className={`rounded-2xl bg-[var(--card-bg)] border overflow-hidden transition-all ${
         overdue ? "border-red-500/30" : nearDeadline ? "border-amber-500/30" : "border-[var(--border-color)]"
       }`}
     >
@@ -103,14 +103,14 @@ function ProjectCard({ project }: { project: Project }) {
               {project.name}
             </h3>
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-none border ${sc.bg} ${sc.color}`}>
-                <span className={`w-1.5 h-1.5 rounded-none ${sc.dot}`} />{sc.label}
+              <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ${sc.bg} ${sc.color}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />{sc.label}
               </span>
-              <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-none ${pc.bg} ${pc.color}`}>
+              <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-lg ${pc.bg} ${pc.color}`}>
                 {project.priority}
               </span>
               {project.my_role && (
-                <span className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 border border-blue-500/10 px-2.5 py-1 rounded-none">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 border border-blue-500/10 px-2.5 py-1 rounded-lg">
                   My role: {project.my_role}
                 </span>
               )}
@@ -122,7 +122,7 @@ function ProjectCard({ project }: { project: Project }) {
           </div>
           <button
             onClick={() => setExpanded(v => !v)}
-            className="p-2 rounded-none hover:bg-slate-500/10 text-slate-400 transition-colors shrink-0"
+            className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors shrink-0"
           >
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
@@ -134,8 +134,8 @@ function ProjectCard({ project }: { project: Project }) {
             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Progress</span>
             <span className="text-[10px] font-black dark:text-white">{project.progress}%</span>
           </div>
-          <div className="h-2 w-full bg-slate-500/10 rounded-none overflow-hidden">
-            <div className={`h-full ${progressColor} rounded-none transition-all duration-500`}
+          <div className="h-2 w-full bg-slate-500/10 rounded-full overflow-hidden">
+            <div className={`h-full ${progressColor} rounded-full transition-all duration-500`}
               style={{ width: `${project.progress}%` }} />
           </div>
           {project.progress >= 100 && (
@@ -164,7 +164,7 @@ function ProjectCard({ project }: { project: Project }) {
         {project.members && project.members.length > 0 && (
           <div className="flex -space-x-2 mb-4">
             {project.members.slice(0, 6).map(m => (
-              <div key={m.id} className="w-7 h-7 rounded-none bg-slate-500/10 border-2 border-[var(--card-bg)] overflow-hidden flex items-center justify-center"
+              <div key={m.id} className="w-7 h-7 rounded-full bg-slate-500/10 border-2 border-[var(--card-bg)] overflow-hidden flex items-center justify-center"
                 title={`${m.full_name}${m.role_on_project ? ` — ${m.role_on_project}` : ""}`}>
                 {m.avatar_url
                   ? <img src={m.avatar_url} alt={m.full_name} className="w-full h-full object-cover" />
@@ -173,7 +173,7 @@ function ProjectCard({ project }: { project: Project }) {
               </div>
             ))}
             {project.members.length > 6 && (
-              <div className="w-7 h-7 rounded-none bg-slate-500/20 border-2 border-[var(--card-bg)] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-full bg-slate-500/20 border-2 border-[var(--card-bg)] flex items-center justify-center">
                 <span className="text-[8px] font-black text-slate-500">+{project.members.length - 6}</span>
               </div>
             )}
@@ -206,7 +206,7 @@ function ProjectCard({ project }: { project: Project }) {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {project.tags.map(t => (
-                      <span key={t} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 border border-blue-500/10 px-2 py-0.5 rounded-none">
+                      <span key={t} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 border border-blue-500/10 px-2 py-0.5 rounded-lg">
                         {t}
                       </span>
                     ))}
@@ -222,8 +222,8 @@ function ProjectCard({ project }: { project: Project }) {
                   </p>
                   <div className="space-y-2">
                     {project.members.map(m => (
-                      <div key={m.id} className="flex items-center gap-3 p-3 rounded-none bg-slate-500/5 border border-[var(--border-color)]">
-                        <div className="w-8 h-8 rounded-none bg-slate-500/10 border border-[var(--border-color)] overflow-hidden flex items-center justify-center shrink-0">
+                      <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-500/5 border border-[var(--border-color)]">
+                        <div className="w-8 h-8 rounded-xl bg-slate-500/10 border border-[var(--border-color)] overflow-hidden flex items-center justify-center shrink-0">
                           {m.avatar_url
                             ? <img src={m.avatar_url} alt={m.full_name} className="w-full h-full object-cover" />
                             : <span className="text-[10px] font-black text-slate-400">{getInitials(m.full_name)}</span>
@@ -371,7 +371,7 @@ export default function TalentProjectPage() {
 
   if (noProject || projects.length === 0) return (
     <div className="w-full p-4 sm:p-6 lg:p-8">
-      <div className="py-24 text-center space-y-4 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]">
+      <div className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
         <FolderKanban className="w-12 h-12 text-slate-300 mx-auto" />
         <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">Not assigned to any project</h3>
         <p className="text-sm text-slate-400 font-medium">Your organisation will assign you to projects from the Active Workforce page.</p>
@@ -409,7 +409,7 @@ export default function TalentProjectPage() {
               : "—"
           },
         ].map(s => (
-          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-none p-4">
+          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4">
             <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
             <p className="text-2xl font-black dark:text-white">{s.value}</p>
           </div>

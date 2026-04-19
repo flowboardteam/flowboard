@@ -34,7 +34,7 @@
   --input: 210 15% 90%;
   --ring: 210 80% 30%;                 /* Matches primary */
 
-  --radius: 0;
+  --radius: 0.75rem;
 
   /* Gradient for buttons / hero */
   --gradient-start: 257 100% 74%;       /* #A079FF */
@@ -116,6 +116,15 @@
   
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Lancelot', serif;
+  }
+
+  .font-jakarta h1, 
+  .font-jakarta h2, 
+  .font-jakarta h3, 
+  .font-jakarta h4, 
+  .font-jakarta h5, 
+  .font-jakarta h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
   }
   
   body {

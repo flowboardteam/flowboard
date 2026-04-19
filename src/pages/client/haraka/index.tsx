@@ -170,7 +170,7 @@ export default function HarakaAgent() {
           )}
 
           <div className="flex items-center gap-2 text-emerald-600 text-[11px] font-bold uppercase tracking-widest">
-            <div className="w-2 h-2 rounded-none bg-emerald-500 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             Haraka-01 Talent Finder
           </div>
 
@@ -182,7 +182,7 @@ export default function HarakaAgent() {
           {sourceRole && (
             <div className="flex items-center gap-2 mt-1">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Searching deeper for</span>
-              <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-1 rounded-none">
+              <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
                 {sourceRole.title}
               </span>
             </div>
@@ -191,7 +191,7 @@ export default function HarakaAgent() {
       </div>
 
       {/* ── Search box ── */}
-      <div className="p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
+      <div className="p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
         {/* Pre-filled prompt indicator */}
         {sourceRole && phase === "idle" && (
           <div className="flex items-center gap-2 mb-4 px-1">
@@ -206,7 +206,7 @@ export default function HarakaAgent() {
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           placeholder="Describe the role (e.g. Senior Backend Engineer in United States)..."
-          className="w-full h-32 bg-slate-500/5 rounded-none p-6 text-lg font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all border border-[var(--border-color)] resize-none"
+          className="w-full h-32 bg-slate-500/5 rounded-xl p-6 text-lg font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all border border-[var(--border-color)] resize-none"
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
@@ -217,7 +217,7 @@ export default function HarakaAgent() {
           <button
             disabled={!prompt || loading}
             onClick={() => handleDiscovery()}
-            className="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-none hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading
               ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
@@ -241,7 +241,7 @@ export default function HarakaAgent() {
 
         {phase === "result" && spec && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-            <div className="px-6 py-4 rounded-none bg-blue-500/5 border border-blue-500/10 flex items-center justify-between">
+            <div className="px-6 py-4 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <BrainCircuit className="w-5 h-5 text-blue-500" />
                 <span className="text-sm font-bold tracking-tight">
@@ -266,11 +266,11 @@ export default function HarakaAgent() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       key={person.login}
-                      className="p-8 rounded-none bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between group hover:border-blue-500/50 transition-all relative"
+                      className="p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between group hover:border-blue-500/50 transition-all relative"
                     >
                       <button
                         onClick={() => handleSave(person)}
-                        className={`absolute top-6 right-6 p-2 rounded-none transition-all z-20 ${
+                        className={`absolute top-6 right-6 p-2 rounded-xl transition-all z-20 ${
                           savedIds.has(person.login)
                             ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110"
                             : "bg-slate-500/10 text-slate-400 hover:bg-blue-500 hover:text-white"
@@ -284,8 +284,8 @@ export default function HarakaAgent() {
 
                       <div>
                         <div className="flex justify-between items-start mb-6">
-                          <img src={person.avatar_url} className="w-16 h-16 rounded-none border border-[var(--border-color)] object-cover shadow-sm" alt="" />
-                          <div className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-none text-center mr-10">
+                          <img src={person.avatar_url} className="w-16 h-16 rounded-xl border border-[var(--border-color)] object-cover shadow-sm" alt="" />
+                          <div className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-xl text-center mr-10">
                             <div className="text-lg font-black leading-none">{person.matchScore}%</div>
                             <div className="text-[7px] font-black uppercase tracking-tighter">Match</div>
                           </div>
@@ -296,7 +296,7 @@ export default function HarakaAgent() {
                         </h3>
 
                         <div className="flex items-center gap-2 mb-4">
-                          <span className="text-[10px] font-black bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-none uppercase">{person.seniorityLabel}</span>
+                          <span className="text-[10px] font-black bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-lg uppercase">{person.seniorityLabel}</span>
                           <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                             <Target className="w-3 h-3" /> {person.location || "Global"}
                           </span>
@@ -311,7 +311,7 @@ export default function HarakaAgent() {
                       </div>
 
                       <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-px bg-[var(--border-color)] rounded-none overflow-hidden border border-[var(--border-color)]">
+                        <div className="grid grid-cols-2 gap-px bg-[var(--border-color)] rounded-xl overflow-hidden border border-[var(--border-color)]">
                           <div className="bg-[var(--card-bg)] p-3 text-center">
                             <div className="text-[8px] font-black text-slate-400 uppercase mb-1 flex items-center justify-center gap-1">
                               <Code2 className="w-3 h-3" /> Projects
@@ -330,7 +330,7 @@ export default function HarakaAgent() {
                           href={person.html_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-none text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
+                          className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
                         >
                           Check Profile <ExternalLink className="w-3 h-3" />
                         </a>
@@ -340,7 +340,7 @@ export default function HarakaAgent() {
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="py-20 text-center space-y-4 bg-slate-500/5 rounded-none border border-dashed border-[var(--border-color)]">
+              <div className="py-20 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
                 <SearchX className="w-12 h-12 text-slate-300 mx-auto" />
                 <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">No Matches Found</h3>
                 <button
