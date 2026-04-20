@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Pipeline config ──────────────────────────────────────────────────────────
 const PIPELINE_STAGES = [
@@ -388,6 +389,7 @@ export default function RoleShortlistPage() {
   const { roleId }   = useParams();
   const navigate     = useNavigate();
   const { toast }    = useToast();
+  const { activeGroup } = useGroups();
 
   const [role, setRole]               = useState<any>(null);
   const [candidates, setCandidates]   = useState<any[]>([]);

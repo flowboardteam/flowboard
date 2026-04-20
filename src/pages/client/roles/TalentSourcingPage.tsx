@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Matching Engine ──────────────────────────────────────────────────────────
 function computeMatchScore(role, talent) {
@@ -162,15 +163,15 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
 
       {(matchedSkills.length > 0 || missingSkills.length > 0) && (
         <div className="mb-3">
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1.5">Skills</p>
+          <p className="text-[10px] font-black tracking-widest text-slate-500 mb-1.5">Skills</p>
           <div className="flex flex-wrap gap-1.5">
             {matchedSkills.map(s => (
-              <span key={s} className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded-lg">
+              <span key={s} className="inline-flex items-center gap-1 text-[10px] font-black tracking-wider bg-emerald-500/5 text-slate-900 border border-emerald-500/20 px-2 py-0.5 rounded-lg">
                 <CheckCircle2 className="w-2.5 h-2.5" /> {s}
               </span>
             ))}
             {missingSkills.slice(0, 2).map(s => (
-              <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-400 px-2 py-0.5 rounded-lg">{s}</span>
+              <span key={s} className="text-[10px] font-black tracking-wider bg-slate-500/5 text-slate-400 px-2 py-0.5 rounded-lg">{s}</span>
             ))}
           </div>
         </div>
@@ -311,7 +312,7 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
                 {talent.skills.map(s => {
                   const matched = (role?.skills ?? []).map(x => x.toLowerCase()).includes(s.toLowerCase());
                   return (
-                    <span key={s} className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg border ${matched ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-slate-500/10 text-slate-500 border-slate-500/10"}`}>
+                    <span key={s} className={`text-[10px] font-black tracking-wider px-2.5 py-1 rounded-lg border ${matched ? "bg-emerald-500/5 text-slate-900 border-emerald-500/20" : "bg-slate-500/5 text-slate-500 border-slate-500/10"}`}>
                       {matched && <CheckCircle2 className="inline w-2.5 h-2.5 mr-1" />}{s}
                     </span>
                   );
@@ -360,6 +361,7 @@ export default function TalentSourcingPage() {
   const { roleId } = useParams();
   const navigate   = useNavigate();
   const { toast }  = useToast();
+  const { activeGroup } = useGroups();
 
   const [role, setRole]               = useState(null);
   const [roleError, setRoleError]     = useState(null);
@@ -393,7 +395,7 @@ export default function TalentSourcingPage() {
       });
 
     return () => { cancelled = true; };
-  }, [roleId]);
+  }, [roleId, activeGroup?.id, navigate]);
 
   // ── Fetch talents ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -453,7 +455,9 @@ export default function TalentSourcingPage() {
         toast({ title: "Removed from shortlist", description: `${talent.full_name} removed.` });
       } else {
         const { error } = await supabase.from("role_shortlist").insert({
-          role_id: roleId, organization_id: user.id, talent_id: talent.id,
+          role_id: roleId, 
+          organization_id: user.id, 
+          talent_id: talent.id,
           talent_name: talent.full_name, talent_avatar: talent.avatar_url,
           talent_role: talent.primary_role, talent_location: talent.location,
           talent_skills: talent.skills ?? [], talent_level: talent.experience_level,
@@ -562,8 +566,8 @@ export default function TalentSourcingPage() {
           {roleLoading
             ? <div className="h-12 w-72 bg-slate-500/10 rounded-xl animate-pulse" />
             : (
-              <h1 className="text-4xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
-                Source for <span className="text-blue-600">{role?.title ?? "role"}.</span>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                Source for {role?.title ?? "role"}.
               </h1>
             )
           }
@@ -595,23 +599,22 @@ export default function TalentSourcingPage() {
           <button
             onClick={handleSearchDeeper}
             disabled={!role}
-            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-emerald-500/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-500/5 hover:border-emerald-500/60 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
+            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-emerald-500/30 rounded-xl text-[10px] font-black tracking-widest text-emerald-600 hover:bg-emerald-500/5 hover:border-emerald-500/60 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
           >
-            <BrainCircuit className="w-3.5 h-3.5 group-hover:animate-pulse" />
-            Search deeper
-            <span className="text-[8px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-lg border border-emerald-500/20 font-black uppercase tracking-wider">
-              Haraka-01
+            <img src="/flowboardlogo.png" alt="" className="w-5 h-5 object-contain group-hover:animate-pulse" />
+            SEARCH DEEPER
+            <span className="text-[9px] bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg border border-emerald-500/20 font-black tracking-wider">
+              Haraka-01 · AI POWERED
             </span>
           </button>
 
           <Link
             to={`/client/roles/${roleId}/shortlist`}
-            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-blue-500/40 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-[11px] font-black tracking-widest text-slate-600 hover:border-blue-500/40 transition-all"
           >
-            <ListChecks className="w-3.5 h-3.5" />
             View shortlist
             {shortlisted.size > 0 && (
-              <span className="bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">{shortlisted.size}</span>
+              <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{shortlisted.size}</span>
             )}
           </Link>
         </div>
@@ -637,7 +640,7 @@ export default function TalentSourcingPage() {
             onClick={handleSearchDeeper}
             className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-400 transition-all shadow-md shadow-emerald-500/20"
           >
-            <Zap className="w-3.5 h-3.5 fill-current" /> Search deeper
+            <img src="/flowboardlogo.png" alt="" className="w-4 h-4 invert brightness-0" /> SEARCH DEEPER
           </button>
         </motion.div>
       )}

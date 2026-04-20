@@ -70,7 +70,12 @@ export default function GroupSwitcher() {
                   }`}>
                     <Building2 className={`w-3 h-3 ${activeGroup.id === group.id ? "text-emerald-600" : "text-slate-400"}`} />
                   </div>
-                  <span className="truncate text-xs">{group.name}</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="truncate text-xs">{group.name}</span>
+                    {group.is_primary && (
+                      <span className="text-[8px] font-black uppercase text-indigo-500 tracking-tighter">Primary</span>
+                    )}
+                  </div>
                 </div>
                 {activeGroup.id === group.id && <Check className="w-3.5 h-3.5 text-emerald-600" />}
               </DropdownMenuItem>

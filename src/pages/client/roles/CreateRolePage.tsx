@@ -4,13 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, Zap, BrainCircuit, FileText, ChevronRight,
-  Check, X, Loader2, Sparkles, BriefcaseBusiness,
+  ArrowLeft, FileText, ChevronRight,
+  Check, X, Loader2, BriefcaseBusiness,
   MapPin, DollarSign, Tag, AlignLeft, ListChecks,
   CheckCircle2, Send, RefreshCw, Pencil, Eye,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DEPARTMENTS       = ["Engineering","Design","Product","Operations","Marketing","Finance","Human Resources","Sales"];
@@ -271,14 +272,14 @@ function Haraka01Tab({ onGenerated }) {
   if (!generatedRole && !generating) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
-          <BrainCircuit className="w-5 h-5 text-blue-500 flex-shrink-0" />
-          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 leading-relaxed">
+        <div className="flex items-start gap-3 p-5 bg-blue-500/5 rounded-2xl border border-blue-500/10 mb-2">
+          <img src="/flowboardlogo.png" alt="" className="w-6 h-6 object-contain flex-shrink-0" />
+          <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed">
             Describe the role in plain English — Haraka01 will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.
           </p>
         </div>
         <div>
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Describe the role</label>
+          <label className="block text-[11px] font-black tracking-widest text-slate-500 mb-2">Describe the role</label>
           <textarea
             value={initialPrompt}
             onChange={e => setInitialPrompt(e.target.value)}
@@ -287,14 +288,14 @@ function Haraka01Tab({ onGenerated }) {
             placeholder="e.g. A senior backend engineer who knows Node.js and PostgreSQL, will own our API infrastructure, 5+ years experience, remote role..."
             className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
           />
-          <p className="text-[10px] text-slate-400 mt-1.5">Press Cmd+Enter to generate</p>
+          <p className="text-[11px] text-slate-500 mt-1.5">Press Cmd+Enter to generate</p>
         </div>
         <button
           onClick={handleGenerate}
           disabled={!initialPrompt.trim()}
-          className="w-full py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+          className="w-full py-4 bg-blue-600 text-white font-black text-xs tracking-widest rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
         >
-          <Sparkles className="w-4 h-4" /> Generate with Haraka01
+          GENERATE WITH HARAKA01
         </button>
       </div>
     );
@@ -305,15 +306,15 @@ function Haraka01Tab({ onGenerated }) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <div className="relative">
-          <div className="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center">
-            <BrainCircuit className="w-7 h-7 text-blue-500" />
+          <div className="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
+            <img src="/flowboardlogo.png" alt="Haraka01" className="w-10 h-10 object-contain" />
           </div>
           <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
             <Loader2 className="w-2.5 h-2.5 text-white animate-spin" />
           </div>
         </div>
         <div className="text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 mb-1">Haraka01</p>
+          <p className="text-[10px] font-black tracking-[0.2em] text-blue-600 mb-1">Haraka01</p>
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">{statusMsg}</p>
         </div>
       </div>
@@ -352,7 +353,7 @@ function Haraka01Tab({ onGenerated }) {
         {generatedRole.skills?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {generatedRole.skills.slice(0, 5).map(s => (
-              <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-lg">{s}</span>
+              <span key={s} className="text-[10px] font-black tracking-wider bg-blue-500/10 text-slate-900 px-2 py-0.5 rounded-lg">{s}</span>
             ))}
             {generatedRole.skills.length > 5 && (
               <span className="text-[10px] font-black text-slate-400">+{generatedRole.skills.length - 5}</span>
@@ -605,12 +606,12 @@ function StepRequirements({ data, onChange }) {
 function StepReview({ data, onPublish, onDraft, saving }) {
   const Pill = ({ text, color = "blue" }: { text: string; color?: string }) => {
     const styles: Record<string, string> = {
-      blue:    "bg-blue-500/10 text-blue-600",
-      emerald: "bg-emerald-500/10 text-emerald-600",
-      slate:   "bg-slate-500/10 text-slate-500",
+      blue:    "bg-blue-500/5 text-slate-900 border border-blue-500/10 shadow-sm",
+      emerald: "bg-emerald-500/5 text-slate-900 border border-emerald-500/10 shadow-sm",
+      slate:   "bg-slate-500/5 text-slate-900 border border-slate-500/10 shadow-sm",
     };
     return (
-      <span className={`inline-flex text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg ${styles[color] ?? styles.blue}`}>
+      <span className={`inline-flex text-[10px] font-black tracking-wider px-2.5 py-1 rounded-lg ${styles[color] ?? styles.blue}`}>
         {text}
       </span>
     );
@@ -618,7 +619,7 @@ function StepReview({ data, onPublish, onDraft, saving }) {
 
   const Section = ({ label, children }: { label: string; children: React.ReactNode }) => (
     <div className="mb-5">
-      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">{label}</p>
+      <p className="text-[10px] font-black tracking-widest text-slate-500 mb-2">{label}</p>
       {children}
     </div>
   );
@@ -681,7 +682,7 @@ function StepReview({ data, onPublish, onDraft, saving }) {
           disabled={saving}
           className="py-4 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-40"
         >
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5 fill-current" />}
+          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <img src="/flowboardlogo.png" alt="" className="w-4 h-4 invert brightness-0" />}
           Publish role
         </button>
       </div>
@@ -694,6 +695,7 @@ export default function CreateRolePage() {
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
   const editId         = searchParams.get("edit");
+  const { activeGroup } = useGroups();
 
   const [mode, setMode]         = useState<null | "manual" | "ai">(null);
   const [step, setStep]         = useState(1);
@@ -738,7 +740,11 @@ export default function CreateRolePage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-      const payload = { ...form, status, organization_id: user.id };
+      const payload = { 
+        ...form, 
+        status, 
+        organization_id: user.id
+      };
 
       if (editId) {
         const { error } = await supabase.from("roles").update(payload).eq("id", editId);
@@ -786,18 +792,18 @@ export default function CreateRolePage() {
       <div className="max-w-2xl mx-auto pb-20 px-4 sm:px-0">
         <button
           onClick={() => navigate("/client/roles")}
-          className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-10"
+          className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-10"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
         </button>
         <div className="space-y-3 mb-10">
           <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
-            <BriefcaseBusiness className="w-3.5 h-3.5" /> Roles & Jobs
+            <BriefcaseBusiness className="w-3.5 h-3.5" /> Roles & jobs
           </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
-            Create a <span className="text-blue-600">role.</span>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+            Create a role.
           </h1>
-          <p className="text-sm font-medium text-slate-400">Choose how you'd like to define this job role</p>
+          <p className="text-sm font-medium text-slate-500">Choose how you'd like to define this job role</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -810,11 +816,11 @@ export default function CreateRolePage() {
               <FileText className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
             </div>
             <div>
-              <p className="text-base font-black dark:text-white tracking-tight mb-1">Manual</p>
-              <p className="text-xs font-medium text-slate-400 leading-relaxed">Fill in all the role details yourself step by step</p>
+              <p className="text-lg font-black dark:text-white tracking-tight mb-1">Manual</p>
+              <p className="text-sm font-medium text-slate-500 leading-relaxed">Fill in all the role details yourself step by step</p>
             </div>
-            <div className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-600 transition-colors mt-auto">
-              Start <ChevronRight className="w-3 h-3" />
+            <div className="flex items-center gap-1 text-[11px] font-black text-slate-500 tracking-widest group-hover:text-blue-600 transition-colors mt-auto">
+              START
             </div>
           </motion.button>
 
@@ -824,19 +830,19 @@ export default function CreateRolePage() {
             className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group relative overflow-hidden"
           >
             <div className="absolute top-4 right-4">
-              <span className="text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                AI powered
+              <span className="text-[10px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                AI POWERED
               </span>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-              <BrainCircuit className="w-6 h-6 text-blue-500" />
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
+              <img src="/flowboardlogo.png" alt="Haraka01" className="w-8 h-8 object-contain" />
             </div>
             <div>
-              <p className="text-base font-black dark:text-white tracking-tight mb-1">Haraka01</p>
-              <p className="text-xs font-medium text-slate-400 leading-relaxed">Describe the role in plain English and let AI generate a full draft</p>
+              <p className="text-lg font-black dark:text-white tracking-tight mb-1">Haraka01</p>
+              <p className="text-sm font-medium text-slate-500 leading-relaxed">Describe the role in plain English — Haraka01 will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.</p>
             </div>
-            <div className="flex items-center gap-1 text-[10px] font-black text-blue-600 uppercase tracking-widest mt-auto">
-              Generate <Sparkles className="w-3 h-3" />
+            <div className="flex items-center gap-1 text-[11px] font-black text-blue-600 tracking-widest mt-auto">
+              GENERATE
             </div>
           </motion.button>
         </div>
@@ -850,19 +856,19 @@ export default function CreateRolePage() {
       <div className="max-w-2xl mx-auto pb-20 px-4 sm:px-0">
         <button
           onClick={() => setMode(null)}
-          className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-10"
+          className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-10"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back
         </button>
         <div className="space-y-2 mb-8">
-          <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
-            <BrainCircuit className="w-3.5 h-3.5" /> Haraka01
+          <div className="flex items-center gap-2 text-blue-600 text-[12px] font-bold tracking-widest">
+            <img src="/flowboardlogo.png" alt="" className="w-5 h-5 object-contain" /> Haraka01
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">
-            Generate a <span className="text-blue-600">role.</span>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+            Generate a role.
           </h1>
-          <p className="text-sm font-medium text-slate-400">
-            Describe what you need — Haraka01 will draft the full role. You can refine it with follow-up prompts before saving.
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Describe the role in plain English — Haraka01 will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.
           </p>
         </div>
         <div className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
@@ -878,7 +884,7 @@ export default function CreateRolePage() {
       <div className="flex items-center justify-between mb-8 sm:mb-10">
         <button
           onClick={() => step > 1 ? setStep(step - 1) : setMode(null)}
-          className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back
         </button>
@@ -891,11 +897,11 @@ export default function CreateRolePage() {
       </div>
 
       <div className="space-y-2 mb-6">
-        <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
+        <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold tracking-widest">
           <BriefcaseBusiness className="w-3.5 h-3.5" />
           {editId ? "Edit role" : "Create role"} — manual
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
           {step === 1 && "Basic information"}
           {step === 2 && "Role description"}
           {step === 3 && "Skills & requirements"}
@@ -926,15 +932,15 @@ export default function CreateRolePage() {
 
         {step < 4 && (
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-[var(--border-color)]">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <span className="text-[11px] font-black tracking-widest text-slate-500">
               Step {step} of {STEPS.length}
             </span>
             <button
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-600/20"
+              className="flex items-center gap-2 px-5 sm:px-7 py-3 sm:py-3.5 bg-blue-600 text-white text-[10px] font-black tracking-widest rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-600/20"
             >
-              Continue <ChevronRight className="w-3.5 h-3.5" />
+              Continue
             </button>
           </div>
         )}

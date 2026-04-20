@@ -7,6 +7,7 @@ export interface Group {
   organization_id: string;
   avatar_url?: string;
   status: "active" | "inactive";
+  is_primary?: boolean;
   admin_count?: number;
   contract_count?: number;
 }
@@ -18,6 +19,7 @@ interface GroupContextType {
   setActiveGroup: (group: Group) => void;
   refreshGroups: () => Promise<void>;
   createGroup: (name: string) => Promise<Group | null>;
+  setPrimaryGroup: (groupId: string) => Promise<void>;
 }
 
 const GroupContext = createContext<GroupContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ const MOCK_GROUPS: Group[] = [
     name: "Flowboard Team",
     organization_id: "org-1",
     status: "active",
+    is_primary: true,
     admin_count: 1,
     contract_count: 0
   }
@@ -58,9 +61,15 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setGroups(MOCK_GROUPS);
         if (!activeGroup) setActiveGroupState(MOCK_GROUPS[0]);
       } else {
-        setGroups(data as Group[]);
+        const sorted = (data as Group[]).sort((a, b) => {
+          if (a.is_primary) return -1;
+          if (b.is_primary) return 1;
+          return 0;
+        });
+        setGroups(sorted);
+        
         if (!activeGroup || !data.find(g => g.id === activeGroup.id)) {
-          setActiveGroupState(data[0] as Group);
+          setActiveGroupState(sorted[0]);
         }
       }
     } catch (e) {
@@ -80,6 +89,7 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       name,
       organization_id: user.id,
       status: "active",
+      is_primary: groups.length === 0, // First group is primary
     };
 
     const { data, error } = await supabase
@@ -107,6 +117,22 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return data;
   };
 
+  const setPrimaryGroup = async (groupId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Reset all others for this org
+      await supabase.from("groups").update({ is_primary: false }).eq("organization_id", user.id);
+      // Set target to primary
+      await supabase.from("groups").update({ is_primary: true }).eq("id", groupId);
+
+      await refreshGroups();
+    } catch (e) {
+      console.error("Failed to set primary group", e);
+    }
+  };
+
   const setActiveGroup = (group: Group) => {
     setActiveGroupState(group);
     // Future: Persist to localStorage or Session
@@ -117,7 +143,15 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <GroupContext.Provider value={{ activeGroup, groups, loading, setActiveGroup, refreshGroups, createGroup }}>
+    <GroupContext.Provider value={{ 
+      activeGroup, 
+      groups, 
+      loading, 
+      setActiveGroup, 
+      refreshGroups, 
+      createGroup,
+      setPrimaryGroup
+    }}>
       {children}
     </GroupContext.Provider>
   );

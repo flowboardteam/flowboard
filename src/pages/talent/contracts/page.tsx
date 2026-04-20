@@ -30,23 +30,20 @@ export default function ContractsPage() {
       {/* 1. Header Section */}
       <header className="flex flex-col gap-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter">
-            CONTRACTS
+          <h1 className="text-2xl md:text-3xl font-black tracking-tighter">
+            Contracts
           </h1>
-          <p className="text-slate-500 font-medium text-sm">
-            Vetted missions via Haraka01.
-          </p>
         </div>
 
         {/* Stats Blocks */}
         <div className="grid grid-cols-2 gap-3 md:flex md:gap-4">
           <div className="flex-1 px-4 py-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
-            <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Active Nodes</p>
+            <p className="text-slate-400 text-[8px] font-black tracking-widest">Active roles</p>
             <p className="text-lg font-black text-[var(--foreground)]">124</p>
           </div>
           <div className="flex-1 px-4 py-3 rounded-xl bg-[#050B1E] text-white border border-white/5 relative overflow-hidden">
              <div className="relative z-10">
-                <p className="text-slate-100 text-[8px] font-black uppercase tracking-widest">Sync Rate</p>
+                <p className="text-slate-100 text-[8px] font-black tracking-widest">Sync rate</p>
                <p className="text-lg font-black">98%</p>
              </div>
              <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-[#0B2A52] to-[#3b82f6]" />
@@ -59,8 +56,8 @@ export default function ContractsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input 
-            placeholder="FILTER MISSIONS..."
-            className="w-full bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest outline-none focus:border-blue-500 transition-all uppercase text-[var(--foreground)]"
+            placeholder="Filter jobs..."
+            className="w-full bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest outline-none focus:border-blue-500 transition-all text-[var(--foreground)]"
           />
         </div>
         

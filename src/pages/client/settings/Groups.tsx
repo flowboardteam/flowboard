@@ -23,10 +23,16 @@ import {
   DialogTitle, 
   DialogFooter 
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 export default function GroupsPage() {
-  const { groups, createGroup, loading } = useGroups();
+  const { groups, createGroup, setPrimaryGroup, loading } = useGroups();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(searchParams.get("create") === "true");
@@ -162,7 +168,14 @@ export default function GroupsPage() {
                                  )}
                               </div>
                               <div>
-                                 <p className="text-sm font-black text-slate-900">{group.name}</p>
+                                 <div className="flex items-center gap-2">
+                                    <p className="text-sm font-black text-slate-900">{group.name}</p>
+                                    {group.is_primary && (
+                                       <span className="px-1.5 py-0.5 rounded-md bg-indigo-500 text-white text-[8px] font-black uppercase tracking-widest">
+                                          Primary
+                                       </span>
+                                    )}
+                                 </div>
                                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mt-0.5">Primary Entity</p>
                               </div>
                            </div>
@@ -186,9 +199,28 @@ export default function GroupsPage() {
                            </div>
                         </td>
                         <td className="px-8 py-6 text-right">
-                           <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm">
-                              <MoreVertical size={16} />
-                           </button>
+                           <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                 <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors rounded-lg hover:bg-white border border-transparent hover:border-slate-200 shadow-sm">
+                                    <MoreVertical size={16} />
+                                 </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48 p-2 rounded-2xl shadow-2xl border-[var(--border-color)] bg-white">
+                                 {!group.is_primary && (
+                                    <DropdownMenuItem 
+                                      onClick={() => setPrimaryGroup(group.id)}
+                                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
+                                    >
+                                       <CheckCircle2 size={14} /> Make Primary
+                                    </DropdownMenuItem>
+                                 )}
+                                 <DropdownMenuItem 
+                                   className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
+                                 >
+                                    <ExternalLink size={14} /> View Details
+                                 </DropdownMenuItem>
+                              </DropdownMenuContent>
+                           </DropdownMenu>
                         </td>
                      </tr>
                   ))}

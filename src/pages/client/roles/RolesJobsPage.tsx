@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DEPARTMENTS = ["All departments","Engineering","Design","Product","Operations","Marketing","Finance","Human Resources","Sales"];
@@ -303,6 +304,7 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function RolesJobsPage() {
   const navigate = useNavigate();
+  const { activeGroup } = useGroups();
 
   const [roles, setRoles]             = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -341,10 +343,10 @@ export default function RolesJobsPage() {
     }
   };
 
-  // Run once on mount — empty dep array, plain function reference, no loop
+  // Run on mount
   useEffect(() => {
     fetchRoles();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Optimistic delete ─────────────────────────────────────────────────────
   const handleDelete = async (id) => {
@@ -414,11 +416,11 @@ export default function RolesJobsPage() {
     <div className="max-w-7xl mx-auto space-y-8 pb-20">
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-emerald-600 text-[11px] font-bold uppercase tracking-widest">
-            <BriefcaseBusiness className="w-3.5 h-3.5" /> Roles & Jobs
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-emerald-600 text-[11px] font-bold tracking-widest">
+            <BriefcaseBusiness className="w-3.5 h-3.5" /> Roles & jobs
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
             Build your team.
           </h1>
           <p className="text-sm font-medium text-slate-400">
@@ -427,7 +429,7 @@ export default function RolesJobsPage() {
         </div>
         <button
           onClick={() => navigate("/client/roles/create")}
-          className="w-full md:w-auto px-8 py-4 bg-emerald-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-emerald-500 transition-all hover:scale-105 shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"
+          className="w-full md:w-auto px-8 py-4 bg-emerald-600 text-white font-black text-xs tracking-widest rounded-xl hover:bg-emerald-500 transition-all hover:scale-105 shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" /> Create role
         </button>
@@ -475,7 +477,7 @@ export default function RolesJobsPage() {
                     <select
                       value={f.value}
                       onChange={e => f.setter(e.target.value)}
-                      className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none focus:ring-2 ring-blue-500/20 cursor-pointer"
+                      className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black tracking-widest text-slate-500 outline-none focus:ring-2 ring-blue-500/20 cursor-pointer"
                     >
                       {f.options.map(o => <option key={o}>{o}</option>)}
                     </select>
@@ -494,7 +496,7 @@ export default function RolesJobsPage() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all ${
+            className={`px-5 py-2 rounded-lg text-[11px] font-black tracking-widest transition-all ${
               activeTab === tab
                 ? "bg-[var(--card-bg)] text-blue-600 shadow-sm"
                 : "text-slate-400 hover:text-slate-600"
@@ -530,7 +532,7 @@ export default function RolesJobsPage() {
             className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]"
           >
             <FileText className="w-12 h-12 text-slate-300 mx-auto" />
-            <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">
+            <h3 className="text-xl font-black tracking-tighter dark:text-white">
               {search ? "No roles match your search" : "No roles yet"}
             </h3>
             <p className="text-sm text-slate-400 font-medium">

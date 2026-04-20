@@ -29,11 +29,11 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
                <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded-md">
                  {contract.id}
                </span>
-               <p className="text-slate-400 text-[9px] md:text-[10px] font-bold uppercase truncate max-w-[120px] md:max-w-none">
+               <p className="text-slate-400 text-[9px] md:text-[10px] font-bold truncate max-w-[120px] md:max-w-none">
                  {contract.orgName}
                </p>
             </div>
-            <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter text-[var(--foreground)] truncate">
+            <h3 className="text-lg md:text-xl font-black tracking-tighter text-[var(--foreground)] truncate">
               {contract.role}
             </h3>
           </div>
@@ -46,15 +46,14 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
         `}>
           <div className="text-left md:text-right">
              <div className="flex items-center md:justify-end gap-1 text-emerald-500">
-               <Zap className="w-3 h-3 fill-current" />
                <span className="text-xs md:text-sm font-black">{contract.aiMatchScore}%</span>
              </div>
-             <p className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-slate-500">Match Sync</p>
+             <p className="text-[7px] md:text-[8px] font-black tracking-widest text-slate-500">Match sync</p>
           </div>
           
           <div className="text-left md:text-right">
              <p className="text-xs md:text-sm font-black text-[var(--foreground)]">${contract.rate}</p>
-             <p className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-slate-500">Monthly</p>
+             <p className="text-[7px] md:text-[8px] font-black tracking-widest text-slate-500">Monthly</p>
           </div>
 
           {/* Icon Button - Hidden on mobile list to save space, visible on desktop or grid */}
@@ -75,14 +74,14 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
       `}>
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1 md:pb-0">
           {contract.skills.slice(0, 3).map((skill: string) => (
-            <span key={skill} className="whitespace-nowrap text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-500 border border-[var(--border-color)] px-2 py-1 rounded-md bg-white/5">
+            <span key={skill} className="whitespace-nowrap text-[8px] md:text-[9px] font-black tracking-widest text-slate-500 border border-[var(--border-color)] px-2 py-1 rounded-md bg-white/5">
               {skill}
             </span>
           ))}
         </div>
         <div className="hidden sm:flex items-center gap-1.5 shrink-0 ml-2">
            <Globe className="w-3 h-3 text-slate-500" />
-           <span className="text-[8px] font-black uppercase text-slate-500 tracking-tighter">{contract.location}</span>
+           <span className="text-[8px] font-black text-slate-500 tracking-tighter">{contract.location}</span>
         </div>
       </div>
     </div>

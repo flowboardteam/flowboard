@@ -169,13 +169,10 @@ export default function HarakaAgent() {
             </button>
           )}
 
-          <div className="flex items-center gap-2 text-emerald-600 text-[11px] font-bold uppercase tracking-widest">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Haraka-01 Talent Finder
-          </div>
 
-          <h1 className="text-4xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
-            Find your next <span className="text-emerald-600">Expert.</span>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+            Find talent.
           </h1>
 
           {/* Context banner — shown when launched from a role */}
@@ -195,7 +192,7 @@ export default function HarakaAgent() {
         {/* Pre-filled prompt indicator */}
         {sourceRole && phase === "idle" && (
           <div className="flex items-center gap-2 mb-4 px-1">
-            <BrainCircuit className="w-3.5 h-3.5 text-emerald-500" />
+            <img src="/flowboardlogo.png" alt="" className="w-5 h-5 object-contain" />
             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
               Prompt auto-generated from role — edit if needed
             </span>
@@ -210,18 +207,18 @@ export default function HarakaAgent() {
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
-          <div className="flex gap-4 text-slate-400 font-black text-[10px] uppercase tracking-tighter">
-            <span className="flex items-center gap-1"><Target className="w-3 h-3" /> Global Search</span>
-            <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Verified Only</span>
+          <div className="flex gap-6 text-slate-400 font-black text-xs tracking-tight">
+            <span className="flex items-center gap-1.5"><Target className="w-4 h-4" /> Global search</span>
+            <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Verified only</span>
           </div>
           <button
             disabled={!prompt || loading}
             onClick={() => handleDiscovery()}
-            className="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white font-black text-xs tracking-widest rounded-xl hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</>
-              : <><Zap className="w-4 h-4 fill-current" /> Start Discovery</>
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> ANALYZING...</>
+              : <>START SEARCH</>
             }
           </button>
         </div>
@@ -235,7 +232,7 @@ export default function HarakaAgent() {
             className="py-20 flex flex-col items-center justify-center space-y-4"
           >
             <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-            <p className="font-black text-slate-400 uppercase text-[10px] tracking-[0.2em]">{statusMessage}</p>
+            <p className="font-black text-slate-400 text-[10px] tracking-[0.2em]">{statusMessage}</p>
           </motion.div>
         )}
 
@@ -243,16 +240,16 @@ export default function HarakaAgent() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
             <div className="px-6 py-4 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <BrainCircuit className="w-5 h-5 text-blue-500" />
+                <img src="/flowboardlogo.png" alt="" className="w-6 h-6 object-contain" />
                 <span className="text-sm font-bold tracking-tight">
                   Found {candidates.length} {spec.role_title}s in {spec.location || "Global"}
                 </span>
               </div>
               <button
                 onClick={() => { setPhase("idle"); setPrompt(incomingPrompt); }}
-                className="text-[10px] font-black uppercase text-slate-400 hover:text-blue-500 transition-colors"
+                className="text-[10px] font-black text-slate-400 hover:text-blue-500 transition-colors"
               >
-                Reset Agent
+                Reset agent
               </button>
             </div>
 
@@ -287,7 +284,7 @@ export default function HarakaAgent() {
                           <img src={person.avatar_url} className="w-16 h-16 rounded-xl border border-[var(--border-color)] object-cover shadow-sm" alt="" />
                           <div className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-xl text-center mr-10">
                             <div className="text-lg font-black leading-none">{person.matchScore}%</div>
-                            <div className="text-[7px] font-black uppercase tracking-tighter">Match</div>
+                            <div className="text-[7px] font-black tracking-tighter">Match</div>
                           </div>
                         </div>
 
@@ -296,7 +293,7 @@ export default function HarakaAgent() {
                         </h3>
 
                         <div className="flex items-center gap-2 mb-4">
-                          <span className="text-[10px] font-black bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-lg uppercase">{person.seniorityLabel}</span>
+                          <span className="text-[10px] font-black bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-lg">{person.seniorityLabel}</span>
                           <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                             <Target className="w-3 h-3" /> {person.location || "Global"}
                           </span>
@@ -319,7 +316,7 @@ export default function HarakaAgent() {
                             <div className="text-sm font-black">{person.public_repos}</div>
                           </div>
                           <div className="bg-[var(--card-bg)] p-3 text-center">
-                            <div className="text-[8px] font-black text-slate-400 uppercase mb-1 flex items-center justify-center gap-1">
+                            <div className="text-[8px] font-black text-slate-400 mb-1 flex items-center justify-center gap-1">
                               <Users className="w-3 h-3" /> Followers
                             </div>
                             <div className="text-sm font-black">{person.followers}</div>
@@ -332,7 +329,7 @@ export default function HarakaAgent() {
                           rel="noreferrer"
                           className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
                         >
-                          Check Profile <ExternalLink className="w-3 h-3" />
+                          CHECK PROFILE <ExternalLink className="w-3 h-3" />
                         </a>
                       </div>
                     </motion.div>
@@ -342,12 +339,12 @@ export default function HarakaAgent() {
             ) : (
               <div className="py-20 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
                 <SearchX className="w-12 h-12 text-slate-300 mx-auto" />
-                <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">No Matches Found</h3>
+                <h3 className="text-xl font-black tracking-tighter dark:text-white">No matches found</h3>
                 <button
                   onClick={() => setPhase("idle")}
-                  className="text-xs font-black text-emerald-600 uppercase tracking-widest hover:underline"
+                  className="text-xs font-black text-emerald-600 tracking-widest hover:underline"
                 >
-                  Adjust Parameters
+                  Adjust parameters
                 </button>
               </div>
             )}

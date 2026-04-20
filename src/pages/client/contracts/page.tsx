@@ -41,7 +41,7 @@ export default function ContractsPage() {
         {/* Stats Blocks */}
         <div className="grid grid-cols-2 gap-3 md:flex md:gap-4">
           <div className="flex-1 px-4 py-3 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)]">
-            <p className="text-slate-400 text-[8px] font-black uppercase tracking-widest">Active Nodes</p>
+            <p className="text-slate-400 text-[8px] font-black tracking-widest">Active roles</p>
             <p className="text-lg font-black text-[var(--foreground)]">124</p>
           </div>
           <div className="flex-1 px-4 py-3 rounded-xl bg-[#050B1E] text-white border border-white/5 relative overflow-hidden">

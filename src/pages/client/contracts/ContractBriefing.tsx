@@ -28,7 +28,7 @@ export default function ContractBriefing({ contract, isOpen, onClose, onDeploy }
             <div className="w-12 h-1.5 bg-slate-800 rounded-full mx-auto mb-8 md:hidden" />
 
             <div className="flex justify-between items-start mb-8">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+              <span className="text-[10px] font-black text-slate-500 tracking-widest">
                 ID: {contract.id}
               </span>
               <button onClick={onClose} className="p-2 bg-slate-800/50 rounded-xl text-slate-400 hover:text-white transition-colors">
@@ -41,39 +41,39 @@ export default function ContractBriefing({ contract, isOpen, onClose, onDeploy }
                 <div className="w-16 h-16 rounded-xl bg-white/5 border border-[var(--border-color)] p-3">
                   <img src={contract.orgLogo} alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <h2 className="text-3xl font-black text-[var(--foreground)] uppercase leading-none tracking-tighter">
+                <h2 className="text-3xl font-black text-[var(--foreground)] leading-none tracking-tighter">
                   {contract.role}
                 </h2>
-                <p className="text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest">{contract.orgName}</p>
+                <p className="text-slate-900 dark:text-white font-black text-xs tracking-widest">{contract.orgName}</p>
               </div>
 
               {/* Quick Stats Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 rounded-none border border-purple-100 bg-purple-50/50">
                    <ShieldCheck className="w-4 h-4 text-purple-600 mb-2" />
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Compliance</p>
+                   <p className="text-[9px] font-black text-slate-500 tracking-widest">Compliance</p>
                    <p className="text-sm font-bold text-slate-900">{contract.complianceLevel} Access</p>
                 </div>
                 <div className="p-4 rounded-none border border-purple-100 bg-purple-50/50">
                    <CreditCard className="w-4 h-4 text-purple-600 mb-2" />
-                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Monthly Rate</p>
+                   <p className="text-[9px] font-black text-slate-500 tracking-widest">Monthly rate</p>
                    <p className="text-sm font-bold text-slate-900">${contract.rate}</p>
                 </div>
               </div>
 
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Mission Brief</h4>
+                  <h4 className="text-[10px] font-black tracking-[0.2em] text-slate-500">Mission brief</h4>
                   <p className="text-sm text-slate-400 leading-relaxed font-medium">
                     {contract.description}
                   </p>
                 </div>
                 
                 <div className="space-y-3">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Required Stack</h4>
+                  <h4 className="text-[10px] font-black tracking-[0.2em] text-slate-500">Required stack</h4>
                   <div className="flex flex-wrap gap-2">
                     {contract.skills.map((skill: string) => (
-                      <span key={skill} className="px-3 py-1 bg-white/5 border border-[var(--border-color)] rounded-lg text-[9px] font-black uppercase text-slate-300 tracking-wider">
+                      <span key={skill} className="px-3 py-1 bg-white/5 border border-[var(--border-color)] rounded-lg text-[9px] font-black text-slate-300 tracking-wider">
                         {skill}
                       </span>
                     ))}
@@ -85,7 +85,7 @@ export default function ContractBriefing({ contract, isOpen, onClose, onDeploy }
               <div className="pt-6 border-t border-[var(--border-color)] mt-auto">
                  <div className="flex items-start gap-3 p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl mb-6">
                     <AlertCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                    <p className="text-[10px] font-bold text-blue-400/80 leading-tight uppercase">
+                    <p className="text-[10px] font-bold text-blue-400/80 leading-tight">
                       Profile deployment will initiate a secure handshake with the organization's node.
                     </p>
                  </div>
@@ -93,9 +93,9 @@ export default function ContractBriefing({ contract, isOpen, onClose, onDeploy }
                  {/* onClick={onDeploy} handles the Handshake Terminal trigger */}
                  <button 
                   onClick={onDeploy}
-                  className="group w-full bg-[#1A1C21] hover:bg-black text-white py-5 rounded-none font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-slate-900/10"
+                  className="group w-full bg-[#1A1C21] hover:bg-black text-white py-5 rounded-none font-black tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-slate-900/10"
                  >
-                   Deploy Profile <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                   Deploy profile <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                  </button>
               </div>
             </div>

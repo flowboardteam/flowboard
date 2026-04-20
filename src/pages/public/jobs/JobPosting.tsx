@@ -369,7 +369,7 @@ export default function JobPosting() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 blur-[100px] rounded-none -mr-32 -mt-32 group-hover:bg-purple-600/10 transition-all duration-1000" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-600/5 blur-[80px] rounded-none -ml-24 -mb-24" />
               
-              <h3 className="text-xs font-black uppercase tracking-[0.25em] text-purple-400">Role Specifications</h3>
+              <h3 className="text-xs font-black uppercase tracking-[0.25em] text-[#111]">Role Specifications</h3>
               
               <div className="grid grid-cols-1 gap-5">
                 <div className="flex items-start gap-4">
@@ -417,7 +417,7 @@ export default function JobPosting() {
                 <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Skills Required</p>
                 <div className="flex flex-wrap gap-2">
                   {role.skills?.map(s => (
-                    <span key={s} className="px-3 py-1.5 bg-white border border-purple-100 rounded-none text-xs font-black text-purple-600 uppercase tracking-widest">
+                    <span key={s} className="px-3 py-1.5 bg-white border border-slate-200 rounded-none text-xs font-black text-[#111] uppercase tracking-widest">
                       {s}
                     </span>
                   ))}
