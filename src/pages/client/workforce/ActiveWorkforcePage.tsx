@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 type MemberType   = "employee"|"hired_full_time"|"hired_contract";
 type OnlineStatus = "online"|"away"|"offline";
@@ -364,6 +365,7 @@ function AddMemberModal({onAdd,onClose,saving}:any){
 export default function ActiveWorkforcePage(){
   const navigate=useNavigate();
   const {toast}=useToast();
+  const { activeGroup } = useGroups();
   const [members,setMembers]=useState<WorkforceMember[]>([]);
   const [projects,setProjects]=useState<Project[]>([]);
   const [loading,setLoading]=useState(true);
@@ -381,45 +383,26 @@ export default function ActiveWorkforcePage(){
   const fetchAll=useCallback(async()=>{
     setLoading(true);setError(null);
     try{
-      const {data:{user},error:authErr}=await supabase.auth.getUser();
-      if(authErr||!user) throw new Error("Not authenticated");
-
-      const [{data:md,error:mErr},{data:pd,error:pErr},{data:pmData}]=await Promise.all([
-        supabase.from("workforce_members").select("*").eq("organization_id",user.id).eq("is_active",true).order("created_at",{ascending:false}),
-        supabase.from("projects").select("id,name,status").eq("organization_id",user.id).eq("status","active").order("name"),
-        supabase.from("project_members").select("workforce_member_id,project_id,role_on_project").eq("organization_id",user.id),
-      ]);
-      if(mErr) throw mErr; if(pErr) throw pErr;
-
-      // Build a full project name map (active + all)
-      const {data:allProjects}=await supabase.from("projects").select("id,name").eq("organization_id",user.id);
-      const projNameMap:Record<string,string>={};
-      (allProjects??[]).forEach((p:any)=>{projNameMap[p.id]=p.name;});
-
-      // Build memberId → projects[] from junction table
-      const memberProjectsMap:Record<string,MemberProject[]>={};
-      (pmData??[]).forEach((pm:any)=>{
-        if(!memberProjectsMap[pm.workforce_member_id]) memberProjectsMap[pm.workforce_member_id]=[];
-        memberProjectsMap[pm.workforce_member_id].push({id:pm.project_id,name:projNameMap[pm.project_id]??"Unknown",role_on_project:pm.role_on_project});
-      });
-
-      // Enrich with profiles
-      const profileIds=(md??[]).map((m:any)=>m.profile_id).filter(Boolean);
-      let profileMap:Record<string,any>={};
-      if(profileIds.length>0){
-        const {data:pData}=await supabase.from("profiles").select("id,full_name,avatar_url,location,email,bio,skills").in("id",profileIds);
-        if(pData) profileMap=Object.fromEntries(pData.map((p:any)=>[p.id,p]));
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_workforce_${groupId}`;
+      const localData = localStorage.getItem(localKey);
+      
+      if(localData) {
+        setMembers(JSON.parse(localData));
+        setProjects([
+          { id: `proj-${groupId}-1`, name: "Talent Cloud V2", status: "active" },
+          { id: `proj-${groupId}-2`, name: "Workflow Integrations", status: "active" }
+        ]);
+        setLoading(false);
+        return;
       }
 
-      setMembers(((md??[]).map((m:any)=>({
-        ...m,
-        projects: memberProjectsMap[m.id]??[],
-        profile: m.profile_id?profileMap[m.profile_id]??null:null,
-      }))) as WorkforceMember[]);
-      setProjects(pd??[]);
+      // Start fresh
+      setMembers([]);
+      setProjects([]);
     }catch(err:any){setError(err.message??"Could not load workforce.");}
     finally{setLoading(false);}
-  },[]);
+  },[activeGroup?.id]);
 
   useEffect(()=>{fetchAll();},[fetchAll]);
   useEffect(()=>{
@@ -433,10 +416,39 @@ export default function ActiveWorkforcePage(){
   const handleAddMember=async(form:any)=>{
     setSaving(true);
     try{
-      const {data:{user}}=await supabase.auth.getUser();if(!user) throw new Error("Not authenticated");
-      const {error}=await supabase.from("workforce_members").insert({organization_id:user.id,full_name:form.full_name,email:form.email||null,role_title:form.role_title||null,location:form.location||null,member_type:form.member_type,start_date:form.start_date||null,payment_monthly:form.payment_monthly?Number(form.payment_monthly):null,payment_currency:"USD",is_active:true});
-      if(error) throw error;
-      toast({title:"Member added ✓"});setShowAddModal(false);fetchAll();
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_workforce_${groupId}`;
+      
+      const newMember: WorkforceMember = {
+        id: `wf-${groupId}-${Math.random().toString(36).substr(2, 9)}`,
+        profile_id: null,
+        full_name: form.full_name,
+        avatar_url: null,
+        email: form.email || null,
+        role_title: form.role_title || null,
+        location: form.location || null,
+        department: form.department || null,
+        member_type: form.member_type,
+        start_date: form.start_date || null,
+        end_date: null,
+        payment_monthly: form.payment_monthly ? Number(form.payment_monthly) : 0,
+        payment_currency: "USD",
+        is_active: true,
+        online_status: "online",
+        availability_status: "available",
+        document_url: null,
+        document_name: null,
+        notes: null,
+        created_at: new Date().toISOString(),
+        projects: []
+      };
+
+      const updated = [...members, newMember];
+      setMembers(updated);
+      localStorage.setItem(localKey, JSON.stringify(updated));
+
+      toast({title:"Member added ✓"});
+      setShowAddModal(false);
     }catch(err:any){toast({variant:"destructive",title:"Error",description:err.message});}
     finally{setSaving(false);}
   };
@@ -444,25 +456,36 @@ export default function ActiveWorkforcePage(){
   const handleAssignProject=async({projectId,role}:any)=>{
     if(!assignTarget) return;setSaving(true);
     try{
-      const {data:{user}}=await supabase.auth.getUser();if(!user) throw new Error("Not authenticated");
-      // Use project_members junction — supports multiple projects per member
-      const {error}=await supabase.from("project_members").upsert({
-        project_id:projectId,workforce_member_id:assignTarget.id,
-        organization_id:user.id,role_on_project:role||null,
-      },{onConflict:"project_id,workforce_member_id"});
-      if(error) throw error;
-      const proj=projects.find(p=>p.id===projectId);
-      if(assignTarget.profile_id) await supabase.from("notifications").insert({user_id:assignTarget.profile_id,title:"You've been assigned to a project! 📁",message:`Assigned to "${proj?.name??"a project"}"${role?` as ${role}`:""}. Check your Flowboard dashboard.`,type:"project_assigned"});
-      if(user) await supabase.from("employment_history").insert({organization_id:user.id,workforce_member_id:assignTarget.id,talent_id:assignTarget.profile_id,change_type:"project_assigned",old_values:{},new_values:{project:proj?.name,role},triggered_by:"org"});
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_workforce_${groupId}`;
+      const proj = projects.find(p=>p.id===projectId);
+
+      const updated = members.map(m => {
+        if(m.id === assignTarget.id) {
+          return {
+            ...m,
+            projects: [...m.projects, { id: projectId, name: proj?.name || "Unknown Project", role_on_project: role || null }]
+          };
+        }
+        return m;
+      });
+
+      setMembers(updated);
+      localStorage.setItem(localKey, JSON.stringify(updated));
+
       toast({title:"Assigned ✓",description:`${rName(assignTarget)} assigned to ${proj?.name}.`});
-      setAssignTarget(null);fetchAll();
+      setAssignTarget(null);
     }catch(err:any){toast({variant:"destructive",title:"Error",description:err.message});}
     finally{setSaving(false);}
   };
 
   const handleRemove=async(id:string)=>{
-    setMembers(prev=>prev.filter(m=>m.id!==id));
-    await supabase.from("workforce_members").update({is_active:false}).eq("id",id);
+    const groupId = activeGroup?.id || "default-group";
+    const localKey = `flowboard_workforce_${groupId}`;
+    
+    const updated = members.filter(m=>m.id!==id);
+    setMembers(updated);
+    localStorage.setItem(localKey, JSON.stringify(updated));
     toast({title:"Member removed"});
   };
 
@@ -541,7 +564,7 @@ export default function ActiveWorkforcePage(){
             <Users className="w-12 h-12 text-slate-300 mx-auto"/>
             <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">{search?"No members match":"No workforce members yet"}</h3>
             <p className="text-sm text-slate-400">{search?"Try a different search":"Hire talents or add employees to get started"}</p>
-            {!search&&<button onClick={()=>setShowAddModal(true)} className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20"><UserPlus className="w-3.5 h-3.5"/> Add member</button>}
+            {!search&&<button onClick={()=>setShowAddModal(true)} className="inline-flex items-center gap-2 px-6 py-3 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-md shadow-[#1A1C21]/20"><UserPlus className="w-3.5 h-3.5"/> Add member</button>}
           </motion.div>
         )}
       </AnimatePresence>

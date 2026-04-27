@@ -19,8 +19,10 @@ import {
 import { Link } from "react-router-dom"; 
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 export default function Shortlist() {
+  const { activeGroup } = useGroups();
   const [savedTalent, setSavedTalent] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,57 +31,53 @@ export default function Shortlist() {
 
   useEffect(() => {
     fetchSavedTalent();
-  }, []);
+  }, [activeGroup?.id]);
 
   const fetchSavedTalent = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const groupId = activeGroup?.id || "default-group";
+    const localKey = `flowboard_shortlist_${groupId}`;
+    const localData = localStorage.getItem(localKey);
 
-    const { data, error } = await supabase
-      .from('shortlisted_talent')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    if (localData) {
+      setSavedTalent(JSON.parse(localData));
+      setLoading(false);
+      return;
+    }
 
-    if (!error) setSavedTalent(data || []);
+    // Start fresh
+    setSavedTalent([]);
     setLoading(false);
   };
 
   const handleRemove = async (githubId: string, name: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase
-      .from('shortlisted_talent')
-      .delete()
-      .match({ github_id: githubId, user_id: user?.id });
+    const groupId = activeGroup?.id || "default-group";
+    const localKey = `flowboard_shortlist_${groupId}`;
+    
+    const updated = savedTalent.filter(item => item.github_id !== githubId);
+    setSavedTalent(updated);
+    localStorage.setItem(localKey, JSON.stringify(updated));
 
-    if (!error) {
-      setSavedTalent(prev => prev.filter(item => item.github_id !== githubId));
-      toast({
-        title: "Profile Removed",
-        description: `${name} has been removed from your shortlist.`,
-      });
-    }
+    toast({
+      title: "Profile Removed",
+      description: `${name} has been removed from your shortlist.`,
+    });
   };
 
   const confirmClearAll = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const groupId = activeGroup?.id || "default-group";
+    const localKey = `flowboard_shortlist_${groupId}`;
 
-    const { error } = await supabase
-      .from('shortlisted_talent')
-      .delete()
-      .eq('user_id', user.id);
+    localStorage.setItem(localKey, JSON.stringify([]));
+    setSavedTalent([]);
+    setShowClearModal(false);
 
-    if (!error) {
-      setSavedTalent([]);
-      setShowClearModal(false);
-      toast({
-        title: "Shortlist Cleared",
-        description: "All experts have been removed from your list.",
-      });
-    }
+    toast({
+      title: "Shortlist Cleared",
+      description: "All experts have been removed from your list.",
+    });
   };
+
 
   const filteredTalent = savedTalent.filter(t => 
     t.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -151,7 +149,7 @@ export default function Shortlist() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-            <BookmarkCheck className="w-4 h-4 text-emerald-500" />
+            <BookmarkCheck className="w-4 h-4 text-blue-600" />
             <span>Node: Haraka / Shortlisted Talent</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
@@ -217,15 +215,15 @@ export default function Shortlist() {
 
                 <div className="space-y-4">
                    <div className="flex items-center justify-between px-2 text-[10px] font-black text-slate-400 uppercase border-t border-[var(--border-color)] pt-4">
-                      <span className="flex items-center gap-1"><Code2 className="w-3 h-3 text-emerald-500"/> {person.repos_count} Repos</span>
-                      <span className="flex items-center gap-1"><History className="w-3 h-3 text-emerald-500"/> {person.followers_count} Followers</span>
+                      <span className="flex items-center gap-1"><Code2 className="w-3 h-3 text-blue-600"/> {person.repos_count} Repos</span>
+                      <span className="flex items-center gap-1"><History className="w-3 h-3 text-blue-600"/> {person.followers_count} Followers</span>
                    </div>
                    
                    <a 
                     href={person.github_url} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all shadow-md"
+                    className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
                   >
                     GitHub Profile <ExternalLink className="w-3 h-3" />
                   </a>
@@ -237,7 +235,7 @@ export default function Shortlist() {
       ) : (
         <div className="py-32 text-center border-2 border-dashed border-[var(--border-color)] rounded-2xl bg-[var(--sidebar-bg)]/50">
            <p className="font-black uppercase text-slate-400 tracking-[0.2em] mb-6">No experts in this shortlist yet.</p>
-           <Link to="/client/haraka" className="bg-emerald-600 text-white px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all inline-flex items-center gap-2">
+           <Link to="/client/haraka" className="bg-blue-600 text-white px-10 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all inline-flex items-center gap-2 shadow-md shadow-blue-600/20">
              <Zap className="w-4 h-4 fill-current" /> Run Haraka Discovery
            </Link>
         </div>

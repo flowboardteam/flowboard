@@ -47,7 +47,7 @@ const NAV_GROUPS = [
   {
     label: "Finance & Admin",
     items: [
-      { name: "Invoice & Payments", path: "/talent/payroll",    icon: Wallet      },
+      { name: "Invoice & Payments", path: "/talent/invoices",    icon: Wallet      },
       { name: "Compliance",         path: "/talent/compliance", icon: ShieldCheck },
       { name: "Apps & Tools",       path: "/talent/apps",       icon: Grid        },
     ],
@@ -139,7 +139,7 @@ export default function DashboardHeader({
               <button
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-black transition-all rounded-xl ${
                   activeGroup === group.label || group.items.some(i => location.pathname === i.path)
-                    ? "text-[#00A86B] bg-[#00A86B]/5"
+                    ? "text-[#A079FF] bg-[#A079FF]/5"
                     : "text-slate-500 hover:text-slate-900"
                 }`}
               >
@@ -164,12 +164,12 @@ export default function DashboardHeader({
                             to={item.path}
                             className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all font-bold text-xs ${
                               isActive
-                                ? "bg-[#00A86B]/10 text-[#00A86B]"
+                                ? "bg-[#A079FF]/10 text-[#A079FF]"
                                 : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <item.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#00A86B]" : "text-slate-400"}`} />
+                              <item.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#A079FF]" : "text-slate-400"}`} />
                               <span className="truncate">{item.name}</span>
                             </div>
                             {badgeCount > 0 && (
@@ -191,13 +191,13 @@ export default function DashboardHeader({
 
       <div className="flex items-center gap-2 md:gap-4">
         {/* Search - Hidden on mobile if needed, but Deel has it in Content. We'll keep it as a button here. */}
-        <button className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all">
+        <button className="p-2 text-slate-400 hover:text-[#A079FF] hover:bg-[#A079FF]/10 rounded-xl transition-all">
           <Search className="w-5 h-5" />
         </button>
 
         <button
           onClick={toggleTheme}
-          className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all"
+          className="p-2 text-slate-400 hover:text-[#A079FF] hover:bg-[#A079FF]/10 rounded-xl transition-all"
         >
           {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
         </button>
@@ -205,7 +205,7 @@ export default function DashboardHeader({
         <div className="relative">
           <button
             onClick={() => setIsNotifyOpen(!isNotifyOpen)}
-            className="p-2 text-slate-400 hover:text-[#00A86B] hover:bg-[#00A86B]/10 rounded-xl transition-all relative"
+            className="p-2 text-slate-400 hover:text-[#A079FF] hover:bg-[#A079FF]/10 rounded-xl transition-all relative"
           >
             <Bell className="w-6 h-6" />
             {unreadCount > 0 && (
@@ -243,10 +243,10 @@ export default function DashboardHeader({
                    <p className="text-[10px] font-black uppercase text-slate-400">Account</p>
                    <p className="text-sm font-black text-slate-900 truncate">{profile?.full_name}</p>
                 </div>
-                <Link to="/talent/profile" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/talent/profile" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <User className="w-4 h-4" /> Profile Settings
                 </Link>
-                <Link to="/talent/settings" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#00A86B] hover:bg-[#00A86B]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/talent/settings" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <Settings className="w-4 h-4" /> System Preference
                 </Link>
                 <div className="h-px bg-slate-50 my-1" />

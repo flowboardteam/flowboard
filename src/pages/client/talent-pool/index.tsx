@@ -10,8 +10,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { TalentCard } from "@/components/client/TalentCard";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 export default function TalentPool() {
+  const { activeGroup } = useGroups();
   const [talents, setTalents]                 = useState<any[]>([]);
   const [loading, setLoading]                 = useState(true);
   const [searchTerm, setSearchTerm]           = useState("");
@@ -93,36 +95,79 @@ export default function TalentPool() {
     try {
       setSending(true);
 
-      // Insert formal hire offer
-      const { error: offerError } = await supabase.from("hire_inquiries").insert({
-        talent_id:       selectedTalent.id,
-        client_id:       currentUser.id,
-        sender_name:     currentUser.full_name,
-        sender_email:    currentUser.email,
-        role_title:      offerForm.role_title,
-        role_type:       offerForm.role_type,
-        salary_monthly:  offerForm.salary_monthly ? Number(offerForm.salary_monthly) : null,
-        salary_currency: offerForm.salary_currency,
-        start_date:      offerForm.start_date || null,
-        contract_length: offerForm.role_type !== "full_time" ? offerForm.contract_length : null,
-        offer_message:   offerForm.offer_message,
-        message:         offerForm.offer_message,
-        source:          "talent_pool",
-        status:          "pending",
-      });
-      if (offerError) throw offerError;
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_offers_${groupId}`;
+      const existing = localStorage.getItem(localKey);
+      const offersArr = existing ? JSON.parse(existing) : [];
 
-      // Notify the talent
-      await supabase.from("notifications").insert({
-        user_id: selectedTalent.id,
-        title:   "You have a new job offer! 🎉",
-        message: `${currentUser.full_name} from ${currentUser.company_name ?? "an organisation"} has sent you a formal offer for ${offerForm.role_title}.`,
-        type:    "hire_offer",
-      });
+      // Insert formal hire offer in DB
+      try {
+        await supabase.from("hire_inquiries").insert({
+          talent_id:       selectedTalent.id,
+          client_id:       currentUser.id,
+          sender_name:     activeGroup?.name || currentUser.full_name,
+          sender_email:    currentUser.email,
+          role_title:      offerForm.role_title,
+          role_type:       offerForm.role_type,
+          salary_monthly:  offerForm.salary_monthly ? Number(offerForm.salary_monthly) : null,
+          salary_currency: offerForm.salary_currency,
+          start_date:      offerForm.start_date || null,
+          contract_length: offerForm.role_type !== "full_time" ? offerForm.contract_length : null,
+          offer_message:   offerForm.offer_message + `\n\n[GROUP_ID:${groupId}]`,
+          message:         offerForm.offer_message + `\n\n[GROUP_ID:${groupId}]`,
+          source:          "talent_pool",
+          status:          "pending",
+        });
+
+      } catch (dbErr) {
+        console.warn("Offer DB save skipped/failed:", dbErr);
+      }
+
+      const newOffer: any = {
+        id: `off-${groupId}-${Math.random().toString(36).substr(2, 9)}`,
+        talent_id: selectedTalent.id,
+        sender_name: activeGroup?.name || currentUser.full_name,
+        sender_email: currentUser.email,
+        role_title: offerForm.role_title,
+        role_type: offerForm.role_type,
+        salary_monthly: offerForm.salary_monthly ? Number(offerForm.salary_monthly) : null,
+        salary_currency: offerForm.salary_currency,
+        start_date: offerForm.start_date || null,
+        contract_length: offerForm.role_type !== "full_time" ? offerForm.contract_length : null,
+        offer_message: offerForm.offer_message,
+        status: "pending",
+        source: "talent_pool",
+        created_at: new Date().toISOString(),
+        talent_profile: {
+          full_name: selectedTalent.full_name,
+          avatar_url: selectedTalent.avatar_url || null,
+          primary_role: selectedTalent.primary_role || null,
+          location: selectedTalent.location || null
+        }
+      };
+
+      try {
+        // Notify the talent
+        await supabase.from("notifications").insert({
+          user_id: selectedTalent.id,
+          title:   "You have a new job offer! 🎉",
+          message: `${activeGroup?.name || currentUser.full_name} has sent you a formal offer for ${offerForm.role_title}.\n\n[OFFER_DATA:${JSON.stringify(newOffer)}]`,
+          type:    "hire_offer",
+        });
+      } catch (dbErr) {
+        console.warn("Offer Notification save skipped/failed:", dbErr);
+      }
+
+      localStorage.setItem(localKey, JSON.stringify([...offersArr, newOffer]));
+
+      const globalTalentKey = `global_talent_offers_${selectedTalent.id}`;
+      const existingGlobal = localStorage.getItem(globalTalentKey);
+      const globalArr = existingGlobal ? JSON.parse(existingGlobal) : [];
+      localStorage.setItem(globalTalentKey, JSON.stringify([...globalArr, newOffer]));
 
       toast({
         title:       "Offer sent successfully ✓",
-        description: `Formal offer delivered to ${selectedTalent.full_name.split(" ")[0]}. They'll respond from their dashboard.`,
+        description: `Formal offer delivered to ${selectedTalent.full_name.split(" ")[0]}. Sent by ${activeGroup?.name || "your organization"}.`,
       });
 
       setShowOfferModal(false);
@@ -139,12 +184,12 @@ export default function TalentPool() {
       <div className="p-4 sm:p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
         {/* Header */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-            <Users className="w-4 h-4 text-emerald-500" />
+          <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+            <Users className="w-3.5 h-3.5" />
             <span>Talent & AI / Talent Pool</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-[var(--text-main)] uppercase tracking-tighter">
-            Global <span className="text-emerald-500">Talent Pool</span>
+          <h1 className="text-2xl font-black text-[#1A1C21] uppercase tracking-tighter">
+            Global Talent Pool
           </h1>
         </div>
 

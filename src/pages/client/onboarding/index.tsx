@@ -109,7 +109,7 @@ export default function ClientOnboarding() {
       if (error) throw error;
 
       toast.success("Organization Profile Created!");
-      setTimeout(() => navigate("/client/dashboard", { replace: true }), 1500);
+      navigate("/client/dashboard", { replace: true });
 
     } catch (error: any) {
       toast.error(error.message || "Failed to save profile");

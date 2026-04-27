@@ -697,7 +697,7 @@ export default function CreateRolePage() {
   const editId         = searchParams.get("edit");
   const { activeGroup } = useGroups();
 
-  const [mode, setMode]         = useState<null | "manual" | "ai">(null);
+  const [mode, setMode]         = useState<null | "manual" | "ai">("manual");
   const [step, setStep]         = useState(1);
   const [form, setForm]         = useState(DEFAULT_FORM);
   const [saving, setSaving]     = useState(false);
@@ -708,7 +708,7 @@ export default function CreateRolePage() {
     if (!editId) return;
     (async () => {
       setLoadingEdit(true);
-      const { data, error } = await supabase.from("roles").select("*").eq("id", editId).single();
+      const { data } = await supabase.from("roles").select("*").eq("id", editId).single();
       if (data) {
         setForm({
           title:              data.title              ?? "",
@@ -725,8 +725,32 @@ export default function CreateRolePage() {
           other_requirements: data.other_requirements ?? [],
         });
         setMode("manual");
+      } else {
+        const groupId = activeGroup?.id || "default-group";
+        const localKey = `flowboard_roles_${groupId}`;
+        const localRoles = localStorage.getItem(localKey);
+        if (localRoles) {
+          const parsed = JSON.parse(localRoles);
+          const found = parsed.find((r: any) => r.id === editId);
+          if (found) {
+            setForm({
+              title:              found.title              ?? "",
+              department:         found.department         ?? "",
+              type:               found.type               ?? "Full-time",
+              location:           found.location           ?? "Remote",
+              salary:             found.salary             ?? "",
+              experience_level:   found.experience_level   ?? "",
+              description:        found.description        ?? "",
+              responsibilities:   found.responsibilities   ?? [],
+              skills:             found.skills             ?? [],
+              benefits:           found.benefits           ?? [],
+              education:          found.education          ?? "",
+              other_requirements: found.other_requirements ?? [],
+            });
+            setMode("manual");
+          }
+        }
       }
-      if (error) console.error("Load role error:", error);
       setLoadingEdit(false);
     })();
   }, [editId]);
@@ -734,25 +758,84 @@ export default function CreateRolePage() {
   const updateField = (key: string, value: any) =>
     setForm(prev => ({ ...prev, [key]: value }));
 
-  // ── Save to Supabase ──────────────────────────────────────────────────────
+  // ── Save to Local ──────────────────────────────────────────────────────
   const handleSave = async (status: string) => {
     setSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-      const payload = { 
-        ...form, 
-        status, 
-        organization_id: user.id
-      };
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_roles_${groupId}`;
+      const existingLocal = localStorage.getItem(localKey);
+      const localRoles = existingLocal ? JSON.parse(existingLocal) : [];
+
+      let finalRoleId = editId || crypto.randomUUID();
 
       if (editId) {
-        const { error } = await supabase.from("roles").update(payload).eq("id", editId);
-        if (error) throw error;
+        const updated = localRoles.map((r: any) => 
+          r.id === editId ? { 
+            ...r, 
+            ...form, 
+            status, 
+            organization_name: activeGroup?.name || "Organization", 
+            organization_avatar: activeGroup?.avatar_url || null 
+          } : r
+        );
+        localStorage.setItem(localKey, JSON.stringify(updated));
       } else {
-        const { error } = await supabase.from("roles").insert(payload);
-        if (error) throw error;
+        const newRole = {
+          ...form,
+          id: finalRoleId,
+          status,
+          applicants_count: 0,
+          created_at: new Date().toISOString(),
+          organization_name: activeGroup?.name || "Organization",
+          organization_avatar: activeGroup?.avatar_url || null,
+        };
+        localRoles.push(newRole);
+        localStorage.setItem(localKey, JSON.stringify(localRoles));
       }
+
+      // ── Sync to Supabase public jobs list ──────────────────────────────────
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase.from("profiles").select("system_prefs").eq("id", user.id).single();
+          const existingJobs = profile?.system_prefs?.public_jobs || [];
+          
+          let updatedJobs = [];
+          if (editId) {
+            updatedJobs = existingJobs.map((j: any) => 
+              j.id === editId ? { 
+                ...j, 
+                ...form, 
+                status, 
+                organization_name: activeGroup?.name || "Organization", 
+                organization_avatar: activeGroup?.avatar_url || null 
+              } : j
+            );
+          } else {
+            const newJob = {
+              ...form,
+              id: finalRoleId,
+              status,
+              applicants_count: 0,
+              created_at: new Date().toISOString(),
+              organization_name: activeGroup?.name || "Organization",
+              organization_avatar: activeGroup?.avatar_url || null,
+            };
+            updatedJobs = [...existingJobs, newJob];
+          }
+          
+          await supabase.from("profiles").update({
+            system_prefs: {
+              ...(profile?.system_prefs || {}),
+              public_jobs: updatedJobs
+            }
+          }).eq("id", user.id);
+        }
+      } catch (dbErr) {
+        console.warn("Public jobs sync error:", dbErr);
+      }
+
       navigate("/client/roles");
     } catch (err) {
       console.error("Save role error:", err);
@@ -760,6 +843,7 @@ export default function CreateRolePage() {
       setSaving(false);
     }
   };
+
 
   const canProceed = () => {
     if (step === 1) return form.title.trim().length > 0;

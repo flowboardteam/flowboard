@@ -32,7 +32,8 @@ import SystemPrefs from "./pages/talent/dashboard/SystemPrefs";
 import TalentOffersPage from "./pages/talent/offers/TalentOffersPage";
 import TalentContractChangesPage from "./pages/talent/contract-changes/TalentContractChangesPage";
 import TalentJobsPage from "./pages/talent/jobs/TalentJobsPage";
-
+import TalentInvoicesPage from "./pages/talent/invoices/TalentInvoicesPage";
+import CreateInvoicePage from "./pages/talent/invoices/CreateInvoicePage";
 
 // --- 3. CLIENT PAGES ---
 import ClientOnboarding from "./pages/client/onboarding/index";
@@ -49,9 +50,11 @@ import ActiveWorkforcePage from "./pages/client/workforce/ActiveWorkforcePage";
 import ClientOffersPage from "./pages/client/offers/ClientOffersPage";
 import Haraka from "./pages/client/haraka";
 import GroupsPage from "./pages/client/settings/Groups";
+import ClientPayrollPage from "./pages/client/payroll/ClientPayrollPage";
 
 // Shared
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
+import ClientApplicationsPage from "./pages/client/applications/ClientApplicationsPage";
 import ComingSoon from "./pages/dashboard/ComingSoon";
 import Shortlist from "./pages/client/shortlist";
 import ClientProjectsPage from "./pages/client/project/ClientProjectsPage";
@@ -145,6 +148,8 @@ const App = () => (
             <Route path="contract-changes" element={<TalentContractChangesPage />} />
             <Route path="project" element={<TalentProjectPage />} />
             <Route path="jobs" element={<TalentJobsPage />} />
+            <Route path="invoices" element={<TalentInvoicesPage />} />
+            <Route path="invoices/create" element={<CreateInvoicePage />} />
             
             {/* Placeholders */}
             <Route path="tracker"          element={<ComingSoon />} />
@@ -165,7 +170,7 @@ const App = () => (
             <Route path="profile"      element={<ClientProfileSettings />} />
             <Route path="settings"     element={<ClientSystemPrefs />} />
             <Route path="settings/groups" element={<GroupsPage />} />
-            <Route path="applications" element={<ApplicationsPage />} />
+            <Route path="applications" element={<ClientApplicationsPage />} />
 
             {/* Talent & AI */}
             <Route path="haraka"       element={<Haraka />} />
@@ -193,7 +198,7 @@ const App = () => (
             <Route path="apps"         element={<ComingSoon />} />
             <Route path="analytics/hiring"       element={<ComingSoon />} />
             <Route path="analytics/performance"  element={<ComingSoon />} />
-            <Route path="payroll"      element={<ComingSoon />} />
+            <Route path="payroll"      element={<ClientPayrollPage />} />
             <Route path="coming-soon"  element={<ComingSoon />} />
           </Route>
 

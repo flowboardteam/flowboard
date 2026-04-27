@@ -116,7 +116,7 @@ export default function DashboardHeader({
           <Link 
             to="/client/dashboard" 
             className={`px-4 py-2 text-sm font-black rounded-xl transition-all ${
-              location.pathname === "/client/dashboard" ? "text-emerald-600 bg-emerald-500/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+              location.pathname === "/client/dashboard" ? "text-[#A079FF] bg-[#A079FF]/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             Home
@@ -131,7 +131,7 @@ export default function DashboardHeader({
               <button
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-black transition-all rounded-xl ${
                   activeGroup === group.label || group.items.some(i => location.pathname === i.path)
-                    ? "text-emerald-600 bg-emerald-500/5"
+                    ? "text-[#A079FF] bg-[#A079FF]/5"
                     : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
@@ -155,11 +155,11 @@ export default function DashboardHeader({
                             to={item.path}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-bold text-xs ${
                               isActive
-                                ? "bg-emerald-500/10 text-emerald-600"
+                                ? "bg-[#A079FF]/10 text-[#A079FF]"
                                 : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                             }`}
                           >
-                            <item.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-emerald-600" : "text-slate-400"}`} />
+                            <item.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#A079FF]" : "text-slate-400"}`} />
                             <span className="truncate">{item.name}</span>
                           </Link>
                         );
@@ -175,7 +175,7 @@ export default function DashboardHeader({
 
       <div className="flex items-center gap-2 md:gap-4">
         {/* Actions Row */}
-        <div className="hidden sm:flex items-center bg-slate-100/50 dark:bg-slate-800/50 border border-[var(--border-color)] rounded-xl px-4 py-2 w-48 lg:w-64 transition-all focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500/50">
+        <div className="hidden sm:flex items-center bg-slate-100/50 dark:bg-slate-800/50 border border-[var(--border-color)] rounded-xl px-4 py-2 w-48 lg:w-64 transition-all focus-within:ring-2 focus-within:ring-[#A079FF]/20 focus-within:border-[#A079FF]/50">
           <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
           <input
             placeholder="Search..."
@@ -185,7 +185,7 @@ export default function DashboardHeader({
 
         <button
           onClick={toggleTheme}
-          className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all"
+          className="p-2 text-slate-400 hover:text-[#A079FF] hover:bg-[#A079FF]/10 rounded-xl transition-all"
         >
           {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
         </button>
@@ -193,11 +193,11 @@ export default function DashboardHeader({
         <div className="relative">
           <button
             onClick={() => setIsNotifyOpen(!isNotifyOpen)}
-            className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all relative"
+            className="p-2 text-slate-400 hover:text-[#A079FF] hover:bg-[#A079FF]/10 rounded-xl transition-all relative"
           >
             <Bell className="w-6 h-6" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-[var(--sidebar-bg)] shadow-lg">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#A079FF] text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-[var(--sidebar-bg)] shadow-lg">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -208,7 +208,7 @@ export default function DashboardHeader({
         <div className="relative ml-2">
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-3 p-1 rounded-xl bg-slate-50/50 hover:bg-emerald-500/5 border border-[var(--border-color)] transition-all"
+            className="flex items-center gap-3 p-1 rounded-xl bg-slate-50/50 hover:bg-[#A079FF]/5 border border-[var(--border-color)] transition-all"
           >
              <div className="w-8 h-8 rounded-lg bg-slate-200 border border-[var(--border-color)] flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
@@ -219,7 +219,7 @@ export default function DashboardHeader({
             </div>
             <div className="hidden sm:block text-left pr-2">
               <p className="text-[11px] font-black text-slate-900 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
-              <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest mt-1 opacity-80">{profile?.role_type || "Client"}</p>
+              <p className="text-[9px] text-[#A079FF] font-black uppercase tracking-widest mt-1 opacity-80">{profile?.role_type || "Client"}</p>
             </div>
           </button>
 
@@ -231,10 +231,10 @@ export default function DashboardHeader({
                    <p className="text-[10px] font-black uppercase text-slate-400">Account</p>
                    <p className="text-sm font-black text-slate-900 truncate">{profile?.full_name}</p>
                 </div>
-                <Link to="/client/profile" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-emerald-600 hover:bg-emerald-500/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/client/profile" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <User className="w-4 h-4" /> Profile Settings
                 </Link>
-                <Link to="/client/settings" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-emerald-600 hover:bg-emerald-500/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/client/settings" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <Settings className="w-4 h-4" /> System Preference
                 </Link>
                 <div className="h-px bg-slate-50 my-1" />

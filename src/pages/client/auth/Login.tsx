@@ -71,10 +71,7 @@ export default function ClientLogin() {
         description: "Opening the Client Command Center...",
       });
       
-      setTimeout(() => {
-        // Redirecting to Client side instead of Talent
-        navigate("/client/dashboard");
-      }, 1500);
+      navigate("/client/dashboard");
     }
   };
 

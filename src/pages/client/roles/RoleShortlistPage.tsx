@@ -60,7 +60,7 @@ function scoreLabel(score: number) {
 }
 
 // ─── Hire Offer Modal ─────────────────────────────────────────────────────────
-function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
+function HireOfferModal({ candidate, role, activeGroup, onClose, onConfirm, sending }) {
   const [form, setForm] = useState({
     role_title:      role?.title ?? "",
     role_type:       "full_time",
@@ -100,7 +100,12 @@ function HireOfferModal({ candidate, role, onClose, onConfirm, sending }) {
                   }
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-0.5">Send hire offer</p>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    {activeGroup?.avatar_url && (
+                      <img src={activeGroup.avatar_url} className="w-4 h-4 rounded-none object-cover border border-[var(--border-color)]" alt="Group" />
+                    )}
+                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Send hire offer</p>
+                  </div>
                   <h2 className="text-lg font-black dark:text-white tracking-tight">
                     Hire {candidate.talent_name?.split(" ")[0]}
                   </h2>
@@ -405,22 +410,62 @@ export default function RoleShortlistPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const [{ data: roleData }, { data: listData }] = await Promise.all([
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_roles_${groupId}`;
+      const localRoles = localStorage.getItem(localKey);
+      let localRole = null;
+      if (localRoles) {
+        const parsed = JSON.parse(localRoles);
+        localRole = parsed.find((r: any) => r.id === roleId);
+      }
+
+      const [{ data: roleData }, { data: listData }, { data: notifData }] = await Promise.all([
         supabase.from("roles").select("*").eq("id", roleId).single(),
         supabase.from("role_shortlist").select("*")
           .eq("role_id", roleId)
           .eq("organization_id", user.id)
           .order("overall_score", { ascending: false }),
+        supabase.from("notifications").select("*").eq("user_id", user.id).eq("type", "job_application")
       ]);
 
       if (roleData) setRole(roleData);
-      if (listData) setCandidates(listData);
+      else if (localRole) setRole(localRole);
+      
+      const localShortlistKey = `flowboard_local_shortlist_${user.id}`;
+      const existingShortlist = localStorage.getItem(localShortlistKey);
+      const localShortlist = existingShortlist ? JSON.parse(existingShortlist).filter((a: any) => a.role_id === roleId) : [];
+
+      // Extract from notifications
+      const notifShortlist: any[] = [];
+      if (notifData) {
+        notifData.forEach(n => {
+          if (n.message && n.message.includes("[APP_DATA:")) {
+            try {
+              const data = JSON.parse(n.message.split("[APP_DATA:")[1].split("]")[0]);
+              if (data.role_id === roleId) {
+                notifShortlist.push(data);
+              }
+            } catch(e) {}
+          }
+        });
+      }
+
+      const combinedList = [...(listData || [])];
+      
+      // Merge local and notification apps
+      [...localShortlist, ...notifShortlist].forEach((ls: any) => {
+        if (!combinedList.some(cl => cl.talent_id === ls.talent_id)) {
+          combinedList.push(ls);
+        }
+      });
+
+      setCandidates(combinedList);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [roleId]);
+  }, [roleId, activeGroup?.id]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
@@ -447,8 +492,13 @@ export default function RoleShortlistPage() {
       const { data: { user } } = await supabase.auth.getUser();
       const { data: profile }  = await supabase.from("profiles").select("full_name, email").eq("id", user!.id).single();
 
+      const groupId = activeGroup?.id || "default-group";
+
+      const offerId = crypto.randomUUID();
+
       // Insert / upsert the hire inquiry as a formal offer
       const { error: offerError } = await supabase.from("hire_inquiries").insert({
+        id:              offerId,
         talent_id:       hireTarget.talent_id,
         client_id:       user!.id,
         sender_name:     profile?.full_name ?? "Organisation",
@@ -459,8 +509,8 @@ export default function RoleShortlistPage() {
         salary_currency: offerForm.salary_currency,
         start_date:      offerForm.start_date || null,
         contract_length: offerForm.contract_length,
-        offer_message:   offerForm.offer_message,
-        message:         offerForm.offer_message,   // keep legacy field in sync
+        offer_message:   offerForm.offer_message + `\n\n[GROUP_ID:${groupId}][GROUP_AVATAR:${activeGroup?.avatar_url || ""}]`,
+        message:         offerForm.offer_message + `\n\n[GROUP_ID:${groupId}][GROUP_AVATAR:${activeGroup?.avatar_url || ""}]`,   // keep legacy field in sync
         source:          "role_shortlist",
         role_id:         roleId,
         shortlist_id:    hireTarget.id,
@@ -468,13 +518,48 @@ export default function RoleShortlistPage() {
       });
       if (offerError) throw offerError;
 
+      const newOffer: any = {
+        id: offerId,
+        talent_id: hireTarget.talent_id,
+        client_id: user!.id,
+        sender_name: activeGroup?.name || profile?.full_name || "Organisation",
+        sender_email: profile?.email || user!.email || "",
+        role_title: offerForm.role_title,
+        role_type: offerForm.role_type,
+        salary_monthly: offerForm.salary_monthly ? Number(offerForm.salary_monthly) : null,
+        salary_currency: offerForm.salary_currency,
+        start_date: offerForm.start_date || null,
+        contract_length: offerForm.contract_length,
+        offer_message: offerForm.offer_message,
+        group_avatar: activeGroup?.avatar_url || null,
+        status: "pending",
+        source: "role_shortlist",
+        created_at: new Date().toISOString(),
+        talent_profile: {
+          full_name: hireTarget.talent_name,
+          avatar_url: hireTarget.talent_avatar || null,
+          primary_role: hireTarget.talent_role || null,
+          location: hireTarget.talent_location || null
+        }
+      };
+
       // Notify the talent
       await supabase.from("notifications").insert({
         user_id: hireTarget.talent_id,
         title:   "You have a new job offer! 🎉",
-        message: `${profile?.full_name ?? "An organisation"} has sent you a formal offer for ${offerForm.role_title}.`,
+        message: `${activeGroup?.name || profile?.full_name || "An organisation"} has sent you a formal offer for ${offerForm.role_title}.\n\n[OFFER_DATA:${JSON.stringify(newOffer)}]`,
         type:    "hire_offer",
       });
+
+      const localKey = `flowboard_offers_${groupId}`;
+      const existing = localStorage.getItem(localKey);
+      const offersArr = existing ? JSON.parse(existing) : [];
+      localStorage.setItem(localKey, JSON.stringify([...offersArr, newOffer]));
+
+      const globalTalentKey = `global_talent_offers_${hireTarget.talent_id}`;
+      const existingGlobal = localStorage.getItem(globalTalentKey);
+      const globalArr = existingGlobal ? JSON.parse(existingGlobal) : [];
+      localStorage.setItem(globalTalentKey, JSON.stringify([...globalArr, newOffer]));
 
       // Advance shortlist stage to contacted
       await handleStageChange(hireTarget.id, "contacted");
@@ -608,9 +693,10 @@ export default function RoleShortlistPage() {
           <HireOfferModal
             candidate={hireTarget}
             role={role}
+            activeGroup={activeGroup}
+            sending={sending}
             onClose={() => setHireTarget(null)}
             onConfirm={handleSendOffer}
-            sending={sending}
           />
         )}
       </AnimatePresence>

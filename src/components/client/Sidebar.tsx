@@ -25,6 +25,7 @@ const BASE_MENU = [
     icon: Cpu,
     items: [
       { name: "AI Agent",      path: "/client/haraka",      icon: Zap,           badge: null           },
+      { name: "Applications",  path: "/client/applications",icon: ListChecks,    badge: "applications" },
       { name: "Shortlisted",   path: "/client/shortlist",   icon: BookmarkCheck, badge: "shortlist"    },
       { name: "Talent Pool",   path: "/client/talent-pool", icon: Users,         badge: null           },
       { name: "Offers Sent",   path: "/client/offers",      icon: Send,          badge: "offersPending"},
@@ -159,8 +160,8 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
     <aside className="w-full h-full bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col p-6 overflow-y-auto no-scrollbar relative">
       {/* Brand */}
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
-          <img src="/flowboardlogo.png" alt="Logo" className="w-6 h-6 object-contain" />
+        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm overflow-hidden">
+          <img src="/flowboardlogo.png" alt="Logo" className="w-6 h-6 object-contain rounded-full" />
         </div>
         <span className="text-lg font-black tracking-tight text-[var(--text-main)]">Flowboard</span>
       </div>

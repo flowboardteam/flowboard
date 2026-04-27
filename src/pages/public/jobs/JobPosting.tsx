@@ -69,21 +69,47 @@ export default function JobPosting() {
         }
 
         // 2. Fetch Job
-        const { data: job, error: jobErr } = await supabase
+        let job: any = null;
+        let op: any = null;
+
+        const { data: directJob } = await supabase
           .from("roles")
           .select("*")
           .eq("id", roleId)
-          .single();
+          .maybeSingle();
 
-        if (jobErr || !job) throw new Error("Job not found");
+        if (directJob) {
+          job = directJob;
+          const { data: orgProfile } = await supabase
+            .from("profiles")
+            .select("id, full_name, avatar_url, company_name, bio, location")
+            .eq("id", directJob.organization_id)
+            .maybeSingle();
+          op = orgProfile;
+        } else {
+          const { data: clients } = await supabase
+            .from("profiles")
+            .select("*");
+
+          (clients || []).forEach((client: any) => {
+            const profileJobs = client.system_prefs?.public_jobs || [];
+            const foundJob = profileJobs.find((j: any) => j.id === roleId);
+            if (foundJob) {
+              job = foundJob;
+              op = {
+                id: client.id,
+                full_name: client.full_name,
+                avatar_url: client.avatar_url,
+                company_name: client.company_name || "Enterprise",
+                bio: client.bio,
+                location: client.location
+              };
+            }
+          });
+        }
+
+        if (!job) throw new Error("Job not found");
         setRole(job);
-
-        // 3. Fetch Org
-        const { data: op } = await supabase
-          .from("profiles")
-          .select("id, full_name, avatar_url, company_name, bio, location")
-          .eq("id", job.organization_id)
-          .single();
         setOrg(op);
 
         // 4. Check if already applied
@@ -94,7 +120,12 @@ export default function JobPosting() {
             .eq("role_id", roleId)
             .eq("talent_id", session.user.id)
             .maybeSingle();
-          if (app) setHasApplied(true);
+
+          const localKey = `job_applications_${session.user.id}`;
+          const existing = localStorage.getItem(localKey);
+          const apps = existing ? JSON.parse(existing) : [];
+
+          if (app || apps.includes(roleId)) setHasApplied(true);
         }
 
       } catch (err) {
@@ -113,45 +144,22 @@ export default function JobPosting() {
         title: "Account required",
         description: "Please sign in to apply for this mission.",
       });
-      navigate(`/talent/login?redirect=/jobs/${roleId}`);
+      navigate(`/talent/signup?redirect=/talent/jobs?role=${roleId}`);
       return;
     }
 
     if (profile?.role_type !== "talent") {
       toast({
         variant: "destructive",
-        title: "Invalid account type",
-        description: "Only talent profiles can apply for roles.",
+        title: "Talent account required",
+        description: "Please sign in or create a talent profile to apply.",
       });
+      navigate(`/talent/signup?redirect=/talent/jobs?role=${roleId}`);
       return;
     }
 
-    setApplying(true);
-    try {
-      // Logic for application
-      const { error: appErr } = await supabase.from("job_applications").insert({
-        role_id: roleId,
-        talent_id: user.id,
-        status: 'pending'
-      });
-
-      if (appErr) throw appErr;
-
-      setHasApplied(true);
-      toast({
-        title: "Application Sent! 🚀",
-        description: `Your profile has been shared with ${org?.company_name || 'the organization'}.`,
-      });
-    } catch (err) {
-      console.error("Apply error:", err);
-      toast({
-        variant: "destructive",
-        title: "Application failed",
-        description: "Something went wrong. Please try again.",
-      });
-    } finally {
-      setApplying(false);
-    }
+    // Redirect to the talent dashboard so the application can be completed there.
+    navigate(`/talent/jobs?role=${roleId}`);
   };
 
   const shareJob = () => {
@@ -161,8 +169,8 @@ export default function JobPosting() {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#f4f2ee]">
-        <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50">
+        <Loader2 className="w-12 h-12 text-[#A079FF] animate-spin mb-4" />
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Opening job briefing...</p>
       </div>
     );
@@ -170,87 +178,81 @@ export default function JobPosting() {
 
   if (error || !role) {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#f4f2ee] p-6 text-center">
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
         <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
           <Zap className="w-10 h-10 text-red-500" />
         </div>
-        <h1 className="text-3xl font-black tracking-tighter text-[#111] mb-2 uppercase">Job expired or not found</h1>
+        <h1 className="text-3xl font-black tracking-tighter text-[#1A1C21] mb-2 uppercase">Job expired or not found</h1>
         <p className="text-slate-500 max-w-md font-medium mb-8">
           The role you are looking for might have been filled, closed, or moved to a private workforce group.
         </p>
-        <Link to="/" className="px-8 py-4 bg-[#111] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:bg-black transition-all">
+        <Link to="/" className="px-8 py-4 bg-[#A079FF] text-white font-black text-xs uppercase tracking-widest rounded-md hover:bg-[#A079FF]/90 transition-all">
           Return Home
         </Link>
       </div>
     );
   }
 
-  const companyName = org?.company_name || org?.full_name || "Enterprise Partner";
+  const companyName = (role as any)?.organization_name || org?.company_name || org?.full_name || "Enterprise Partner";
 
   return (
-    <div className="min-h-screen bg-[#f4f2ee] font-jakarta selection:bg-[#ffb038] selection:text-[#111] overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 font-jakarta selection:bg-[#A079FF]/20 selection:text-[#1A1C21] overflow-x-hidden">
       <PreparedNavbar />
       
       {/* ── HERO BANNER ── */}
-      <section className="relative pt-40 pb-24 border-b border-black/5 bg-white overflow-hidden">
-        {/* Subtle Gradient Backglow */}
-        <div className="absolute top-0 right-0 w-[50%] h-[100%] bg-gradient-to-l from-blue-50/40 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-black/5 to-transparent shadow-[0_4px_40px_rgba(0,0,0,0.02)]" />
-        
-        {/* Topographic Grain Overlay */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }}></div>
+      <section className="relative pt-40 pb-24 border-b border-[#EEEEF0] bg-white overflow-hidden">
         
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
             <div className="space-y-6 max-w-3xl">
               <div className="flex items-center gap-3">
-                <Link to="/careers/open-positions" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">
+                <Link to="/careers/open-positions" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1A1C21]/40 hover:text-[#1A1C21] transition-colors">
                   <ArrowLeft className="w-3.5 h-3.5" /> Back to Search
                 </Link>
-                <div className="h-4 w-px bg-slate-200" />
-                <span className="text-[10px] font-black uppercase tracking-widest bg-blue-600/10 text-blue-600 px-2.5 py-1 rounded-lg">
+                <div className="h-4 w-px bg-[#EEEEF0]" />
+                <span className="text-[10px] font-black uppercase tracking-widest bg-[#A079FF]/10 text-[#A079FF] px-2.5 py-1 rounded-md">
                   {role.type}
                 </span>
-                <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg">
+                <span className="text-[10px] font-black uppercase tracking-widest bg-[#EEEEF0] text-[#1A1C21] px-2.5 py-1 rounded-md">
                   {role.status === 'open' ? 'Actively Hiring' : 'Reviewing'}
                 </span>
               </div>
 
-              <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#111] leading-[1.1]">
+              <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-[#1A1C21] leading-[1.1]">
                 {role.title}
               </h1>
 
               <div className="flex flex-wrap items-center gap-y-4 gap-x-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center border border-black/5 overflow-hidden">
-                    {org?.avatar_url ? (
-                      <img src={org.avatar_url} className="w-full h-full object-cover" alt="" />
+                  <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center border border-[#EEEEF0] overflow-hidden">
+                    {(role as any)?.organization_avatar || org?.avatar_url ? (
+                      <img src={(role as any)?.organization_avatar || org?.avatar_url} className="w-8 h-8 object-contain" alt="" />
                     ) : (
                       <Building2 className="w-6 h-6 text-slate-400" />
                     )}
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none mb-1">Posted by</p>
-                    <p className="text-base font-bold text-[#111]">{companyName}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1A1C21]/40 leading-none mb-1">Posted by</p>
+                    <p className="text-base font-bold text-[#1A1C21]">{companyName}</p>
                   </div>
                 </div>
                 
-                <div className="h-10 w-px bg-slate-200 hidden md:block" />
+                <div className="h-10 w-px bg-[#EEEEF0] hidden md:block" />
 
                 <div className="flex items-center gap-6">
                   <div className="flex flex-col">
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                      <MapPin className="w-3.5 h-3.5 text-blue-600" /> {role.location}
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#1A1C21]/60 uppercase tracking-wide">
+                      <MapPin className="w-3.5 h-3.5 text-[#1A1C21]/40" /> {role.location}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                      <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> {role.salary || "Competitive"}
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#1A1C21]/60 uppercase tracking-wide">
+                      <DollarSign className="w-3.5 h-3.5 text-[#1A1C21]/40" /> {role.salary || "Competitive"}
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" /> {new Date(role.created_at).toLocaleDateString()}
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#1A1C21]/60 uppercase tracking-wide">
+                      <Clock className="w-3.5 h-3.5 text-[#1A1C21]/40" /> {new Date(role.created_at).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -260,25 +262,23 @@ export default function JobPosting() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={shareJob}
-                className="p-4 bg-white border border-black/10 rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2 group"
+                className="p-5 bg-white border border-[#EEEEF0] rounded-md hover:bg-slate-50 transition-all flex items-center gap-2 group"
               >
-                <Share2 className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                <Share2 className="w-5 h-5 text-[#1A1C21]/40 group-hover:text-[#1A1C21] transition-colors" />
               </button>
               <button
                 disabled={hasApplied}
                 onClick={handleApply}
-                className={`px-10 py-5 font-black text-xs uppercase tracking-[0.2em] rounded-xl transition-all shadow-2xl flex items-center gap-3 min-w-[200px] justify-center ${
+                className={`px-10 py-5 font-black text-xs uppercase tracking-[0.2em] rounded-md transition-all shadow-xl flex items-center gap-3 min-w-[200px] justify-center ${
                   hasApplied 
-                    ? "bg-emerald-500 text-white cursor-default" 
-                    : "bg-[#111] hover:bg-black text-white hover:scale-[1.02] active:scale-[0.98]"
+                    ? "bg-[#EEEEF0] text-[#1A1C21]/50 cursor-default" 
+                    : "bg-[#1A1C21] hover:bg-black text-white hover:scale-[1.02] active:scale-[0.98]"
                 }`}
               >
-                {applying ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : hasApplied ? (
+                {hasApplied ? (
                   <><CheckCircle2 className="w-4 h-4" /> Already Applied</>
                 ) : (
-                  <>APPLY</>
+                  <>Apply in Talent Portal</>
                 )}
               </button>
             </div>
@@ -291,73 +291,71 @@ export default function JobPosting() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
           
           {/* Main Column */}
-          <div className="lg:col-span-8 space-y-16">
-            
-            {/* Description */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-black tracking-tighter text-[#111] uppercase flex items-center gap-3">
-                <span className="w-1.5 h-6 bg-blue-600 rounded-none shadow-[0_0_15px_rgba(37,99,235,0.4)]" /> Job Overview
-              </h2>
-              <p className="text-lg text-slate-600 font-medium leading-[1.7] font-jakarta max-w-3xl whitespace-pre-line">
-                {role.description}
-              </p>
-            </div>
-
-            {/* Responsibilities */}
-            {role.responsibilities?.length > 0 && (
-              <div className="space-y-8">
-                <h2 className="text-2xl font-black tracking-tighter text-[#111] uppercase flex items-center gap-3">
-                  <span className="w-1.5 h-6 bg-emerald-500 rounded-none shadow-[0_0_15px_rgba(16,185,129,0.4)]" /> Responsibilities
+          <div className="lg:col-span-8">
+            <div className="bg-white p-10 lg:p-14 border border-[#EEEEF0] rounded-md shadow-sm space-y-16">
+              
+              {/* Description */}
+              <div className="space-y-6">
+                <h2 className="text-xl font-black tracking-tight text-[#1A1C21] uppercase border-b border-[#EEEEF0] pb-4">
+                  Job Overview
                 </h2>
-                <div className="grid grid-cols-1 gap-4">
-                  {role.responsibilities.map((item, i) => (
-                    <div key={i} className="flex gap-4 p-5 bg-white border border-black/5 rounded-none group hover:border-blue-500/10 transition-all">
-                      <div className="w-8 h-8 rounded-none bg-blue-600/5 flex items-center justify-center shrink-0">
-                        <span className="text-[10px] font-black text-blue-600 uppercase">R{i+1}</span>
+                <p className="text-lg text-[#1A1C21]/80 font-medium leading-[1.7] font-jakarta max-w-3xl whitespace-pre-line pt-2">
+                  {role.description}
+                </p>
+              </div>
+
+              {/* Responsibilities */}
+              {role.responsibilities?.length > 0 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-black tracking-tight text-[#1A1C21] uppercase border-b border-[#EEEEF0] pb-4">
+                    Responsibilities
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 pt-2">
+                    {role.responsibilities.map((item, i) => (
+                      <div key={i} className="flex items-start gap-4">
+                        <CheckCircle2 className="w-5 h-5 text-[#1A1C21] shrink-0 mt-0.5" />
+                        <span className="text-sm font-medium text-[#1A1C21]/80 leading-relaxed whitespace-pre-line">{item}</span>
                       </div>
-                      <p className="text-base font-medium text-slate-700 leading-relaxed pt-1 whitespace-pre-line">{item}</p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Benefits */}
-            {role.benefits?.length > 0 && (
-              <div className="space-y-8">
-                <h2 className="text-2xl font-black tracking-tighter text-[#111] uppercase flex items-center gap-3">
-                  <span className="w-1.5 h-6 bg-amber-500 rounded-none shadow-[0_0_15px_rgba(245,158,11,0.4)]" /> Benefits
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {role.benefits.map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 p-5 bg-white border border-black/5 rounded-none">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span className="text-sm font-bold text-slate-600">{item}</span>
-                    </div>
-                  ))}
+              {/* Benefits */}
+              {role.benefits?.length > 0 && (
+                <div className="space-y-6">
+                  <h2 className="text-xl font-black tracking-tight text-[#1A1C21] uppercase border-b border-[#EEEEF0] pb-4">
+                    Benefits
+                  </h2>
+                  <div className="flex flex-wrap gap-x-8 gap-y-4 pt-2">
+                    {role.benefits.map((item, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 bg-[#1A1C21] rounded-full" />
+                        <span className="text-sm font-bold text-[#1A1C21] tracking-wide">{item}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Compact Bottom Apply Button */}
-            <div className="pt-10 border-t border-black/5">
-              <button
-                disabled={hasApplied}
-                onClick={handleApply}
-                className={`px-12 py-5 font-black text-xs uppercase tracking-[0.25em] rounded-none transition-all shadow-xl flex items-center justify-center min-w-[180px] ${
-                  hasApplied 
-                    ? "bg-emerald-500 text-white cursor-default" 
-                    : "bg-[#1A1C21] hover:bg-black text-white hover:scale-[1.02] active:scale-[0.98]"
-                }`}
-              >
-                {applying ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : hasApplied ? (
-                  <><CheckCircle2 className="w-4 h-4" /> Already Applied</>
-                ) : (
-                  <>APPLY</>
-                )}
-              </button>
+              {/* Compact Bottom Apply Button */}
+              <div className="pt-10 border-t border-[#EEEEF0]">
+                <button
+                  disabled={hasApplied}
+                  onClick={handleApply}
+                  className={`px-12 py-5 font-black text-xs uppercase tracking-[0.25em] rounded-md transition-all shadow-xl flex items-center justify-center min-w-[180px] ${
+                    hasApplied 
+                      ? "bg-[#EEEEF0] text-[#1A1C21]/50 cursor-default" 
+                      : "bg-[#1A1C21] hover:bg-black text-white hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
+                >
+                  {hasApplied ? (
+                    <><CheckCircle2 className="w-4 h-4" /> Already Applied</>
+                  ) : (
+                    <>Apply in Talent Portal</>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -365,59 +363,56 @@ export default function JobPosting() {
           <div className="lg:col-span-4 space-y-8">
             
             {/* Quick Spec Card */}
-            <div className="p-10 bg-[#F5F3FF] rounded-none text-slate-900 space-y-10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.05)] relative overflow-hidden group border border-purple-100">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/5 blur-[100px] rounded-none -mr-32 -mt-32 group-hover:bg-purple-600/10 transition-all duration-1000" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-600/5 blur-[80px] rounded-none -ml-24 -mb-24" />
-              
-              <h3 className="text-xs font-black uppercase tracking-[0.25em] text-[#111]">Role Specifications</h3>
+            <div className="p-10 bg-white rounded-md text-[#1A1C21] space-y-10 shadow-sm border border-[#EEEEF0] relative overflow-hidden group">
+              <h3 className="text-xs font-black uppercase tracking-[0.25em] text-[#1A1C21]/40">Role Specifications</h3>
               
               <div className="grid grid-cols-1 gap-5">
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-none bg-purple-600/5 border border-purple-200/50 flex items-center justify-center shrink-0">
-                    <MapPin className="w-4 h-4 text-purple-600" />
+                  <div className="w-8 h-8 rounded-md bg-[#1A1C21]/5 flex items-center justify-center shrink-0">
+                    <MapPin className="w-4 h-4 text-[#1A1C21]" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Deployment</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1A1C21]/40 mb-0.5">Location</p>
                     <p className="text-sm font-bold">{role.location}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-none bg-emerald-600/5 border border-emerald-200/50 flex items-center justify-center shrink-0">
-                    <Briefcase className="w-4 h-4 text-emerald-600" />
+                  <div className="w-8 h-8 rounded-md bg-[#1A1C21]/5 flex items-center justify-center shrink-0">
+                    <Briefcase className="w-4 h-4 text-[#1A1C21]" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Contract Type</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1A1C21]/40 mb-0.5">Contract Type</p>
                     <p className="text-sm font-bold">{role.type}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-none bg-amber-600/5 border border-amber-200/50 flex items-center justify-center shrink-0">
-                    <Zap className="w-4 h-4 text-amber-600" />
+                  <div className="w-8 h-8 rounded-md bg-[#1A1C21]/5 flex items-center justify-center shrink-0">
+                    <Zap className="w-4 h-4 text-[#1A1C21]" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Experience</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1A1C21]/40 mb-0.5">Experience</p>
                     <p className="text-sm font-bold">{role.experience_level || "Not Specified"}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-none bg-indigo-600/5 border border-indigo-200/50 flex items-center justify-center shrink-0">
-                    <Globe className="w-4 h-4 text-indigo-600" />
+                  <div className="w-8 h-8 rounded-md bg-[#1A1C21]/5 flex items-center justify-center shrink-0">
+                    <Globe className="w-4 h-4 text-[#1A1C21]" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-0.5">Department</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#1A1C21]/40 mb-0.5">Department</p>
                     <p className="text-sm font-bold">{role.department || "General"}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-purple-200/50 space-y-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400">Skills Required</p>
+              <div className="pt-6 border-t border-[#EEEEF0] space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-[#1A1C21]/40">Skills Required</p>
                 <div className="flex flex-wrap gap-2">
                   {role.skills?.map(s => (
-                    <span key={s} className="px-3 py-1.5 bg-white border border-slate-200 rounded-none text-xs font-black text-[#111] uppercase tracking-widest">
+                    <span key={s} className="px-3 py-1.5 bg-white border border-[#EEEEF0] rounded-md text-xs font-black text-[#1A1C21] uppercase tracking-widest">
                       {s}
                     </span>
                   ))}
@@ -426,49 +421,38 @@ export default function JobPosting() {
             </div>
 
             {/* Organization Info */}
-            <div className="p-10 bg-white border border-black/5 rounded-none space-y-8 shadow-xl shadow-black/5">
-              <h3 className="text-xs font-black uppercase tracking-[0.25em] text-slate-400">Company Overview</h3>
+            <div className="p-10 bg-white border border-[#EEEEF0] rounded-md space-y-8 shadow-sm">
+              <h3 className="text-xs font-black uppercase tracking-[0.25em] text-[#1A1C21]/40">Company Overview</h3>
               
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-black/5 flex items-center justify-center overflow-hidden">
-                  {org?.avatar_url ? (
-                    <img src={org.avatar_url} className="w-full h-full object-cover" alt="" />
+                <div className="w-14 h-14 rounded-full bg-white border border-[#EEEEF0] flex items-center justify-center overflow-hidden">
+                  {(role as any)?.organization_avatar || org?.avatar_url ? (
+                    <img src={(role as any)?.organization_avatar || org?.avatar_url} className="w-8 h-8 object-contain" alt="" />
                   ) : (
-                    <Building2 className="w-8 h-8 text-slate-400" />
+                    <Building2 className="w-6 h-6 text-[#1A1C21]/10" />
                   )}
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-[#111]">{companyName}</h4>
-                  <p className="text-sm font-medium text-slate-500">{org?.location || "Global Operations"}</p>
+                  <h4 className="text-xl font-bold text-[#1A1C21]">{companyName}</h4>
+                  <p className="text-sm font-medium text-[#1A1C21]/60">{org?.location || "Global Operations"}</p>
                 </div>
               </div>
 
-              <p className="text-sm font-medium text-slate-600 leading-relaxed">
+              <p className="text-sm font-medium text-[#1A1C21]/80 leading-relaxed">
                 {org?.bio || "Join a high-performance team building the next generation of global workforce infrastructure."}
               </p>
-
-              <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="p-4 bg-slate-50 border border-slate-100 rounded-none text-center">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Founded</p>
-                  <p className="text-sm font-black text-slate-900">2021</p>
-                </div>
-                <div className="p-4 bg-slate-50 border border-slate-100 rounded-none text-center">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Global Team</p>
-                  <p className="text-sm font-black text-slate-900">250+</p>
-                </div>
-              </div>
             </div>
 
             {/* Share & Save */}
             <div className="flex gap-4">
               <button 
                 onClick={shareJob}
-                className="flex-1 px-6 py-4 border border-black/10 rounded-none font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group"
+                className="flex-1 px-6 py-4 bg-white border border-[#EEEEF0] rounded-md font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group text-[#1A1C21]"
               >
-                <Share2 className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" /> Share job
+                <Share2 className="w-4 h-4 text-[#1A1C21]/40 group-hover:text-[#A079FF] transition-colors" /> Share job
               </button>
-              <button className="flex-1 px-6 py-4 border border-black/10 rounded-none font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group">
-                <Bookmark className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" /> Save for later
+              <button className="flex-1 px-6 py-4 bg-white border border-[#EEEEF0] rounded-md font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group text-[#1A1C21]">
+                <Bookmark className="w-4 h-4 text-[#1A1C21]/40 group-hover:text-[#A079FF] transition-colors" /> Save
               </button>
             </div>
           </div>

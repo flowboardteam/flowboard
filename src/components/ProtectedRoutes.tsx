@@ -14,7 +14,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
 
       // 1. No User? Send them to the appropriate login based on URL, or default to talent
       if (!user) {
@@ -53,6 +54,12 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           login: "/client/login"
         }
       }[role as "talent" | "client"];
+
+      if (!config) {
+        console.warn("User has no valid role config:", role);
+        setLoading(false);
+        return;
+      }
 
       // 4. CROSS-ROLE PROTECTION
       // Prevent Talent from seeing Client pages and vice versa

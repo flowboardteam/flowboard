@@ -75,7 +75,7 @@ export function PreparedNavbar() {
             className="flex items-center gap-1 cursor-pointer group h-full px-2"
             onMouseEnter={() => setActiveMegaMenu(null)}
           >
-             <Link to="/talent/signup" className={`text-[15px] font-medium transition-colors duration-300 ${isLightMode ? "text-[#111]/80 group-hover:text-[#111]" : "text-white/80 group-hover:text-white"}`}>Job Board</Link>
+             <Link to="/careers/open-positions" className={`text-[15px] font-medium transition-colors duration-300 ${isLightMode ? "text-[#111]/80 group-hover:text-[#111]" : "text-white/80 group-hover:text-white"}`}>Job Board</Link>
           </div>
           <div 
             className="flex items-center gap-1 cursor-pointer group h-full px-2"
@@ -233,7 +233,7 @@ export function PreparedNavbar() {
                       <Link to="/resources/hub" className="text-[20px] font-normal tracking-tight text-[#111] hover:text-[#555] transition-colors">Help Center</Link>
                       <Link to="/resources/hub" className="text-[20px] font-normal tracking-tight text-[#111] hover:text-[#555] transition-colors">Flowboard Resource Hub</Link>
                       <Link to="/resources/hub" className="text-[20px] font-normal tracking-tight text-[#111] hover:text-[#555] transition-colors">Partner Program</Link>
-                      <Link to="/resources/hub" className="text-[20px] font-normal tracking-tight text-[#111] hover:text-[#555] transition-colors">Careers</Link>
+                      <Link to="/careers/open-positions" className="text-[20px] font-normal tracking-tight text-[#111] hover:text-[#555] transition-colors">Careers</Link>
                     </div>
                   </div>
                   <div className="col-span-9 p-14 pl-16">

@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface HireOffer {
   id: string;
   client_id: string;
+  talent_id: string;
   sender_name: string;
   sender_email: string;
   role_title: string | null;
@@ -25,6 +26,7 @@ interface HireOffer {
   offer_message: string | null;
   status: string;
   source: string;
+  group_avatar?: string | null;
   created_at: string;
   responded_at: string | null;
   client_profile?: {
@@ -76,7 +78,7 @@ function OfferCard({ offer, onRespond, onView }: {
   const cfg       = STATUS_CONFIG[offer.status] ?? STATUS_CONFIG.pending;
   const StatusIcon = cfg.icon;
   const isPending  = ["pending", "viewed"].includes(offer.status);
-  const orgName    = offer.client_profile?.company_name ?? offer.sender_name;
+  const orgName    = offer.sender_name || offer.client_profile?.company_name || "Organization";
 
   return (
     <motion.div
@@ -98,9 +100,13 @@ function OfferCard({ offer, onRespond, onView }: {
       {/* Org + role */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-none bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
-          {offer.client_profile?.avatar_url
-            ? <img src={offer.client_profile.avatar_url} alt={orgName} className="w-full h-full object-cover" />
-            : <Building2 className="w-4 h-4 text-slate-400" />
+          {offer.group_avatar
+            ? <img src={offer.group_avatar} alt={orgName} className="w-full h-full object-cover" />
+            : (offer as any).is_group_offer
+              ? <Building2 className="w-4 h-4 text-slate-400" />
+              : offer.client_profile?.avatar_url
+                ? <img src={offer.client_profile.avatar_url} alt={orgName} className="w-full h-full object-cover" />
+                : <Building2 className="w-4 h-4 text-slate-400" />
           }
         </div>
         <div className="min-w-0">
@@ -181,7 +187,7 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
   const [showDeclineForm, setShowDeclineForm] = useState(false);
   const cfg       = STATUS_CONFIG[offer.status] ?? STATUS_CONFIG.pending;
   const isPending = ["pending", "viewed"].includes(offer.status);
-  const orgName   = offer.client_profile?.company_name ?? offer.sender_name;
+  const orgName   = offer.sender_name || offer.client_profile?.company_name || "Organization";
 
   return (
     <AnimatePresence>
@@ -213,7 +219,19 @@ function OfferDetailModal({ offer, onClose, onRespond, responding }: {
                 <h2 className="text-base font-black dark:text-white tracking-tight leading-tight">
                   {offer.role_title ?? "Role not specified"}
                 </h2>
-                <p className="text-xs font-bold text-slate-400 mt-0.5">from {orgName}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  {(offer.group_avatar || (!(offer as any).is_group_offer && offer.client_profile?.avatar_url)) && (
+                    <img 
+                      src={offer.group_avatar || offer.client_profile?.avatar_url || ""} 
+                      className="w-4 h-4 rounded-none object-cover border border-[var(--border-color)]" 
+                      alt="Logo" 
+                    />
+                  )}
+                  {((offer as any).is_group_offer && !offer.group_avatar) && (
+                    <Building2 className="w-4 h-4 text-slate-400" />
+                  )}
+                  <p className="text-xs font-bold text-slate-400">from {orgName}</p>
+                </div>
               </div>
               <button
                 onClick={onClose}
@@ -350,12 +368,79 @@ export default function TalentOffersPage() {
         .eq("talent_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (dbErr) throw dbErr;
-      setOffers((data ?? []) as HireOffer[]);
+      const fallbackOffers: any[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith("flowboard_offers_") || key.startsWith("global_talent_offers_"))) {
+          const dataStr = localStorage.getItem(key);
+          if (dataStr) {
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (Array.isArray(parsed)) {
+                fallbackOffers.push(...parsed);
+              }
+            } catch (e) {}
+          }
+        }
+      }
+
+      const { data: notifs } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("type", "hire_offer");
+
+      if (notifs) {
+        notifs.forEach(n => {
+          if (n.message && n.message.includes("[OFFER_DATA:")) {
+            try {
+              const jsonStr = n.message.split("[OFFER_DATA:")[1].split("]")[0];
+              const offerData = JSON.parse(jsonStr);
+              if (offerData && offerData.id) {
+                fallbackOffers.push(offerData);
+              }
+            } catch(e) {}
+          }
+        });
+      }
+
+      const combined = [...(data ?? []), ...fallbackOffers].map(o => {
+        const msg = o.offer_message || o.message || "";
+        const avatarMatch = msg.match(/\[GROUP_AVATAR:(.*?)\]/);
+        const hasGroupId = msg.includes("[GROUP_ID:");
+        
+        let groupAvatar = o.group_avatar;
+        if (avatarMatch && avatarMatch[1]) {
+          groupAvatar = avatarMatch[1];
+        }
+
+        return { 
+          ...o, 
+          group_avatar: groupAvatar,
+          is_group_offer: hasGroupId
+        };
+      });
+
+      // Deduplicate by id OR by combination of (role_title + talent_id)
+      // We are more aggressive here because local vs remote IDs often differ.
+      const unique = combined.filter((v, i, a) => 
+        a.findIndex(t => 
+          t.id === v.id || 
+          (
+            (t.role_title || "Untitled") === (v.role_title || "Untitled") && 
+            t.talent_id === v.talent_id && 
+            (t.client_id === v.client_id || !t.client_id || !v.client_id) &&
+            t.created_at.split('T')[0] === v.created_at.split('T')[0]
+          )
+        ) === i
+      );
+      unique.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setOffers(unique as HireOffer[]);
 
       // Auto-mark pending → viewed
-      const pendingIds = (data ?? [])
-        .filter(o => o.status === "pending")
+      const pendingIds = unique
+        .filter(o => o.status === "pending" && o.id.length > 20) // Only attempt for UUIDs
         .map(o => o.id);
       if (pendingIds.length > 0) {
         await supabase
@@ -380,6 +465,9 @@ export default function TalentOffersPage() {
   ) => {
     setResponding(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Unauthorized");
+
       const { error } = await supabase
         .from("hire_inquiries")
         .update({
@@ -387,7 +475,127 @@ export default function TalentOffersPage() {
           decline_reason: response === "declined" ? reason : null,
         })
         .eq("id", offer.id);
-      if (error) throw error;
+      
+      if (error && !error.message.includes("invalid input syntax for type uuid")) {
+        console.warn("DB Update failed:", error);
+      }
+
+      // Cross-sync client state efficiently
+      const offId = offer.id || "";
+      let groupId = offer.client_id || "default-group";
+      
+      const msg = offer.offer_message || offer.message || "";
+      const match = msg.match(/\[GROUP_ID:(.+?)\]/);
+      
+      if (match) {
+        groupId = match[1];
+      } else if (offId.startsWith("off-")) {
+        const parts = offId.split("-");
+        if (parts.length >= 3) {
+          groupId = parts.slice(1, -1).join("-");
+        }
+      }
+
+      // Also find the client's actual profile to get their organization ID if needed
+      // but we'll stick to groupId for local storage.
+
+      const clientKey = `flowboard_offers_${groupId}`;
+      const existing = localStorage.getItem(clientKey);
+      if (existing) {
+        const arr = JSON.parse(existing);
+        const updated = arr.map((o: any) => {
+          const matchesUUID = o.id === offId;
+          const matchesFields = o.talent_id === offer.talent_id && 
+                                o.role_title === offer.role_title;
+          if (matchesUUID || matchesFields) {
+            return { 
+              ...o, 
+              status: response, 
+              responded_at: new Date().toISOString(), 
+              decline_reason: response === "declined" ? reason : null 
+            };
+          }
+          return o;
+        });
+        localStorage.setItem(clientKey, JSON.stringify(updated));
+      }
+
+      // ── ADD TO WORKFORCE ──
+      if (response === "accepted") {
+        const wfKey = `flowboard_workforce_${groupId}`;
+        const wfExisting = localStorage.getItem(wfKey);
+        const wfArr = wfExisting ? JSON.parse(wfExisting) : [];
+        
+        // If we have a profile for the talent, use their actual name/avatar
+        const { data: talProfile } = await supabase.from("profiles").select("full_name, avatar_url, location").eq("id", user.id).single();
+
+        const newMember = {
+          id: `wf-${groupId}-${Math.random().toString(36).substr(2, 9)}`,
+          profile_id: user.id,
+          full_name: talProfile?.full_name || "New Hire",
+          avatar_url: talProfile?.avatar_url || null,
+          email: user.email,
+          role_title: offer.role_title || "New Hire",
+          location: talProfile?.location || "Remote",
+          department: "Engineering",
+          member_type: offer.role_type === "full_time" ? "hired_full_time" : "hired_contract",
+          start_date: offer.start_date || new Date().toISOString().split("T")[0],
+          end_date: null,
+          payment_monthly: offer.salary_monthly,
+          payment_currency: offer.salary_currency || "USD",
+          is_active: true,
+          online_status: "online",
+          availability_status: "available",
+          created_at: new Date().toISOString(),
+          projects: []
+        };
+
+        localStorage.setItem(wfKey, JSON.stringify([...wfArr, newMember]));
+
+        // ── ADD TO TALENT CONTRACTS ──
+        const contractKey = `global_talent_contracts_${user.id}`;
+        const existingContracts = localStorage.getItem(contractKey);
+        const contractsArr = existingContracts ? JSON.parse(existingContracts) : [];
+
+        const orgName = offer.sender_name || offer.client_profile?.company_name || "Organization";
+        const orgLogo = offer.group_avatar || offer.client_profile?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${orgName}&backgroundColor=3b82f6`;
+
+        const newContract = {
+          id: `cnt-${Math.random().toString(36).substr(2, 9)}`,
+          orgId: groupId,
+          orgName: orgName,
+          orgLogo: orgLogo,
+          role: offer.role_title,
+          rate: fmtCurrency(offer.salary_monthly, offer.salary_currency),
+          duration: offer.role_type === "full_time" ? "Monthly" : "Contract",
+          location: "Remote",
+          type: "human",
+          aiMatchScore: 100,
+          skills: [],
+          description: offer.offer_message || "Active contract mission.",
+          complianceLevel: "standard"
+        };
+
+        localStorage.setItem(contractKey, JSON.stringify([...contractsArr, newContract]));
+        
+        // Also try DB insert for real persistence
+        try {
+          await supabase.from("workforce_members").insert({
+            organization_id: offer.client_id,
+            profile_id: user.id,
+            email: user.email, // CRITICAL: CreateInvoicePage filters by email
+            role_title: offer.role_title,
+            member_type: newMember.member_type,
+            payment_monthly: offer.salary_monthly,
+            payment_currency: offer.salary_currency,
+            start_date: newMember.start_date,
+            is_active: true,
+            online_status: "online"
+          });
+        } catch (e) {
+          console.warn("DB workforce insert failed (table might not exist), relied on local storage simulation.");
+        }
+      }
 
       setOffers(prev =>
         prev.map(o => o.id === offer.id ? { ...o, status: response } : o)

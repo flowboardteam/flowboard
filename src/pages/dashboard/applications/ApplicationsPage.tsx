@@ -12,7 +12,8 @@ export default function ApplicationsPage() {
     async function fetchApps() {
       try {
         setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user;
         if (!user) return;
 
         const { data, error } = await supabase
@@ -21,13 +22,64 @@ export default function ApplicationsPage() {
             id,
             status,
             created_at,
-            role:roles(title, location, organization:profiles(company_name, avatar_url))
+            role:roles(id, title, location, organization:profiles(company_name, avatar_url))
           `)
           .eq("talent_id", user.id)
           .order("created_at", { ascending: false });
 
-        if (error) throw error;
-        setApps(data || []);
+        let combined = data || [];
+
+        const localKey = `job_applications_${user.id}`;
+        const existing = localStorage.getItem(localKey);
+        const appsList = existing ? JSON.parse(existing) : [];
+
+        if (appsList.length > 0) {
+          const { data: dbRoles } = await supabase
+            .from("roles")
+            .select("id, title, location, organization:profiles(company_name, avatar_url)")
+            .in("id", appsList);
+
+          let localRoles: any[] = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("flowboard_roles_")) {
+              const dStr = localStorage.getItem(key);
+              if (dStr) {
+                try {
+                  const parsed = JSON.parse(dStr);
+                  if (Array.isArray(parsed)) localRoles.push(...parsed);
+                } catch(e){}
+              }
+            }
+          }
+
+          appsList.forEach((rId: string) => {
+            if (combined.some((a: any) => a.role?.id === rId)) return;
+            
+            const dbFound = dbRoles?.find((r: any) => r.id === rId);
+            const locFound = localRoles.find((r: any) => r.id === rId);
+            const targetRole = dbFound || locFound;
+
+            if (targetRole) {
+              combined.push({
+                id: `app-${rId}`,
+                status: 'pending',
+                created_at: new Date().toISOString(),
+                role: {
+                  id: targetRole.id,
+                  title: targetRole.title,
+                  location: targetRole.location,
+                  organization: targetRole.organization || {
+                    company_name: targetRole.organization_name || "Enterprise",
+                    avatar_url: targetRole.organization_avatar || null
+                  }
+                }
+              });
+            }
+          });
+        }
+
+        setApps(combined);
       } catch (err) {
         console.error("Fetch apps error:", err);
       } finally {
@@ -49,7 +101,7 @@ export default function ApplicationsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">My Applications</h1>
-          <p className="text-slate-500 font-medium mt-1">Track and manage your active job pursuits.</p>
+          <p className="text-slate-500 font-medium mt-1">Track and manage your active job applications.</p>
         </div>
         
         <div className="flex items-center gap-3">

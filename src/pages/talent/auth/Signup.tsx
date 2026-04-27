@@ -60,23 +60,28 @@ export default function TalentSignUp() {
 
   const strengthColors = ["bg-slate-200", "bg-rose-500", "bg-orange-400", "bg-amber-400", "bg-emerald-500"];
 
-const handleSocialLogin = async (provider: "google" | "github") => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      // Use window.location.origin to support both local and prod automatically
-      redirectTo: `${window.location.origin}/talent/dashboard`,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'select_account',
+  const handleSocialLogin = async (provider: "google" | "github") => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}${redirect || "/talent/dashboard"}`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account',
+        },
       },
-    },
-  });
-  if (error) console.error("Social Auth Error:", error.message);
-};
+    });
+    if (error) console.error("Social Auth Error:", error.message);
+  };
 
   const handleDuplicateRedirect = () => {
-    navigate(`/talent/login?email=${encodeURIComponent(email)}`);
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    const redirectQuery = redirect ? `&redirect=${encodeURIComponent(redirect)}` : "";
+    navigate(`/talent/login?email=${encodeURIComponent(email)}${redirectQuery}`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

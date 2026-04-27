@@ -91,8 +91,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <aside className="w-full h-full bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col p-6 overflow-y-auto">
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm">
-          <img src="/flowboardlogo.png" alt="FlowBoard Logo" className="w-20 h-20 object-contain" />
+        <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm overflow-hidden bg-slate-50 border border-[var(--border-color)]">
+          <img src="/flowboardlogo.png" alt="FlowBoard Logo" className="w-8 h-8 object-contain rounded-full" />
         </div>
         <span className="text-xl font-black tracking-tighter text-[var(--text-main)] uppercase">Talent</span>
       </div>

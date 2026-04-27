@@ -72,21 +72,21 @@ useEffect(() => {
         description: "Redirecting to your talent dashboard...",
       });
       
-      // Navigate to dashboard after brief delay
-      setTimeout(() => {
-        navigate("/talent/dashboard");
-      }, 1500);
+      // Navigate to destination after brief delay
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      navigate(redirect || "/talent/dashboard");
     }
   };
 
 const handleSocialLogin = async (provider: "google" | "github") => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        // Redirect to the talent dashboard system
-        redirectTo: `${window.location.origin}/talent/dashboard`,
-        // This ensures the user is prompted to select an account 
-        // every time (good for testing)
+        redirectTo: `${window.location.origin}${redirect || "/talent/dashboard"}`,
         queryParams: {
           access_type: 'offline',
           prompt: 'select_account',

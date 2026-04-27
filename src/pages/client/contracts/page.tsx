@@ -85,16 +85,7 @@ export default function ContractsPage() {
         layout
         className={viewMode === 'list' ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"}
       >
-        {MOCK_CONTRACTS_DB.map((contract) => (
-          <motion.div 
-            layout 
-            key={contract.id} 
-            onClick={() => setSelectedContract(contract)}
-            className="cursor-pointer"
-          >
-            <ContractCard contract={contract} viewMode={viewMode} />
-          </motion.div>
-        ))}
+        {[]}
       </motion.div>
 
       {/* Overlays: Briefing & Terminal */}

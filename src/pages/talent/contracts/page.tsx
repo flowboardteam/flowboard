@@ -1,17 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, LayoutGrid, List } from "lucide-react";
 import ContractCard from "@/components/talent/contracts/ContractCard";
 import ContractBriefing from "./ContractBriefing";
 import DeploymentTerminal from "@/components/talent/contracts/DeploymentTerminal";
 import { MOCK_CONTRACTS_DB, Contract } from "@/lib/mock-db";
+import { supabase } from "@/lib/supabase";
 
 export default function ContractsPage() {
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [isDeploying, setIsDeploying] = useState(false);
+  const [contracts, setContracts] = useState<Contract[]>(MOCK_CONTRACTS_DB);
+
+  useEffect(() => {
+    const loadContracts = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const localKey = `global_talent_contracts_${user.id}`;
+        const localData = localStorage.getItem(localKey);
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          // Deduplicate by ID
+          const combined = [...parsed, ...MOCK_CONTRACTS_DB];
+          const unique = combined.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+          setContracts(unique);
+        }
+      }
+    };
+    loadContracts();
+  }, []);
 
   // Triggered when user clicks "Confirm & Deploy" in the Briefing Panel
   const handleDeployInitiated = () => {
@@ -82,7 +102,7 @@ export default function ContractsPage() {
         layout
         className={viewMode === 'list' ? "space-y-4" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"}
       >
-        {MOCK_CONTRACTS_DB.map((contract) => (
+        {contracts.map((contract) => (
           <motion.div 
             layout 
             key={contract.id} 

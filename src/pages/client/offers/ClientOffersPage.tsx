@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface SentOffer {
@@ -340,6 +341,7 @@ function OfferDetailModal({ offer, onClose }: {
 export default function ClientOffersPage() {
   const navigate  = useNavigate();
   const { toast } = useToast();
+  const { activeGroup } = useGroups();
 
   const [offers, setOffers]         = useState<SentOffer[]>([]);
   const [confirmWithdrawId, setConfirmWithdrawId] = useState<string|null>(null);
@@ -355,58 +357,55 @@ export default function ClientOffersPage() {
     setLoading(true);
     setError(null);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const groupId = activeGroup?.id || "default-group";
+      const localKey = `flowboard_offers_${groupId}`;
+      const localData = localStorage.getItem(localKey);
+      let offersArr: SentOffer[] = localData ? JSON.parse(localData) : [];
 
-      const { data, error: dbErr } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: dbData } = await supabase
         .from("hire_inquiries")
         .select(`
           *,
-          talent_profile:profiles!hire_inquiries_talent_id_fkey(
-            full_name, avatar_url, primary_role, location
-          )
+          talent_profile:profiles!hire_inquiries_talent_id_fkey(full_name, avatar_url, primary_role, location)
         `)
-        .eq("client_id", user.id)
+        .eq("client_id", user?.id)
         .order("created_at", { ascending: false });
 
-      if (dbErr) throw dbErr;
-      setOffers((data ?? []) as SentOffer[]);
+      const combined = [...(dbData ?? []), ...offersArr];
+      const unique = combined.filter((v, i, a) => 
+        a.findIndex(t => 
+          t.id === v.id || 
+          (t.talent_id === v.talent_id && t.role_title === v.role_title && t.created_at?.slice(0,10) === v.created_at?.slice(0,10))
+        ) === i
+      );
+
+      setOffers(unique.sort((a,b)=> new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
+      localStorage.setItem(localKey, JSON.stringify(unique));
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeGroup?.id]);
 
   useEffect(() => { fetchOffers(); }, [fetchOffers]);
 
   // Realtime — update when talent responds
   useEffect(() => {
-    const channel = supabase
-      .channel("client-offers-realtime")
-      .on("postgres_changes", {
-        event: "UPDATE", schema: "public", table: "hire_inquiries",
-      }, () => fetchOffers())
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    // Local isolation scopes only
   }, [fetchOffers]);
 
   // ── Withdraw offer ────────────────────────────────────────────────────────
   const handleWithdraw = async (id: string) => {
     setWithdrawing(true);
-    // Optimistic
-    setOffers(prev => prev.map(o => o.id === id ? { ...o, status: "withdrawn" } : o));
-    const { error } = await supabase
-      .from("hire_inquiries")
-      .update({ status: "withdrawn" })
-      .eq("id", id);
-    if (error) {
-      console.error(error);
-      fetchOffers();
-      toast({ variant: "destructive", title: "Could not withdraw offer" });
-    } else {
-      toast({ title: "Offer withdrawn" });
-    }
+    const groupId = activeGroup?.id || "default-group";
+    const localKey = `flowboard_offers_${groupId}`;
+
+    const updated = offers.map(o => o.id === id ? { ...o, status: "withdrawn" } : o);
+    setOffers(updated);
+    localStorage.setItem(localKey, JSON.stringify(updated));
+    toast({ title: "Offer withdrawn" });
     setWithdrawing(false);
   };
 
@@ -461,11 +460,11 @@ export default function ClientOffersPage() {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
-            <Send className="w-3.5 h-3.5" /> Hire Offers Sent
+          <div className="flex items-center gap-2 text-[#1A1C21]/60 text-[10px] font-bold uppercase tracking-widest">
+            <Send className="w-3.5 h-3.5" /> Offers Sent
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">
-            Sent <span className="text-blue-600">offers.</span>
+          <h1 className="text-3xl font-black text-[#1A1C21] dark:text-white tracking-tight">
+            Sent offers.
           </h1>
           <p className="text-sm font-medium text-slate-400">
             {counts.pending > 0
@@ -477,7 +476,7 @@ export default function ClientOffersPage() {
         </div>
         <button
           onClick={() => navigate("/client/talent-pool")}
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-md shadow-black/10"
         >
           <Users className="w-3.5 h-3.5" /> Find more talent
         </button>

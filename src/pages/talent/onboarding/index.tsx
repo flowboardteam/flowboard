@@ -136,7 +136,7 @@ export default function TalentOnboarding() {
 
       if (error) throw error;
       toast.success("Profile verified!");
-      setTimeout(() => navigate("/talent/dashboard", { replace: true }), 1500);
+      navigate("/talent/dashboard", { replace: true });
     } catch (error: any) {
       toast.error(error.message);
     } finally {

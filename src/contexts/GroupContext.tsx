@@ -6,8 +6,10 @@ export interface Group {
   name: string;
   organization_id: string;
   avatar_url?: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "archived" | "deleted";
+  bio?: string;
   is_primary?: boolean;
+  is_locked?: boolean;
   admin_count?: number;
   contract_count?: number;
 }
@@ -20,6 +22,7 @@ interface GroupContextType {
   refreshGroups: () => Promise<void>;
   createGroup: (name: string) => Promise<Group | null>;
   setPrimaryGroup: (groupId: string) => Promise<void>;
+  updateGroup: (groupId: string, updates: Partial<Group>) => Promise<void>;
 }
 
 const GroupContext = createContext<GroupContextType | undefined>(undefined);
@@ -45,37 +48,88 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const refreshGroups = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      const localGroups = localStorage.getItem("flowboard_simulated_groups");
+      const parsedLocal = localGroups ? JSON.parse(localGroups) : [];
+      
       if (!user) {
-        setGroups(MOCK_GROUPS);
-        if (!activeGroup) setActiveGroupState(MOCK_GROUPS[0]);
+        const merged = [...MOCK_GROUPS, ...parsedLocal.filter((l: any) => !MOCK_GROUPS.some(m => m.id === l.id))];
+        setGroups(merged);
+        if (!activeGroup && merged.length > 0) setActiveGroupState(merged[0]);
         return;
       }
 
-      // Attempt to fetch from Supabase
+      // Isolate to current user
+      const userLocalGroups = parsedLocal.filter((l: any) => l.organization_id === user.id);
+
       const { data, error } = await supabase
         .from("groups")
         .select("*")
         .eq("organization_id", user.id);
 
       if (error || !data || data.length === 0) {
-        setGroups(MOCK_GROUPS);
-        if (!activeGroup) setActiveGroupState(MOCK_GROUPS[0]);
+        // Only show user's simulated groups, NOT mock groups
+        const sortedMerged = [...userLocalGroups].sort((a: any, b: any) => {
+          if (a.is_primary) return -1;
+          if (b.is_primary) return 1;
+          return 0;
+        });
+        
+        // If they have NO groups, create a default one for them so the UI doesn't break
+        if (sortedMerged.length === 0) {
+          const defaultGroup: Group = {
+            id: `grp-${Math.random().toString(36).substr(2, 9)}`,
+            name: "My Workspace",
+            organization_id: user.id,
+            status: "active",
+            is_primary: true,
+            admin_count: 1,
+            contract_count: 0
+          };
+          parsedLocal.push(defaultGroup);
+          localStorage.setItem("flowboard_simulated_groups", JSON.stringify(parsedLocal));
+          sortedMerged.push(defaultGroup);
+          
+          // Background sync
+          supabase.from("groups").insert(defaultGroup).catch(() => {});
+        }
+
+        setGroups(sortedMerged);
+        if (!activeGroup && sortedMerged.length > 0) setActiveGroupState(sortedMerged[0]);
       } else {
-        const sorted = (data as Group[]).sort((a, b) => {
+        // Merge DB data with any local simulated data that isn't in the DB yet
+        const dbIds = new Set(data.map(d => d.id));
+        const missingLocal = userLocalGroups.filter((l: any) => !dbIds.has(l.id));
+        const combined = [...data, ...missingLocal];
+
+        const sorted = combined.sort((a, b) => {
           if (a.is_primary) return -1;
           if (b.is_primary) return 1;
           return 0;
         });
         setGroups(sorted);
         
-        if (!activeGroup || !data.find(g => g.id === activeGroup.id)) {
+        if (!activeGroup || !sorted.find(g => g.id === activeGroup.id)) {
           setActiveGroupState(sorted[0]);
         }
       }
     } catch (e) {
       console.error("Group refresh failed:", e);
-      setGroups(MOCK_GROUPS);
-      setActiveGroupState(MOCK_GROUPS[0]);
+      // Fallback
+      const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+      if (!user) return;
+      
+      const localGroups = localStorage.getItem("flowboard_simulated_groups");
+      const parsedLocal = localGroups ? JSON.parse(localGroups) : [];
+      const userLocalGroups = parsedLocal.filter((l: any) => l.organization_id === user.id);
+      
+      const sortedMerged = userLocalGroups.sort((a: any, b: any) => {
+        if (a.is_primary) return -1;
+        if (b.is_primary) return 1;
+        return 0;
+      });
+      setGroups(sortedMerged);
+      if (!activeGroup && sortedMerged.length > 0) setActiveGroupState(sortedMerged[0]);
     } finally {
       setLoading(false);
     }
@@ -83,49 +137,69 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const createGroup = async (name: string): Promise<Group | null> => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
 
     const newGroup: Partial<Group> = {
       name,
-      organization_id: user.id,
+      organization_id: user ? user.id : "org-1",
       status: "active",
-      is_primary: groups.length === 0, // First group is primary
+      is_primary: groups.length === 0,
     };
 
-    const { data, error } = await supabase
+    const simulated: Group = {
+        id: `grp-${Math.random().toString(36).substr(2, 9)}`,
+        name,
+        organization_id: user ? user.id : "org-1",
+        status: "active",
+        admin_count: 1,
+        contract_count: 0,
+        is_primary: groups.length === 0
+    };
+    
+    const localGroups = localStorage.getItem("flowboard_simulated_groups");
+    const parsedLocal = localGroups ? JSON.parse(localGroups) : [];
+    parsedLocal.push(simulated);
+    localStorage.setItem("flowboard_simulated_groups", JSON.stringify(parsedLocal));
+    
+    setGroups(prev => [...prev, simulated]);
+    
+    // Background sync
+    supabase
       .from("groups")
       .insert(newGroup)
-      .select()
-      .single();
+      .catch(e => console.warn("Supabase insert error:", e));
 
-    if (error) {
-      // If DB fails (table not created), simulate locally for demo
-      console.warn("DB Insert failed, simulating locally:", error);
-      const simulated: Group = {
-          id: Math.random().toString(36).substr(2, 9),
-          name,
-          organization_id: user.id,
-          status: "active",
-          admin_count: 1,
-          contract_count: 0
-      };
-      setGroups(prev => [...prev, simulated]);
-      return simulated;
-    }
-
-    await refreshGroups();
-    return data;
+    return simulated;
   };
 
   const setPrimaryGroup = async (groupId: string) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      const localGroups = localStorage.getItem("flowboard_simulated_groups");
+      const parsedLocal = localGroups ? JSON.parse(localGroups) : [];
+      
+      const updatedSimulated = parsedLocal.map((g: any) => ({
+        ...g,
+        is_primary: g.id === groupId
+      }));
+      
+      localStorage.setItem("flowboard_simulated_groups", JSON.stringify(updatedSimulated));
 
-      // Reset all others for this org
-      await supabase.from("groups").update({ is_primary: false }).eq("organization_id", user.id);
-      // Set target to primary
-      await supabase.from("groups").update({ is_primary: true }).eq("id", groupId);
+      // If the default mock group is selected as primary
+      if (groupId === "default-group") {
+        MOCK_GROUPS[0].is_primary = true;
+      } else {
+        MOCK_GROUPS[0].is_primary = false;
+      }
+
+      if (user) {
+        try {
+          await supabase.from("groups").update({ is_primary: false }).eq("organization_id", user.id);
+          await supabase.from("groups").update({ is_primary: true }).eq("id", groupId);
+        } catch (dbErr) {
+          console.warn("DB update for primary group failed, proceeding locally");
+        }
+      }
 
       await refreshGroups();
     } catch (e) {
@@ -133,9 +207,43 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const setActiveGroup = (group: Group) => {
-    setActiveGroupState(group);
-    // Future: Persist to localStorage or Session
+  const updateGroup = async (groupId: string, updates: Partial<Group>) => {
+    try {
+      const localGroups = localStorage.getItem("flowboard_simulated_groups");
+      const parsedLocal = localGroups ? JSON.parse(localGroups) : [];
+      
+      const updatedSimulated = parsedLocal.map((g: any) => {
+        if (g.id === groupId) {
+          return { ...g, ...updates };
+        } else if (updates.is_primary) {
+          return { ...g, is_primary: false };
+        }
+        return g;
+      });
+      
+      localStorage.setItem("flowboard_simulated_groups", JSON.stringify(updatedSimulated));
+
+      if (groupId === "default-group") {
+        Object.assign(MOCK_GROUPS[0], updates);
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        try {
+          await supabase.from("groups").update(updates).eq("id", groupId);
+        } catch (dbErr) {
+          console.warn("DB update failed, proceeding locally");
+        }
+      }
+
+      await refreshGroups();
+      
+      if (activeGroup && activeGroup.id === groupId) {
+        setActiveGroupState(prev => prev ? { ...prev, ...updates } : null);
+      }
+    } catch (e) {
+      console.error("Failed to update group", e);
+    }
   };
 
   useEffect(() => {
@@ -147,10 +255,11 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       activeGroup, 
       groups, 
       loading, 
-      setActiveGroup, 
+      setActiveGroup: setActiveGroupState, 
       refreshGroups, 
       createGroup,
-      setPrimaryGroup
+      setPrimaryGroup,
+      updateGroup
     }}>
       {children}
     </GroupContext.Provider>
