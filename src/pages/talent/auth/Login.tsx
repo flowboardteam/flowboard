@@ -14,7 +14,7 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
@@ -37,15 +37,15 @@ export default function Login() {
     title: "",
   });
   // Inside Login.tsx
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const emailParam = params.get('email');
-  if (emailParam) {
-    setEmail(emailParam);
-    // Optionally focus the password field automatically
-    document.getElementById('password')?.focus();
-  }
-}, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
+      // Optionally focus the password field automatically
+      document.getElementById("password")?.focus();
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,25 +71,26 @@ useEffect(() => {
         title: "Welcome back!",
         description: "Redirecting to your talent dashboard...",
       });
-      
+
       // Navigate to destination after brief delay
       const params = new URLSearchParams(window.location.search);
-      const redirect = params.get('redirect');
+      const redirect = params.get("redirect");
       navigate(redirect || "/talent/dashboard");
     }
   };
 
-const handleSocialLogin = async (provider: "google" | "github") => {
+  const handleSocialLogin = async (provider: "google" | "github") => {
+    localStorage.setItem("intended_role", "talent");
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get('redirect');
+    const redirect = params.get("redirect");
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `${window.location.origin}${redirect || "/talent/dashboard"}`,
         queryParams: {
-          access_type: 'offline',
-          prompt: 'select_account',
+          access_type: "offline",
+          prompt: "select_account",
         },
       },
     });
@@ -111,22 +112,28 @@ const handleSocialLogin = async (provider: "google" | "github") => {
         <div className="hidden lg:flex flex-col p-16 text-white relative overflow-hidden">
           {/* Background Image with Overlay */}
           <div className="absolute inset-0 z-0">
-            <img 
-              src="/talentlogin.jpg" 
-              className="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]" 
-              alt="Global Talent" 
+            <img
+              src="/talentlogin.jpg"
+              className="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]"
+              alt="Global Talent"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050B1E] via-[#050B1E]/60 to-transparent" />
             <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply" />
           </div>
-          
+
           <div className="relative z-10">
             <Link to="/" className="flex items-center gap-2 mb-20 group">
-              <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-black tracking-tighter">Flowboard</span>
+              <img
+                src="/flowboardlogo.png"
+                alt="Logo"
+                className="w-10 h-10 object-contain"
+              />
+              <span className="text-2xl font-black tracking-tighter">
+                Flowboard
+              </span>
             </Link>
           </div>
- 
+
           <div className="relative z-10 flex-1 flex flex-col justify-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -156,34 +163,68 @@ const handleSocialLogin = async (provider: "google" | "github") => {
         <div className="flex flex-col justify-center px-6 py-12 lg:px-24 bg-white relative">
           <div className="absolute top-8 right-8 text-sm font-medium text-slate-500">
             New to the pool?{" "}
-            <Link to="/talent/signup" className="text-blue-600 font-bold hover:text-blue-700 ml-1">
+            <Link
+              to="/talent/signup"
+              className="text-blue-600 font-bold hover:text-blue-700 ml-1"
+            >
               Apply now
             </Link>
           </div>
 
           <div className="max-w-[400px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
-              <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Login</h1>
-              <p className="text-slate-500 font-medium">Welcome back, Talent. Let's get to work.</p>
+              <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">
+                Login
+              </h1>
+              <p className="text-slate-500 font-medium">
+                Welcome back, Talent. Let's get to work.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button onClick={() => handleSocialLogin("google")} variant="outline" className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
+              <Button
+                onClick={() => handleSocialLogin("google")}
+                variant="outline"
+                className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  className="w-4 h-4 mr-2"
+                  alt="G"
+                />{" "}
+                Google
               </Button>
-              <Button onClick={() => handleSocialLogin("github")} variant="outline" className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all">
-                <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
+              <Button
+                onClick={() => handleSocialLogin("github")}
+                variant="outline"
+                className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/512317/github-142.svg"
+                  className="w-4 h-4 mr-2"
+                  alt="GH"
+                />{" "}
+                GitHub
               </Button>
             </div>
 
             <div className="relative mb-8">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
-              <div className="relative flex justify-center text-[10px] uppercase text-slate-400 font-black tracking-widest"><span className="bg-white px-4">Talent Credentials</span></div>
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-100"></span>
+              </div>
+              <div className="relative flex justify-center text-[10px] uppercase text-slate-400 font-black tracking-widest">
+                <span className="bg-white px-4">Talent Credentials</span>
+              </div>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="email">Work Email</Label>
+                <Label
+                  className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1"
+                  htmlFor="email"
+                >
+                  Work Email
+                </Label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <Input
@@ -200,8 +241,19 @@ const handleSocialLogin = async (provider: "google" | "github") => {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="password">Password</Label>
-                  <Link to="/talent/forgot-password" size="sm" className="text-xs font-bold text-blue-600 hover:underline">Forgot Password?</Link>
+                  <Label
+                    className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1"
+                    htmlFor="password"
+                  >
+                    Password
+                  </Label>
+                  <Link
+                    to="/talent/forgot-password"
+                    size="sm"
+                    className="text-xs font-bold text-blue-600 hover:underline"
+                  >
+                    Forgot Password?
+                  </Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -214,14 +266,31 @@ const handleSocialLogin = async (provider: "google" | "github") => {
                     className="h-12 pl-11 pr-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
               </div>
 
-              <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]" disabled={isLoading}>
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Enter Talent Dashboard <ArrowRight size={18} /></>}
+              <Button
+                className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    Enter Talent Dashboard <ArrowRight size={18} />
+                  </>
+                )}
               </Button>
             </form>
           </div>

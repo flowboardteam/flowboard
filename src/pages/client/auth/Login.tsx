@@ -46,6 +46,20 @@ export default function ClientLogin() {
     }
   }, []);
 
+  // Check for pending invitation after successful login
+useEffect(() => {
+  const checkPendingInvite = async () => {
+    const pendingToken = localStorage.getItem("pendingInviteToken");
+    const pendingEmail = localStorage.getItem("pendingInviteEmail");
+    
+    if (pendingToken && window.location.pathname === "/client/login") {
+      // Don't remove immediately - wait for login to complete
+      // The handleLogin function will handle the redirect
+    }
+  };
+  checkPendingInvite();
+}, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -70,12 +84,21 @@ export default function ClientLogin() {
         title: "Welcome back!",
         description: "Opening the Client Command Center...",
       });
-      
-      navigate("/client/dashboard");
+
+      const pendingToken = localStorage.getItem("pendingInviteToken");
+  if (pendingToken) {
+    localStorage.removeItem("pendingInviteToken");
+    localStorage.removeItem("pendingInviteEmail");
+    localStorage.removeItem("pendingInviteGroup");
+    navigate(`/invite/${pendingToken}`);
+  } else {
+    navigate("/client/dashboard");
+  }
     }
   };
 
   const handleSocialLogin = async (provider: "google" | "github") => {
+    localStorage.setItem("intended_role", "client");
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {

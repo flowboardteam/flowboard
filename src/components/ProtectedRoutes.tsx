@@ -25,11 +25,26 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
 
       // 2. Fetch Profile for Role and Onboarding status
-      const { data: profile } = await supabase
+      let { data: profile } = await supabase
         .from("profiles")
         .select("role_type, onboarding_completed")
         .eq("id", user.id)
         .single();
+
+      // --- SOCIAL LOGIN ROLE CORRECTION ---
+      // If user just signed in via OAuth, we might need to fix their role
+      const intendedRole = localStorage.getItem("intended_role");
+      if (profile && !profile.onboarding_completed && intendedRole && profile.role_type !== intendedRole) {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ role_type: intendedRole })
+          .eq("id", user.id);
+        
+        if (!updateError) {
+          profile.role_type = intendedRole;
+        }
+        localStorage.removeItem("intended_role");
+      }
 
       if (!profile) {
         // Fallback: If no profile exists yet, they definitely need to login again

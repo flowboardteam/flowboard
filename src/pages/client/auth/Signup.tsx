@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,22 @@ export default function ClientSignUp() {
   const isPasswordValid = requirements.every(r => r.test);
   const strengthColors = ["bg-slate-200", "bg-rose-500", "bg-orange-400", "bg-amber-400", "bg-indigo-500"];
 
+  // Check for pending invitation after signup
+useEffect(() => {
+  const checkPendingInvite = async () => {
+    const pendingToken = localStorage.getItem("pendingInviteToken");
+    const pendingEmail = localStorage.getItem("pendingInviteEmail");
+    
+    if (pendingToken && pendingEmail) {
+      // Pre-fill email field if available
+      setEmail(pendingEmail);
+    }
+  };
+  checkPendingInvite();
+}, []);
+
   const handleSocialLogin = async (provider: "google" | "github") => {
+    localStorage.setItem("intended_role", "client");
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -74,7 +89,7 @@ export default function ClientSignUp() {
     navigate(`/client/login?email=${encodeURIComponent(email)}`);
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!agreed || !isPasswordValid) return;
 
@@ -84,7 +99,7 @@ export default function ClientSignUp() {
     // 1. CHECK IF EMAIL EXISTS IN PROFILES
     const { data: existingUser, error: fetchError } = await supabase
       .from('profiles')
-      .select('id, role_type') // Grab role_type to make the message specific
+      .select('id, role_type')
       .eq('email', email.trim())
       .maybeSingle();
 
@@ -100,7 +115,7 @@ export default function ClientSignUp() {
         onPrimaryClick: handleDuplicateRedirect 
       });
       setIsLoading(false);
-      return; // STOP the signup
+      return;
     }
 
     // 2. IF CLEAR, PROCEED WITH SIGNUP
@@ -111,7 +126,7 @@ export default function ClientSignUp() {
         data: {
           full_name: fullName,
           role_type: "client",
-          email: email.trim(), // Storing email in metadata makes checks easier
+          email: email.trim(),
         },
         emailRedirectTo: `${window.location.origin}/client/onboarding`,
       },
@@ -119,12 +134,36 @@ export default function ClientSignUp() {
 
     if (authError) throw authError;
 
-    setNotification({
-      open: true,
-      type: "success",
-      title: "Verification Sent",
-      description: "Check your corporate email for the activation link.",
-    });
+    // 3. CHECK FOR PENDING INVITATION
+    const pendingToken = localStorage.getItem("pendingInviteToken");
+    
+    if (pendingToken && authData.user) {
+      // User signed up from an invitation
+      localStorage.removeItem("pendingInviteToken");
+      localStorage.removeItem("pendingInviteEmail");
+      localStorage.removeItem("pendingInviteGroup");
+      
+      setNotification({
+        open: true,
+        type: "success",
+        title: "Account Created Successfully!",
+        description: "Your account has been created. Redirecting you to accept your invitation...",
+        primaryAction: "Continue",
+        onPrimaryClick: () => navigate(`/invite/${pendingToken}`)
+      });
+      
+      // Auto redirect after 2 seconds
+      setTimeout(() => {
+        navigate(`/invite/${pendingToken}`);
+      }, 2000);
+    } else {
+      setNotification({
+        open: true,
+        type: "success",
+        title: "Verification Sent",
+        description: "Check your corporate email for the activation link.",
+      });
+    }
     
   } catch (error: any) {
     setNotification({
@@ -137,7 +176,8 @@ export default function ClientSignUp() {
     setIsLoading(false);
   }
 };
-  return (
+  
+return (
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-jakarta bg-white overflow-x-hidden">
         {/* LEFT SIDE: Brand Experience (Hiring Focused) */}

@@ -51,6 +51,8 @@ import ClientOffersPage from "./pages/client/offers/ClientOffersPage";
 import Haraka from "./pages/client/haraka";
 import GroupsPage from "./pages/client/settings/Groups";
 import ClientPayrollPage from "./pages/client/payroll/ClientPayrollPage";
+import InvitePage from "./pages/InvitePage";
+
 
 // Shared
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
@@ -131,6 +133,8 @@ const App = () => (
           <Route path="/client/login"           element={<ClientLogin />} />
           <Route path="/client/forgot-password" element={<ClientForgotPassword />} />
           <Route path="/client/reset-password"  element={<ClientResetPassword />} />
+          <Route path="/invite/:token" element={<InvitePage />} />
+
 
           {/* ── Onboarding ────────────────────────────────────────── */}
           <Route path="/talent/onboarding" element={<ProtectedRoute><TalentOnboarding /></ProtectedRoute>} />

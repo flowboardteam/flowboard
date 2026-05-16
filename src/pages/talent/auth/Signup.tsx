@@ -61,6 +61,7 @@ export default function TalentSignUp() {
   const strengthColors = ["bg-slate-200", "bg-rose-500", "bg-orange-400", "bg-amber-400", "bg-emerald-500"];
 
   const handleSocialLogin = async (provider: "google" | "github") => {
+    localStorage.setItem("intended_role", "talent");
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get('redirect');
 
