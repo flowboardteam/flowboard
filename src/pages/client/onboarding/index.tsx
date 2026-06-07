@@ -19,8 +19,17 @@ import {
 import { Country, City } from "country-state-city";
 
 const INDUSTRY_OPTIONS = [
-  "AI & Machine Learning", "FinTech", "HealthTech", "SaaS", "Web3 & Crypto",
-  "E-commerce", "Cybersecurity", "Manufacturing", "Real Estate", "Education", "Logistics",
+  "AI & Machine Learning",
+  "FinTech",
+  "HealthTech",
+  "SaaS",
+  "Web3 & Crypto",
+  "E-commerce",
+  "Cybersecurity",
+  "Manufacturing",
+  "Real Estate",
+  "Education",
+  "Logistics",
 ];
 
 export default function ClientOnboarding() {
@@ -41,7 +50,7 @@ export default function ClientOnboarding() {
 
   const filteredIndustries = useMemo(() => {
     return INDUSTRY_OPTIONS.filter((i) =>
-      i.toLowerCase().includes(industrySearch.toLowerCase())
+      i.toLowerCase().includes(industrySearch.toLowerCase()),
     );
   }, [industrySearch]);
 
@@ -75,14 +84,20 @@ export default function ClientOnboarding() {
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) setUser(user);
     };
     getUser();
   }, []);
 
   const isStep1Complete = useMemo(() => {
-    return details.companyName.length > 1 && details.location !== "" && details.industry !== "";
+    return (
+      details.companyName.length > 1 &&
+      details.location !== "" &&
+      details.industry !== ""
+    );
   }, [details]);
 
   const handleFinish = async () => {
@@ -101,16 +116,53 @@ export default function ClientOnboarding() {
         team_size: details.teamSize,
         updated_at: new Date().toISOString(),
       };
-      
+
       const { error } = await supabase
         .from("profiles")
-        .upsert(payload, { onConflict: 'id' });
+        .upsert(payload, { onConflict: "id" });
 
       if (error) throw error;
 
+      // Proactively create default 'My Workplace' organization if none exists and user has no other groups
+      try {
+        const { data: existingGroups } = await supabase
+          .from("groups")
+          .select("id")
+          .eq("organization_id", user.id);
+
+        const { data: memberGroups } = await supabase
+          .from("group_members")
+          .select("id")
+          .eq("user_id", user.id);
+
+        const hasAnyGroup =
+          (existingGroups && existingGroups.length > 0) ||
+          (memberGroups && memberGroups.length > 0);
+
+        if (!hasAnyGroup) {
+          const { error: groupError } = await supabase.from("groups").insert({
+            name: "My Workplace",
+            organization_id: user.id,
+            status: "active",
+            is_primary: true,
+            admin_count: 1,
+            contract_count: 0,
+          });
+
+          if (groupError) {
+            console.error("Failed to seed default group:", groupError.message);
+          } else {
+            console.log(
+              "Default primary group 'My Workplace' successfully seeded!",
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Failsafe error during default group seeding:", err);
+      }
+
       toast.success("Organization Profile Created!");
       navigate("/client/dashboard", { replace: true });
-
     } catch (error: any) {
       toast.error(error.message || "Failed to save profile");
       setIsLoading(false);
@@ -134,31 +186,48 @@ export default function ClientOnboarding() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-500/5 text-emerald-600 rounded-2xl border border-emerald-500/10">
                 <Sparkles className="w-4 h-4" />
-                <span className="text-[11px] font-black uppercase tracking-[0.2em]">Flowboard Client Setup</span>
+                <span className="text-[11px] font-black uppercase tracking-[0.2em]">
+                  Flowboard Client Setup
+                </span>
               </div>
-              
+
               <div className="space-y-4">
                 <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-[#1A1C21] leading-none mb-1">
                   {step === 1 ? "Company identity" : "Team metrics"}
                 </h2>
                 <p className="text-slate-500 font-bold text-sm md:text-base px-4">
-                  {step === 1 ? "Founding details for your organization." : "How large is your current operation?"}
+                  {step === 1
+                    ? "Founding details for your organization."
+                    : "How large is your current operation?"}
                 </p>
               </div>
             </div>
 
             <AnimatePresence mode="wait">
               {step === 1 ? (
-                <motion.div key="s1" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-8 text-left">
+                <motion.div
+                  key="s1"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  className="space-y-8 text-left"
+                >
                   <div className="space-y-6">
                     {/* Company Name */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Company Name</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        Company Name
+                      </label>
                       <div className="relative group">
-                         <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                         <input
+                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                        <input
                           value={details.companyName}
-                          onChange={(e) => setDetails({ ...details, companyName: e.target.value })}
+                          onChange={(e) =>
+                            setDetails({
+                              ...details,
+                              companyName: e.target.value,
+                            })
+                          }
                           placeholder="e.g. Acme Corp"
                           className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl p-5 pl-12 text-sm font-bold outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-300"
                         />
@@ -167,14 +236,19 @@ export default function ClientOnboarding() {
 
                     {/* Industry */}
                     <div className="space-y-2 relative">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Industry</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                        Industry
+                      </label>
                       <div className="relative group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                         <input
                           value={industrySearch}
                           onChange={(e) => {
                             setIndustrySearch(e.target.value);
-                            setDetails({ ...details, industry: e.target.value });
+                            setDetails({
+                              ...details,
+                              industry: e.target.value,
+                            });
                             setShowIndustrySuggestions(true);
                           }}
                           onFocus={() => setShowIndustrySuggestions(true)}
@@ -185,7 +259,15 @@ export default function ClientOnboarding() {
                       {showIndustrySuggestions && industrySearch.length > 0 && (
                         <div className="absolute z-[120] w-full mt-2 bg-white border border-[#EEEEF0] rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
                           {filteredIndustries.map((ind) => (
-                            <div key={ind} onClick={() => { setDetails({...details, industry: ind}); setIndustrySearch(ind); setShowIndustrySuggestions(false); }} className="p-4 hover:bg-emerald-500/5 cursor-pointer text-sm font-bold border-b border-[#EEEEF0] last:border-none">
+                            <div
+                              key={ind}
+                              onClick={() => {
+                                setDetails({ ...details, industry: ind });
+                                setIndustrySearch(ind);
+                                setShowIndustrySuggestions(false);
+                              }}
+                              className="p-4 hover:bg-emerald-500/5 cursor-pointer text-sm font-bold border-b border-[#EEEEF0] last:border-none"
+                            >
                               {ind}
                             </div>
                           ))}
@@ -196,36 +278,58 @@ export default function ClientOnboarding() {
                     {/* Location Grid */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2 relative">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Country</label>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                          Country
+                        </label>
                         <div className="relative group">
-                           <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                           <input
+                          <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                          <input
                             value={countrySearch}
-                            onChange={(e) => { setCountrySearch(e.target.value); setShowCountrySuggestions(true); }}
+                            onChange={(e) => {
+                              setCountrySearch(e.target.value);
+                              setShowCountrySuggestions(true);
+                            }}
                             onFocus={() => setShowCountrySuggestions(true)}
                             placeholder="Country"
                             className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl p-5 pl-12 text-sm font-bold outline-none focus:border-emerald-500 focus:bg-white transition-all placeholder:text-slate-300"
                           />
                         </div>
-                        {showCountrySuggestions && filteredCountries.length > 0 && (
-                          <div className="absolute z-[110] w-full mt-2 bg-white border border-[#EEEEF0] rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
-                            {filteredCountries.map((c) => (
-                              <div key={c.isoCode} onClick={() => { setSelectedCountry(c); setCountrySearch(c.name); setShowCountrySuggestions(false); setCitySearch(""); }} className="p-4 hover:bg-emerald-500/5 cursor-pointer text-sm font-bold border-b border-[#EEEEF0] last:border-none">
-                                {c.flag} {c.name}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {showCountrySuggestions &&
+                          filteredCountries.length > 0 && (
+                            <div className="absolute z-[110] w-full mt-2 bg-white border border-[#EEEEF0] rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
+                              {filteredCountries.map((c) => (
+                                <div
+                                  key={c.isoCode}
+                                  onClick={() => {
+                                    setSelectedCountry(c);
+                                    setCountrySearch(c.name);
+                                    setShowCountrySuggestions(false);
+                                    setCitySearch("");
+                                  }}
+                                  className="p-4 hover:bg-emerald-500/5 cursor-pointer text-sm font-bold border-b border-[#EEEEF0] last:border-none"
+                                >
+                                  {c.flag} {c.name}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                       </div>
 
-                      <div className={`space-y-2 relative ${!selectedCountry ? "opacity-40" : ""}`}>
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">City</label>
+                      <div
+                        className={`space-y-2 relative ${!selectedCountry ? "opacity-40" : ""}`}
+                      >
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">
+                          City
+                        </label>
                         <div className="relative group">
                           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                           <input
                             disabled={!selectedCountry}
                             value={citySearch}
-                            onChange={(e) => { setCitySearch(e.target.value); setShowCitySuggestions(true); }}
+                            onChange={(e) => {
+                              setCitySearch(e.target.value);
+                              setShowCitySuggestions(true);
+                            }}
                             onFocus={() => setShowCitySuggestions(true)}
                             placeholder="City"
                             className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl p-5 pl-12 text-sm font-bold outline-none focus:border-emerald-500 focus:bg-white transition-all"
@@ -234,7 +338,18 @@ export default function ClientOnboarding() {
                         {showCitySuggestions && filteredCities.length > 0 && (
                           <div className="absolute z-[110] w-full mt-2 bg-white border border-[#EEEEF0] rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
                             {filteredCities.map((city) => (
-                              <div key={city.name} onClick={() => { setCitySearch(city.name); setDetails({...details, location: `${city.name}, ${selectedCountry.name}`}); setShowCitySuggestions(false); }} className="p-4 hover:bg-emerald-500/5 cursor-pointer text-sm font-bold border-b border-[#EEEEF0] last:border-none">
+                              <div
+                                key={city.name}
+                                onClick={() => {
+                                  setCitySearch(city.name);
+                                  setDetails({
+                                    ...details,
+                                    location: `${city.name}, ${selectedCountry.name}`,
+                                  });
+                                  setShowCitySuggestions(false);
+                                }}
+                                className="p-4 hover:bg-emerald-500/5 cursor-pointer text-sm font-bold border-b border-[#EEEEF0] last:border-none"
+                              >
                                 {city.name}
                               </div>
                             ))}
@@ -253,12 +368,27 @@ export default function ClientOnboarding() {
                   </Button>
                 </motion.div>
               ) : (
-                <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-8">
+                <motion.div
+                  key="s2"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="space-y-8"
+                >
                   <div className="grid grid-cols-2 gap-3">
-                    {["1-10", "11-50", "51-200", "201-500", "501-1000", "1000+"].map((size) => (
+                    {[
+                      "1-10",
+                      "11-50",
+                      "51-200",
+                      "201-500",
+                      "501-1000",
+                      "1000+",
+                    ].map((size) => (
                       <button
                         key={size}
-                        onClick={() => setDetails({ ...details, teamSize: size })}
+                        onClick={() =>
+                          setDetails({ ...details, teamSize: size })
+                        }
                         className={`p-5 rounded-2xl border text-xs font-black uppercase tracking-widest transition-all ${details.teamSize === size ? "bg-emerald-500/10 border-emerald-500 text-emerald-600 shadow-sm shadow-emerald-500/10" : "bg-slate-50 border-[#EEEEF0] text-slate-400 hover:border-emerald-500/30"}`}
                       >
                         {size} Employees
@@ -272,10 +402,17 @@ export default function ClientOnboarding() {
                       disabled={isLoading || !details.teamSize}
                       className="h-16 rounded-2xl font-black text-sm uppercase tracking-widest bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-xl shadow-emerald-500/10"
                     >
-                      {isLoading ? <Loader2 className="animate-spin" /> : "Finish Setup"}
+                      {isLoading ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Finish Setup"
+                      )}
                     </Button>
-                    <button onClick={() => setStep(1)} className="text-slate-400 hover:text-[#1A1C21] text-xs font-black uppercase tracking-widest transition-colors py-2">
-                       Back to Company Info
+                    <button
+                      onClick={() => setStep(1)}
+                      className="text-slate-400 hover:text-[#1A1C21] text-xs font-black uppercase tracking-widest transition-colors py-2"
+                    >
+                      Back to Company Info
                     </button>
                   </div>
                 </motion.div>

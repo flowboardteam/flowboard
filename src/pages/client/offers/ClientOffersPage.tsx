@@ -8,6 +8,7 @@ import {
   DollarSign, Calendar, Briefcase, Users, X,
   RefreshCw, AlertCircle, Search, SlidersHorizontal,
   ChevronDown, Trash2, Building2, ArrowUpRight,
+  FileText, Check, MapPin, Award
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
@@ -17,8 +18,10 @@ import { useGroups } from "@/contexts/GroupContext";
 interface SentOffer {
   id: string;
   talent_id: string;
+  client_id?: string;
   sender_name: string;
   sender_email: string;
+  role_id?: string | null;
   role_title: string | null;
   role_type: string | null;
   salary_monthly: number | null;
@@ -26,6 +29,7 @@ interface SentOffer {
   start_date: string | null;
   contract_length: string | null;
   offer_message: string | null;
+  message?: string | null;
   status: string;
   source: string;
   created_at: string;
@@ -70,7 +74,7 @@ function ConfirmDialog({title,message,confirmLabel="Confirm",onConfirm,onCancel,
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-6">{message}</p>
           <div className="flex gap-3">
             <button onClick={onCancel} className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">Cancel</button>
-            <button onClick={onConfirm} className={`flex-1 py-3 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 ${danger?"bg-red-500 hover:bg-red-400 shadow-md shadow-red-500/20":"bg-amber-500 hover:bg-amber-400"}`}>
+            <button onClick={onConfirm} className={`flex-1 py-3 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 ${danger?"bg-red-50 hover:bg-red-400 shadow-md shadow-red-500/20":"bg-amber-500 hover:bg-amber-400"}`}>
               {confirmLabel}
             </button>
           </div>
@@ -106,15 +110,20 @@ function getInitials(name: string) {
   return name?.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) ?? "??";
 }
 
+function cleanMessage(msg: string | null) {
+  if (!msg) return "No message provided.";
+  return msg.replace(/\[GROUP_ID:[^\]]+\]/g, '').trim();
+}
+
 // ─── Offer Card ───────────────────────────────────────────────────────────────
-function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
+function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw, onWorkforceNavigate }: {
   offer: SentOffer;
   onView: (o: SentOffer) => void;
   onWithdraw: (id: string) => void;
   onConfirmWithdraw: (id: string) => void;
+  onWorkforceNavigate?: () => void;
 }) {
   const cfg        = STATUS_CONFIG[offer.status] ?? STATUS_CONFIG.pending;
-  const StatusIcon = cfg.icon;
   const talent     = offer.talent_profile;
   const canWithdraw = ["pending", "viewed"].includes(offer.status);
 
@@ -154,17 +163,18 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
             {talent?.primary_role ?? "Talent"}
           </p>
         </div>
-        {/* Accepted badge — links to workforce */}
+        {/* Accepted badge */}
         {offer.status === "accepted" && (
           <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/20 shrink-0">
-            <CheckCircle2 className="w-3 h-3" /> In workforce
+            <CheckCircle2 className="w-3 h-3" /> Offer Accepted
           </span>
         )}
       </div>
 
       {/* Role + offer details */}
       <div className="p-3 rounded-xl bg-slate-500/5 border border-[var(--border-color)]">
-        <p className="text-xs font-black dark:text-white mb-2 truncate">
+        <p className="text-xs font-black dark:text-white mb-2 truncate flex items-center gap-1.5">
+          <Briefcase className="w-3.5 h-3.5 text-blue-500 shrink-0" />
           {offer.role_title ?? "Role not specified"}
         </p>
         <div className="grid grid-cols-2 gap-x-3 gap-y-1">
@@ -211,7 +221,7 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
           onClick={() => onView(offer)}
           className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all"
         >
-          View offer
+          View offer details
         </button>
         {canWithdraw && (
           <button
@@ -222,9 +232,9 @@ function OfferCard({ offer, onView, onWithdraw, onConfirmWithdraw }: {
             <span className="hidden sm:inline">Withdraw</span>
           </button>
         )}
-        {offer.status === "accepted" && (
+        {offer.status === "accepted" && onWorkforceNavigate && (
           <button
-            onClick={() => navigate("/client/workforce")}
+            onClick={onWorkforceNavigate}
             className="flex items-center gap-1.5 px-3 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-500/20 transition-all border border-emerald-500/10 shrink-0"
           >
             <ArrowUpRight className="w-3 h-3" />
@@ -243,6 +253,19 @@ function OfferDetailModal({ offer, onClose }: {
 }) {
   const cfg    = STATUS_CONFIG[offer.status] ?? STATUS_CONFIG.pending;
   const talent = offer.talent_profile;
+  const [roleDetails, setRoleDetails] = useState<any>(null);
+  const [loadingRole, setLoadingRole] = useState(false);
+
+  useEffect(() => {
+    if (offer.role_id) {
+      setLoadingRole(true);
+      supabase.from("roles").select("*").eq("id", offer.role_id).single()
+        .then(({ data }) => {
+          if (data) setRoleDetails(data);
+          setLoadingRole(false);
+        });
+    }
+  }, [offer.role_id]);
 
   return (
     <AnimatePresence>
@@ -256,47 +279,53 @@ function OfferDetailModal({ offer, onClose }: {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
           onClick={e => e.stopPropagation()}
-          className="w-full sm:max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
+          className="w-full sm:max-w-xl max-h-[90vh] flex flex-col bg-[var(--card-bg)] border border-[var(--border-color)] rounded-t-2xl sm:rounded-2xl shadow-2xl overflow-hidden"
         >
           {/* Drag handle */}
-          <div className="flex justify-center pt-3 pb-1 sm:hidden">
+          <div className="flex justify-center pt-3 pb-1 sm:hidden shrink-0">
             <div className="w-10 h-1 rounded-full bg-slate-500/30" />
           </div>
 
           {/* Header */}
-          <div className="px-6 pt-4 pb-4 border-b border-[var(--border-color)]">
+          <div className="px-6 pt-4 pb-4 border-b border-[var(--border-color)] shrink-0">
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
                   {talent?.avatar_url
                     ? <img src={talent.avatar_url} alt={talent.full_name} className="w-full h-full object-cover" />
-                    : <span className="text-sm font-black text-slate-400">{getInitials(talent?.full_name ?? "?")}</span>
+                    : <span className="text-base font-black text-slate-400">{getInitials(talent?.full_name ?? "?")}</span>
                   }
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-black dark:text-white truncate">{talent?.full_name ?? "Talent"}</p>
-                  <p className="text-[10px] font-bold text-slate-400 truncate">{talent?.primary_role ?? "—"}</p>
+                  <p className="text-base font-black dark:text-white truncate">{talent?.full_name ?? "Talent"}</p>
+                  <p className="text-xs font-bold text-slate-400 truncate">{talent?.primary_role ?? "—"}</p>
                 </div>
               </div>
               <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors flex-shrink-0">
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border mb-3 ${cfg.bg} ${cfg.color}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />{cfg.label}
-            </span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${cfg.bg} ${cfg.color}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />{cfg.label}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">Sent {fmtDate(offer.created_at)}</span>
+            </div>
 
-            <p className="text-base font-black dark:text-white">{offer.role_title ?? "Role not specified"}</p>
+            <h3 className="text-xl font-black dark:text-white flex items-center gap-2 tracking-tight">
+              <Briefcase className="w-5 h-5 text-blue-500 shrink-0" />
+              {offer.role_title ?? "Role not specified"}
+            </h3>
 
-            <div className="grid grid-cols-2 gap-2 mt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
               {[
                 { label: "Type",     value: offer.role_type?.replace("_","-") ?? "—" },
                 { label: "Salary",   value: fmtCurrency(offer.salary_monthly, offer.salary_currency) },
                 { label: "Starts",   value: fmtDate(offer.start_date) },
                 { label: "Duration", value: offer.contract_length ?? (offer.role_type === "full_time" ? "Permanent" : "—") },
               ].map(m => (
-                <div key={m.label} className="bg-slate-500/5 rounded-xl p-3">
+                <div key={m.label} className="bg-slate-500/5 rounded-xl p-3 border border-[var(--border-color)]">
                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">{m.label}</p>
                   <p className="text-xs font-black dark:text-white capitalize truncate">{m.value}</p>
                 </div>
@@ -304,31 +333,104 @@ function OfferDetailModal({ offer, onClose }: {
             </div>
           </div>
 
-          {/* Offer letter */}
-          <div className="px-6 py-4 max-h-48 overflow-y-auto">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Offer letter</p>
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {offer.offer_message ?? "No message provided."}
-            </p>
-          </div>
+          {/* Scrollable Body: Offer Letter + Attached Role Details */}
+          <div className="px-6 py-6 overflow-y-auto space-y-6 flex-1">
+            {/* Offer letter / Client Notes */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-emerald-500" /> Client Notes / Offer Letter
+              </p>
+              <div className="p-4 bg-slate-500/5 rounded-2xl border border-[var(--border-color)]">
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  {cleanMessage(offer.offer_message || offer.message)}
+                </p>
+              </div>
+            </div>
 
-          {/* Decline reason */}
-          {offer.status === "declined" && offer.decline_reason && (
-            <div className="px-6 pb-4">
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/5 border border-red-500/10">
-                <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+            {/* Attached Role Specification */}
+            {loadingRole ? (
+              <div className="flex items-center gap-3 py-4 text-slate-400 text-xs font-bold">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" /> Loading attached role specification...
+              </div>
+            ) : roleDetails ? (
+              <div className="space-y-4 pt-4 border-t border-[var(--border-color)]">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-blue-500" /> Attached Role Specification
+                </p>
+                
+                <div className="space-y-3 bg-[var(--sidebar-bg)] p-5 rounded-2xl border border-[var(--border-color)]">
+                  <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-400">
+                    {roleDetails.department && <span>Department: {roleDetails.department}</span>}
+                    {roleDetails.location && <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-emerald-500" /> {roleDetails.location}</span>}
+                    {roleDetails.experience_level && <span>Level: {roleDetails.experience_level}</span>}
+                  </div>
+
+                  {roleDetails.description && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {roleDetails.description}
+                    </p>
+                  )}
+
+                  {roleDetails.responsibilities?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Key Responsibilities</p>
+                      <ul className="space-y-1.5">
+                        {roleDetails.responsibilities.map((req: string, idx: number) => (
+                          <li key={idx} className="text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                            <span>{req}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {roleDetails.skills?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Required Skills</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {roleDetails.skills.map((skill: string) => (
+                          <span key={skill} className="px-2.5 py-1 bg-blue-500/10 rounded-lg text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {roleDetails.benefits?.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Benefits & Perks</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {roleDetails.benefits.map((b: string, idx: number) => (
+                          <span key={idx} className="px-2.5 py-1 bg-emerald-500/10 rounded-lg text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                            <Check className="w-3 h-3 text-emerald-500" /> {b}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Decline reason */}
+            {offer.status === "declined" && offer.decline_reason && (
+              <div className="flex items-start gap-2 p-4 rounded-2xl bg-red-500/5 border border-red-500/10">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-red-500 mb-1">Decline reason</p>
                   <p className="text-xs font-medium text-slate-500">{offer.decline_reason}</p>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          <div className="px-6 pb-6">
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-[var(--border-color)] shrink-0">
             <button onClick={onClose}
-              className="w-full py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">
-              Close
+              className="w-full py-3.5 bg-[#1A1C21] hover:bg-black text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-black/10">
+              Close Offer Details
             </button>
           </div>
         </motion.div>
@@ -357,11 +459,6 @@ export default function ClientOffersPage() {
     setLoading(true);
     setError(null);
     try {
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_offers_${groupId}`;
-      const localData = localStorage.getItem(localKey);
-      let offersArr: SentOffer[] = localData ? JSON.parse(localData) : [];
-
       const { data: { user } } = await supabase.auth.getUser();
       const { data: dbData } = await supabase
         .from("hire_inquiries")
@@ -372,16 +469,21 @@ export default function ClientOffersPage() {
         .eq("client_id", user?.id)
         .order("created_at", { ascending: false });
 
-      const combined = [...(dbData ?? []), ...offersArr];
-      const unique = combined.filter((v, i, a) => 
+      // Filter dbData by activeGroup.id
+      const groupDbData = (dbData ?? []).filter((item: any) => {
+        if (!activeGroup) return true;
+        const msg = item.offer_message || item.message || "";
+        return msg.includes(`[GROUP_ID:${activeGroup.id}]`);
+      });
+
+      const unique = groupDbData.filter((v: any, i: number, a: any[]) => 
         a.findIndex(t => 
           t.id === v.id || 
           (t.talent_id === v.talent_id && t.role_title === v.role_title && t.created_at?.slice(0,10) === v.created_at?.slice(0,10))
         ) === i
       );
 
-      setOffers(unique.sort((a,b)=> new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
-      localStorage.setItem(localKey, JSON.stringify(unique));
+      setOffers(unique.sort((a: any,b: any)=> new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -391,20 +493,18 @@ export default function ClientOffersPage() {
 
   useEffect(() => { fetchOffers(); }, [fetchOffers]);
 
-  // Realtime — update when talent responds
-  useEffect(() => {
-    // Local isolation scopes only
-  }, [fetchOffers]);
-
   // ── Withdraw offer ────────────────────────────────────────────────────────
   const handleWithdraw = async (id: string) => {
     setWithdrawing(true);
-    const groupId = activeGroup?.id || "default-group";
-    const localKey = `flowboard_offers_${groupId}`;
 
     const updated = offers.map(o => o.id === id ? { ...o, status: "withdrawn" } : o);
     setOffers(updated);
-    localStorage.setItem(localKey, JSON.stringify(updated));
+
+    // Update in Supabase if it's a UUID
+    if (id && !id.startsWith("off-")) {
+      await supabase.from("hire_inquiries").update({ status: "withdrawn" }).eq("id", id);
+    }
+
     toast({ title: "Offer withdrawn" });
     setWithdrawing(false);
   };
@@ -455,7 +555,7 @@ export default function ClientOffersPage() {
   }
 
   return (
-    <div className="w-full space-y-6 pb-20 p-4 sm:p-6 lg:p-8">
+    <div className="w-full space-y-6 pb-20 p-4 sm:p-6 lg:p-8 animate-in fade-in duration-500">
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -490,7 +590,7 @@ export default function ClientOffersPage() {
           { label: "Accepted",     value: counts.accepted, color: "text-emerald-600"                },
           { label: "Declined",     value: counts.declined, color: "text-red-500"                    },
         ].map(s => (
-          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4">
+          <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4 shadow-sm">
             <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
             <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
           </div>
@@ -536,8 +636,9 @@ export default function ClientOffersPage() {
                   key={offer.id}
                   offer={offer}
                   onView={setViewOffer}
-                  onWithdraw={handleWithdraw}
-                  onConfirmWithdraw={setConfirmWithdrawId}
+                  onWithdraw={setConfirmWithdrawId}
+                  onConfirmWithdraw={handleWithdraw}
+                  onWorkforceNavigate={() => navigate("/client/workforce")}
                 />
               ))}
             </AnimatePresence>

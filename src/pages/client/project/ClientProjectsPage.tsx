@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Project {
@@ -612,6 +613,7 @@ function ProjectDrawer({project,projectMembers,allMembers,onClose,onEdit,onDelet
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function ClientProjectsPage(){
   const {toast}=useToast();
+  const { activeGroup } = useGroups();
   const [projects,setProjects]=useState<Project[]>([]);
   const [members,setMembers]=useState<WorkforceMember[]>([]);
   const [projectMembers,setProjectMembers]=useState<ProjectMember[]>([]); // junction
@@ -633,9 +635,20 @@ export default function ClientProjectsPage(){
       const {data:{user},error:authErr}=await supabase.auth.getUser();
       if(authErr||!user) throw new Error("Not authenticated");
 
+      let projQuery = supabase.from("projects").select("*").eq("organization_id",user.id).order("created_at",{ascending:false});
+      let membersQuery = supabase.from("workforce_members").select("*").eq("organization_id",user.id).eq("is_active",true);
+
+      if (activeGroup?.id) {
+        projQuery = projQuery.eq("group_id", activeGroup.id);
+        membersQuery = membersQuery.eq("group_id", activeGroup.id);
+      } else {
+        projQuery = projQuery.is("group_id", null);
+        membersQuery = membersQuery.is("group_id", null);
+      }
+
       const [{data:projData,error:pErr},{data:membersData,error:mErr},{data:pmData,error:pmErr}]=await Promise.all([
-        supabase.from("projects").select("*").eq("organization_id",user.id).order("created_at",{ascending:false}),
-        supabase.from("workforce_members").select("*").eq("organization_id",user.id).eq("is_active",true),
+        projQuery,
+        membersQuery,
         supabase.from("project_members").select("*").eq("organization_id",user.id),
       ]);
       if(pErr) throw pErr; if(mErr) throw mErr; if(pmErr) throw pmErr;
@@ -654,7 +667,7 @@ export default function ClientProjectsPage(){
       setProjectMembers(pmData??[]);
     }catch(err:any){setError(err.message??"Could not load projects.");}
     finally{setLoading(false);}
-  },[]);
+  },[activeGroup?.id]);
 
   useEffect(()=>{fetchAll();},[fetchAll]);
   useEffect(()=>{
@@ -670,7 +683,7 @@ export default function ClientProjectsPage(){
     setSaving(true);
     try{
       const {data:{user}}=await supabase.auth.getUser();if(!user) throw new Error("Not authenticated");
-      const payload={organization_id:user.id,name:form.name,description:form.description||null,status:form.status,priority:form.priority,start_date:form.start_date||null,end_date:form.end_date||null,budget:form.budget?Number(form.budget):null,budget_spent:form.budget_spent?Number(form.budget_spent):null,budget_currency:form.budget_currency,tags:form.tags??[],is_client_facing:form.is_client_facing,progress:form.progress};
+      const payload={organization_id:user.id,group_id:activeGroup?.id||null,name:form.name,description:form.description||null,status:form.status,priority:form.priority,start_date:form.start_date||null,end_date:form.end_date||null,budget:form.budget?Number(form.budget):null,budget_spent:form.budget_spent?Number(form.budget_spent):null,budget_currency:form.budget_currency,tags:form.tags??[],is_client_facing:form.is_client_facing,progress:form.progress};
       if(editProject&&editProject!=="new"){
         const {error}=await supabase.from("projects").update(payload).eq("id",(editProject as Project).id);
         if(error) throw error;

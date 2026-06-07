@@ -4,39 +4,75 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, FileText, ChevronRight,
-  Check, X, Loader2, BriefcaseBusiness,
-  MapPin, DollarSign, Tag, AlignLeft, ListChecks,
-  CheckCircle2, Send, RefreshCw, Pencil, Eye,
+  ArrowLeft,
+  FileText,
+  ChevronRight,
+  Check,
+  X,
+  Loader2,
+  BriefcaseBusiness,
+  MapPin,
+  DollarSign,
+  Tag,
+  AlignLeft,
+  ListChecks,
+  CheckCircle2,
+  Send,
+  RefreshCw,
+  Pencil,
+  Eye,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const DEPARTMENTS       = ["Engineering","Design","Product","Operations","Marketing","Finance","Human Resources","Sales"];
-const TYPES             = ["Full-time","Contract","Part-time"];
-const LOCATIONS         = ["Remote","On-site","Hybrid"];
-const EXPERIENCE_LEVELS = ["Junior (0–2 years)","Mid-level (3–5 years)","Senior (5–8 years)","Lead / Staff (8+ years)"];
+const DEPARTMENTS = [
+  "Engineering",
+  "Design",
+  "Product",
+  "Operations",
+  "Marketing",
+  "Finance",
+  "Human Resources",
+  "Sales",
+];
+const TYPES = ["Full-time", "Contract", "Part-time"];
+const LOCATIONS = ["Remote", "On-site", "Hybrid"];
+const EXPERIENCE_LEVELS = [
+  "Junior (0–2 years)",
+  "Mid-level (3–5 years)",
+  "Senior (5–8 years)",
+  "Lead / Staff (8+ years)",
+];
 
 const STEPS = [
-  { id: 1, label: "Basics",       icon: BriefcaseBusiness },
-  { id: 2, label: "Description",  icon: AlignLeft         },
-  { id: 3, label: "Requirements", icon: ListChecks        },
-  { id: 4, label: "Review",       icon: CheckCircle2      },
+  { id: 1, label: "Basics", icon: BriefcaseBusiness },
+  { id: 2, label: "Description", icon: AlignLeft },
+  { id: 3, label: "Requirements", icon: ListChecks },
+  { id: 4, label: "Review", icon: CheckCircle2 },
 ];
 
 const DEFAULT_FORM = {
-  title: "", department: "", type: "Full-time", location: "Remote",
-  salary: "", experience_level: "", description: "",
-  responsibilities: [], skills: [], benefits: [],
-  education: "", other_requirements: [],
+  title: "",
+  department: "",
+  type: "Full-time",
+  location: "Remote",
+  location_details: "",
+  salary: "",
+  experience_level: "",
+  description: "",
+  responsibilities: [],
+  skills: [],
+  benefits: [],
+  education: "",
+  other_requirements: [],
 };
 
 // ─── Gemini Haraka01 helper ────────────────────────────────────────────────────
 async function callHaraka01(
   userPrompt: string,
-  existingRole?: any
+  existingRole?: any,
 ): Promise<any> {
   const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
   if (!apiKey) throw new Error("VITE_GEMINI_API_KEY is missing.");
@@ -54,6 +90,7 @@ Based on the user's prompt, return ONLY a valid JSON object with these exact key
   "department": "One of: Engineering, Design, Product, Operations, Marketing, Finance, Human Resources, Sales",
   "type": "One of: Full-time, Contract, Part-time",
   "location": "One of: Remote, On-site, Hybrid",
+  "location_details": "Specific city, country, or remote restrictions (e.g. 'San Francisco, CA' or 'US-only'). Empty string if not specified.",
   "salary": "Salary range string e.g. '$80k–$110k' or '$50/hr', or empty string if unclear",
   "experience_level": "One of: Junior (0–2 years), Mid-level (3–5 years), Senior (5–8 years), Lead / Staff (8+ years)",
   "description": "2–3 paragraph job description",
@@ -72,14 +109,17 @@ Rules:
 `;
 
   const result = await model.generateContent(
-    `${systemPrompt}\n\nUser prompt: ${userPrompt}`
+    `${systemPrompt}\n\nUser prompt: ${userPrompt}`,
   );
   const response = await result.response;
-  let text = response.text()
-    .replace(/```json/g, "").replace(/```/g, "").trim();
+  let text = response
+    .text()
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
 
   const start = text.indexOf("{");
-  const end   = text.lastIndexOf("}");
+  const end = text.lastIndexOf("}");
   if (start !== -1 && end !== -1) text = text.slice(start, end + 1);
 
   return JSON.parse(text);
@@ -96,20 +136,34 @@ function TagInput({ tags, onAdd, onRemove, placeholder }) {
   return (
     <div
       className="min-h-[52px] bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3 py-2 flex flex-wrap gap-2 items-center focus-within:ring-2 ring-blue-500/20 transition-all cursor-text"
-      onClick={e => (e.currentTarget.querySelector("input") as HTMLInputElement)?.focus()}
+      onClick={(e) =>
+        (e.currentTarget.querySelector("input") as HTMLInputElement)?.focus()
+      }
     >
-      {tags.map(tag => (
-        <span key={tag} className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-lg">
+      {tags.map((tag) => (
+        <span
+          key={tag}
+          className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-lg"
+        >
           {tag}
-          <button type="button" onClick={() => onRemove(tag)} className="hover:text-red-500 transition-colors">
+          <button
+            type="button"
+            onClick={() => onRemove(tag)}
+            className="hover:text-red-500 transition-colors"
+          >
             <X className="w-3 h-3" />
           </button>
         </span>
       ))}
       <input
         value={input}
-        onChange={e => setInput(e.target.value)}
-        onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); commit(); } }}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            commit();
+          }
+        }}
         onBlur={commit}
         placeholder={tags.length === 0 ? placeholder : "Add more..."}
         className="flex-1 min-w-[120px] bg-transparent outline-none text-sm font-medium placeholder:text-slate-400"
@@ -122,7 +176,7 @@ function TagInput({ tags, onAdd, onRemove, placeholder }) {
 // On mobile we show a compact "Step X of Y — Label" text instead of the full
 // horizontal stepper which overflows small screens.
 function StepIndicator({ currentStep }) {
-  const currentLabel = STEPS.find(s => s.id === currentStep)?.label ?? "";
+  const currentLabel = STEPS.find((s) => s.id === currentStep)?.label ?? "";
 
   return (
     <>
@@ -130,28 +184,46 @@ function StepIndicator({ currentStep }) {
       <div className="hidden sm:flex items-center gap-0">
         {STEPS.map((step, i) => {
           const isComplete = currentStep > step.id;
-          const isActive   = currentStep === step.id;
-          const Icon       = step.icon;
+          const isActive = currentStep === step.id;
+          const Icon = step.icon;
           return (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center gap-1.5">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
-                  isComplete ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-                  : isActive  ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-                  :             "bg-slate-500/10 text-slate-400"
-                }`}>
-                  {isComplete ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                    isComplete
+                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
+                      : isActive
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                        : "bg-slate-500/10 text-slate-400"
+                  }`}
+                >
+                  {isComplete ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    <Icon className="w-4 h-4" />
+                  )}
                 </div>
-                <span className={`text-[9px] font-black uppercase tracking-widest ${
-                  isActive ? "text-blue-600" : isComplete ? "text-emerald-500" : "text-slate-400"
-                }`}>
+                <span
+                  className={`text-[9px] font-black uppercase tracking-widest ${
+                    isActive
+                      ? "text-blue-600"
+                      : isComplete
+                        ? "text-emerald-500"
+                        : "text-slate-400"
+                  }`}
+                >
                   {step.label}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`h-px w-12 lg:w-20 mb-5 mx-2 transition-all ${
-                  currentStep > step.id ? "bg-emerald-500" : "bg-[var(--border-color)]"
-                }`} />
+                <div
+                  className={`h-px w-12 lg:w-20 mb-5 mx-2 transition-all ${
+                    currentStep > step.id
+                      ? "bg-emerald-500"
+                      : "bg-[var(--border-color)]"
+                  }`}
+                />
               )}
             </div>
           );
@@ -176,12 +248,17 @@ function StepIndicator({ currentStep }) {
         </div>
         {/* Completed steps as dots */}
         <div className="flex items-center gap-2">
-          {STEPS.map(step => (
-            <div key={step.id} className={`w-2 h-2 rounded-full transition-all ${
-              currentStep > step.id  ? "bg-emerald-500"
-              : currentStep === step.id ? "bg-blue-600 scale-125"
-              : "bg-slate-500/20"
-            }`} />
+          {STEPS.map((step) => (
+            <div
+              key={step.id}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentStep > step.id
+                  ? "bg-emerald-500"
+                  : currentStep === step.id
+                    ? "bg-blue-600 scale-125"
+                    : "bg-slate-500/20"
+              }`}
+            />
           ))}
         </div>
       </div>
@@ -194,12 +271,12 @@ type ChatMessage = { role: "user" | "ai"; text: string };
 
 function Haraka01Tab({ onGenerated }) {
   const [initialPrompt, setInitialPrompt] = useState("");
-  const [generating, setGenerating]       = useState(false);
-  const [statusMsg, setStatusMsg]         = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [statusMsg, setStatusMsg] = useState("");
   const [generatedRole, setGeneratedRole] = useState<any>(null);
-  const [chatHistory, setChatHistory]     = useState<ChatMessage[]>([]);
-  const [refineInput, setRefineInput]     = useState("");
-  const [refining, setRefining]           = useState(false);
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  const [refineInput, setRefineInput] = useState("");
+  const [refining, setRefining] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -213,7 +290,11 @@ function Haraka01Tab({ onGenerated }) {
     "Finalising role details...",
   ];
 
-  const runGeneration = async (prompt: string, existing?: any, isRefinement = false) => {
+  const runGeneration = async (
+    prompt: string,
+    existing?: any,
+    isRefinement = false,
+  ) => {
     const setter = isRefinement ? setRefining : setGenerating;
     setter(true);
 
@@ -229,24 +310,42 @@ function Haraka01Tab({ onGenerated }) {
         const role = await callHaraka01(prompt, existing);
         clearInterval(interval);
         setGeneratedRole(role);
-        setChatHistory([{ role: "user", text: prompt }, { role: "ai", text: `Generated role: **${role.title}**` }]);
+        setChatHistory([
+          { role: "user", text: prompt },
+          { role: "ai", text: `Generated role: **${role.title}**` },
+        ]);
       } catch (err: any) {
         clearInterval(interval);
         console.error("Haraka01 error:", err);
-        setChatHistory([{ role: "user", text: prompt }, { role: "ai", text: "Sorry, I couldn't generate the role. Please try again." }]);
+        setChatHistory([
+          { role: "user", text: prompt },
+          {
+            role: "ai",
+            text: "Sorry, I couldn't generate the role. Please try again.",
+          },
+        ]);
       } finally {
         setGenerating(false);
         setStatusMsg("");
       }
     } else {
       // Refinement pass
-      setChatHistory(prev => [...prev, { role: "user", text: prompt }]);
+      setChatHistory((prev) => [...prev, { role: "user", text: prompt }]);
       try {
         const updated = await callHaraka01(prompt, existing);
         setGeneratedRole(updated);
-        setChatHistory(prev => [...prev, { role: "ai", text: `Updated: **${updated.title}** — changes applied.` }]);
+        setChatHistory((prev) => [
+          ...prev,
+          {
+            role: "ai",
+            text: `Updated: **${updated.title}** — changes applied.`,
+          },
+        ]);
       } catch (err: any) {
-        setChatHistory(prev => [...prev, { role: "ai", text: "Couldn't apply changes. Please try again." }]);
+        setChatHistory((prev) => [
+          ...prev,
+          { role: "ai", text: "Couldn't apply changes. Please try again." },
+        ]);
       } finally {
         setRefining(false);
         setRefineInput("");
@@ -273,22 +372,35 @@ function Haraka01Tab({ onGenerated }) {
     return (
       <div className="space-y-6">
         <div className="flex items-start gap-3 p-5 bg-blue-500/5 rounded-2xl border border-blue-500/10 mb-2">
-          <img src="/flowboardlogo.png" alt="" className="w-6 h-6 object-contain flex-shrink-0" />
+          <img
+            src="/flowboardlogo.png"
+            alt=""
+            className="w-6 h-6 object-contain flex-shrink-0"
+          />
           <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed">
-            Describe the role in plain English — Haraka01 will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.
+            Describe the role in plain English — Haraka01 will generate a
+            complete job description, responsibilities, skills, and benefits for
+            you to review and refine.
           </p>
         </div>
         <div>
-          <label className="block text-[11px] font-black tracking-widest text-slate-500 mb-2">Describe the role</label>
+          <label className="block text-[11px] font-black tracking-widest text-slate-500 mb-2">
+            Describe the role
+          </label>
           <textarea
             value={initialPrompt}
-            onChange={e => setInitialPrompt(e.target.value)}
+            onChange={(e) => setInitialPrompt(e.target.value)}
             rows={5}
-            onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleGenerate(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+                handleGenerate();
+            }}
             placeholder="e.g. A senior backend engineer who knows Node.js and PostgreSQL, will own our API infrastructure, 5+ years experience, remote role..."
             className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
           />
-          <p className="text-[11px] text-slate-500 mt-1.5">Press Cmd+Enter to generate</p>
+          <p className="text-[11px] text-slate-500 mt-1.5">
+            Press Cmd+Enter to generate
+          </p>
         </div>
         <button
           onClick={handleGenerate}
@@ -307,15 +419,23 @@ function Haraka01Tab({ onGenerated }) {
       <div className="flex flex-col items-center justify-center py-16 gap-4">
         <div className="relative">
           <div className="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
-            <img src="/flowboardlogo.png" alt="Haraka01" className="w-10 h-10 object-contain" />
+            <img
+              src="/flowboardlogo.png"
+              alt="Haraka01"
+              className="w-10 h-10 object-contain"
+            />
           </div>
           <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
             <Loader2 className="w-2.5 h-2.5 text-white animate-spin" />
           </div>
         </div>
         <div className="text-center">
-          <p className="text-[10px] font-black tracking-[0.2em] text-blue-600 mb-1">Haraka01</p>
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">{statusMsg}</p>
+          <p className="text-[10px] font-black tracking-[0.2em] text-blue-600 mb-1">
+            Haraka01
+          </p>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+            {statusMsg}
+          </p>
         </div>
       </div>
     );
@@ -330,15 +450,23 @@ function Haraka01Tab({ onGenerated }) {
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Role generated</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                Role generated
+              </span>
             </div>
-            <h3 className="text-base font-black dark:text-white tracking-tight truncate">{generatedRole.title}</h3>
+            <h3 className="text-base font-black dark:text-white tracking-tight truncate">
+              {generatedRole.title}
+            </h3>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-              {generatedRole.department} · {generatedRole.type} · {generatedRole.location}
+              {generatedRole.department} · {generatedRole.type} ·{" "}
+              {generatedRole.location}
             </p>
           </div>
           <button
-            onClick={() => { setGeneratedRole(null); setChatHistory([]); }}
+            onClick={() => {
+              setGeneratedRole(null);
+              setChatHistory([]);
+            }}
             className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-500/10 flex-shrink-0"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -352,11 +480,18 @@ function Haraka01Tab({ onGenerated }) {
 
         {generatedRole.skills?.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
-            {generatedRole.skills.slice(0, 5).map(s => (
-              <span key={s} className="text-[10px] font-black tracking-wider bg-blue-500/10 text-slate-900 px-2 py-0.5 rounded-lg">{s}</span>
+            {generatedRole.skills.slice(0, 5).map((s) => (
+              <span
+                key={s}
+                className="text-[10px] font-black tracking-wider bg-blue-500/10 text-slate-900 px-2 py-0.5 rounded-lg"
+              >
+                {s}
+              </span>
             ))}
             {generatedRole.skills.length > 5 && (
-              <span className="text-[10px] font-black text-slate-400">+{generatedRole.skills.length - 5}</span>
+              <span className="text-[10px] font-black text-slate-400">
+                +{generatedRole.skills.length - 5}
+              </span>
             )}
           </div>
         )}
@@ -366,12 +501,17 @@ function Haraka01Tab({ onGenerated }) {
       {chatHistory.length > 0 && (
         <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
           {chatHistory.map((msg, i) => (
-            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] px-3 py-2 rounded-xl text-xs font-medium leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-500/10 text-slate-600 dark:text-slate-300"
-              }`}>
+            <div
+              key={i}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[85%] px-3 py-2 rounded-xl text-xs font-medium leading-relaxed ${
+                  msg.role === "user"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-500/10 text-slate-600 dark:text-slate-300"
+                }`}
+              >
                 {msg.text.replace(/\*\*/g, "")}
               </div>
             </div>
@@ -395,8 +535,10 @@ function Haraka01Tab({ onGenerated }) {
         <div className="flex gap-2">
           <input
             value={refineInput}
-            onChange={e => setRefineInput(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") handleRefine(); }}
+            onChange={(e) => setRefineInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleRefine();
+            }}
             placeholder='e.g. "Make it more senior" or "Add GraphQL to skills"'
             disabled={refining}
             className="flex-1 bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all disabled:opacity-50 min-w-0"
@@ -406,10 +548,16 @@ function Haraka01Tab({ onGenerated }) {
             disabled={!refineInput.trim() || refining}
             className="flex-shrink-0 p-3 bg-blue-600 text-white rounded-xl hover:bg-blue-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {refining ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {refining ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
           </button>
         </div>
-        <p className="text-[10px] text-slate-400 mt-1.5">Press Enter to send · Changes apply to the role above</p>
+        <p className="text-[10px] text-slate-400 mt-1.5">
+          Press Enter to send · Changes apply to the role above
+        </p>
       </div>
 
       {/* CTA */}
@@ -426,37 +574,62 @@ function Haraka01Tab({ onGenerated }) {
 }
 
 // ─── Step 1: Basics ───────────────────────────────────────────────────────────
-function StepBasics({ data, onChange }) {
+function StepBasics({
+  data,
+  onChange,
+  salaryCurrency,
+  setSalaryCurrency,
+  salaryMin,
+  setSalaryMin,
+  salaryMax,
+  setSalaryMax,
+  salaryPeriod,
+  setSalaryPeriod,
+}) {
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Job title *</label>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Job title *
+        </label>
         <input
           value={data.title}
-          onChange={e => onChange("title", e.target.value)}
+          onChange={(e) => onChange("title", e.target.value)}
           placeholder="e.g. Senior Frontend Engineer"
           className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
         />
+        {data.title.trim() && data.title.trim().length < 3 && (
+          <p className="text-[9px] text-red-500 font-bold mt-1 uppercase tracking-widest">
+            Title must be at least 3 characters
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Department</label>
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+            Department *
+          </label>
           <select
             value={data.department}
-            onChange={e => onChange("department", e.target.value)}
+            onChange={(e) => onChange("department", e.target.value)}
             className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all cursor-pointer"
           >
             <option value="">Select department</option>
-            {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+            {DEPARTMENTS.map((d) => (
+              <option key={d}>{d}</option>
+            ))}
           </select>
         </div>
         <div>
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Employment type</label>
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+            Employment type
+          </label>
           <div className="flex gap-2">
-            {TYPES.map(t => (
+            {TYPES.map((t) => (
               <button
-                key={t} type="button"
+                key={t}
+                type="button"
                 onClick={() => onChange("type", t)}
                 className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
                   data.type === t
@@ -474,12 +647,14 @@ function StepBasics({ data, onChange }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-            <MapPin className="inline w-3 h-3 mr-1" />Location
+            <MapPin className="inline w-3 h-3 mr-1" />
+            Location
           </label>
-          <div className="flex gap-2">
-            {LOCATIONS.map(l => (
+          <div className="flex gap-2 mb-3">
+            {LOCATIONS.map((l) => (
               <button
-                key={l} type="button"
+                key={l}
+                type="button"
                 onClick={() => onChange("location", l)}
                 className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
                   data.location === l
@@ -491,26 +666,127 @@ function StepBasics({ data, onChange }) {
               </button>
             ))}
           </div>
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            key={data.location}
+            transition={{ duration: 0.2 }}
+          >
+            <input
+              value={data.location_details || ""}
+              onChange={(e) => onChange("location_details", e.target.value)}
+              placeholder={
+                data.location === "Remote"
+                  ? "e.g. Worldwide, US-only (Optional restrictions)"
+                  : data.location === "On-site"
+                    ? "e.g. San Francisco, CA (City, State / Country)"
+                    : "e.g. New York Office (City / hybrid frequency)"
+              }
+              className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+            />
+          </motion.div>
         </div>
         <div>
           <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-            <DollarSign className="inline w-3 h-3 mr-1" />Salary / Rate
+            <DollarSign className="inline w-3 h-3 mr-1" />
+            Salary / Compensation
           </label>
-          <input
-            value={data.salary}
-            onChange={e => onChange("salary", e.target.value)}
-            placeholder="e.g. $80k–$110k or $50/hr"
-            className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 bg-slate-500/5 p-3 rounded-xl border border-[var(--border-color)]">
+            {/* Currency selector */}
+            <div>
+              <select
+                value={salaryCurrency}
+                onChange={(e) => setSalaryCurrency(e.target.value)}
+                className="w-full appearance-none bg-transparent outline-none text-xs font-bold cursor-pointer"
+              >
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="£">GBP (£)</option>
+                <option value="CA$">CAD (CA$)</option>
+              </select>
+            </div>
+
+            {/* Min amount */}
+            <div>
+              <input
+                type="text"
+                value={salaryMin}
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                  setSalaryMin(
+                    cleaned
+                      ? parseInt(cleaned, 10).toLocaleString("en-US")
+                      : "",
+                  );
+                }}
+                placeholder="Min e.g. 80,000"
+                className="w-full bg-transparent outline-none text-xs font-bold placeholder:text-slate-400"
+              />
+            </div>
+
+            {/* Max amount */}
+            <div>
+              <input
+                type="text"
+                value={salaryMax}
+                onChange={(e) => {
+                  const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                  setSalaryMax(
+                    cleaned
+                      ? parseInt(cleaned, 10).toLocaleString("en-US")
+                      : "",
+                  );
+                }}
+                placeholder="Max e.g. 120,000"
+                className="w-full bg-transparent outline-none text-xs font-bold placeholder:text-slate-400"
+              />
+            </div>
+
+            {/* Period selector */}
+            <div>
+              <select
+                value={salaryPeriod}
+                onChange={(e) => setSalaryPeriod(e.target.value)}
+                className="w-full appearance-none bg-transparent outline-none text-xs font-bold cursor-pointer"
+              >
+                <option value="/ year">/ year</option>
+                <option value="/ month">/ month</option>
+                <option value="/ hour">/ hour</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Preview & Validation warning */}
+          <div className="flex items-center justify-between mt-1 px-1">
+            <span className="text-[10px] font-bold text-slate-400">
+              Preview:{" "}
+              <span className="text-blue-600 font-black">
+                {salaryMin || salaryMax
+                  ? `${salaryCurrency}${salaryMin || "0"}${salaryMax ? ` – ${salaryCurrency}${salaryMax}` : ""} ${salaryPeriod}`
+                  : "Salary TBD"}
+              </span>
+            </span>
+            {salaryMin &&
+              salaryMax &&
+              parseFloat(salaryMax.replace(/,/g, "")) <
+                parseFloat(salaryMin.replace(/,/g, "")) && (
+                <span className="text-[9px] font-black text-red-500 uppercase tracking-widest animate-pulse">
+                  Max &lt; Min
+                </span>
+              )}
+          </div>
         </div>
       </div>
 
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Experience level</label>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Experience level *
+        </label>
         <div className="grid grid-cols-2 gap-2">
-          {EXPERIENCE_LEVELS.map(l => (
+          {EXPERIENCE_LEVELS.map((l) => (
             <button
-              key={l} type="button"
+              key={l}
+              type="button"
               onClick={() => onChange("experience_level", l)}
               className={`py-3 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border text-center leading-tight ${
                 data.experience_level === l
@@ -532,31 +808,51 @@ function StepDescription({ data, onChange }) {
   return (
     <div className="space-y-5">
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Job description *</label>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Job description *
+        </label>
         <textarea
           value={data.description}
-          onChange={e => onChange("description", e.target.value)}
+          onChange={(e) => onChange("description", e.target.value)}
           rows={5}
           placeholder="Describe the role, team context, and what success looks like..."
           className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
         />
       </div>
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Key responsibilities</label>
-        <p className="text-[11px] text-slate-400 font-medium mb-3">Press Enter or comma to add each one</p>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Key responsibilities
+        </label>
+        <p className="text-[11px] text-slate-400 font-medium mb-3">
+          Press Enter or comma to add each one
+        </p>
         <TagInput
           tags={data.responsibilities}
-          onAdd={v => onChange("responsibilities", [...data.responsibilities, v])}
-          onRemove={v => onChange("responsibilities", data.responsibilities.filter(r => r !== v))}
+          onAdd={(v) =>
+            onChange("responsibilities", [...data.responsibilities, v])
+          }
+          onRemove={(v) =>
+            onChange(
+              "responsibilities",
+              data.responsibilities.filter((r) => r !== v),
+            )
+          }
           placeholder="e.g. Build reusable components — press Enter"
         />
       </div>
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Benefits (optional)</label>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Benefits (optional)
+        </label>
         <TagInput
           tags={data.benefits}
-          onAdd={v => onChange("benefits", [...data.benefits, v])}
-          onRemove={v => onChange("benefits", data.benefits.filter(b => b !== v))}
+          onAdd={(v) => onChange("benefits", [...data.benefits, v])}
+          onRemove={(v) =>
+            onChange(
+              "benefits",
+              data.benefits.filter((b) => b !== v),
+            )
+          }
           placeholder="e.g. Health insurance, Remote-first..."
         />
       </div>
@@ -570,31 +866,50 @@ function StepRequirements({ data, onChange }) {
     <div className="space-y-5">
       <div>
         <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-          <Tag className="inline w-3 h-3 mr-1" />Skills & technologies *
+          <Tag className="inline w-3 h-3 mr-1" />
+          Skills & technologies *
         </label>
-        <p className="text-[11px] text-slate-400 font-medium mb-3">Press Enter or comma after each skill</p>
+        <p className="text-[11px] text-slate-400 font-medium mb-3">
+          Press Enter or comma after each skill
+        </p>
         <TagInput
           tags={data.skills}
-          onAdd={v => onChange("skills", [...data.skills, v])}
-          onRemove={v => onChange("skills", data.skills.filter(s => s !== v))}
+          onAdd={(v) => onChange("skills", [...data.skills, v])}
+          onRemove={(v) =>
+            onChange(
+              "skills",
+              data.skills.filter((s) => s !== v),
+            )
+          }
           placeholder="e.g. React, Node.js, Figma..."
         />
       </div>
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Education (optional)</label>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Education (optional)
+        </label>
         <input
           value={data.education}
-          onChange={e => onChange("education", e.target.value)}
+          onChange={(e) => onChange("education", e.target.value)}
           placeholder="e.g. BSc Computer Science or equivalent experience"
           className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
         />
       </div>
       <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Other requirements (optional)</label>
+        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+          Other requirements (optional)
+        </label>
         <TagInput
           tags={data.other_requirements}
-          onAdd={v => onChange("other_requirements", [...data.other_requirements, v])}
-          onRemove={v => onChange("other_requirements", data.other_requirements.filter(r => r !== v))}
+          onAdd={(v) =>
+            onChange("other_requirements", [...data.other_requirements, v])
+          }
+          onRemove={(v) =>
+            onChange(
+              "other_requirements",
+              data.other_requirements.filter((r) => r !== v),
+            )
+          }
           placeholder="e.g. Portfolio required, Available for travel..."
         />
       </div>
@@ -606,20 +921,32 @@ function StepRequirements({ data, onChange }) {
 function StepReview({ data, onPublish, onDraft, saving }) {
   const Pill = ({ text, color = "blue" }: { text: string; color?: string }) => {
     const styles: Record<string, string> = {
-      blue:    "bg-blue-500/5 text-slate-900 border border-blue-500/10 shadow-sm",
-      emerald: "bg-emerald-500/5 text-slate-900 border border-emerald-500/10 shadow-sm",
-      slate:   "bg-slate-500/5 text-slate-900 border border-slate-500/10 shadow-sm",
+      blue: "bg-blue-500/5 text-slate-900 border border-blue-500/10 shadow-sm",
+      emerald:
+        "bg-emerald-500/5 text-slate-900 border border-emerald-500/10 shadow-sm",
+      slate:
+        "bg-slate-500/5 text-slate-900 border border-slate-500/10 shadow-sm",
     };
     return (
-      <span className={`inline-flex text-[10px] font-black tracking-wider px-2.5 py-1 rounded-lg ${styles[color] ?? styles.blue}`}>
+      <span
+        className={`inline-flex text-[10px] font-black tracking-wider px-2.5 py-1 rounded-lg ${styles[color] ?? styles.blue}`}
+      >
         {text}
       </span>
     );
   };
 
-  const Section = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  const Section = ({
+    label,
+    children,
+  }: {
+    label: string;
+    children: React.ReactNode;
+  }) => (
     <div className="mb-5">
-      <p className="text-[10px] font-black tracking-widest text-slate-500 mb-2">{label}</p>
+      <p className="text-[10px] font-black tracking-widest text-slate-500 mb-2">
+        {label}
+      </p>
       {children}
     </div>
   );
@@ -629,8 +956,12 @@ function StepReview({ data, onPublish, onDraft, saving }) {
       <div className="p-4 rounded-2xl bg-slate-500/5 border border-[var(--border-color)] mb-6">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
           <div>
-            <h3 className="text-base font-black tracking-tight dark:text-white">{data.title || "—"}</h3>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">{data.department || "No department"}</p>
+            <h3 className="text-base font-black tracking-tight dark:text-white">
+              {data.title || "—"}
+            </h3>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+              {data.department || "No department"}
+            </p>
           </div>
           <div className="flex flex-wrap gap-1.5">
             <Pill text={data.type} />
@@ -639,29 +970,47 @@ function StepReview({ data, onPublish, onDraft, saving }) {
           </div>
         </div>
         {data.description && (
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">{data.description}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-3">
+            {data.description}
+          </p>
         )}
       </div>
 
       <Section label="Responsibilities">
-        {data.responsibilities.length > 0
-          ? <div className="flex flex-wrap gap-2">{data.responsibilities.map(r => <Pill key={r} text={r} />)}</div>
-          : <p className="text-sm text-slate-400 font-medium">None added</p>}
+        {data.responsibilities.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {data.responsibilities.map((r) => (
+              <Pill key={r} text={r} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400 font-medium">None added</p>
+        )}
       </Section>
 
       <div className="h-px bg-[var(--border-color)] my-4" />
 
       <Section label="Skills & requirements">
-        {data.skills.length > 0
-          ? <div className="flex flex-wrap gap-2">{data.skills.map(s => <Pill key={s} text={s} />)}</div>
-          : <p className="text-sm text-slate-400 font-medium">None added</p>}
+        {data.skills.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {data.skills.map((s) => (
+              <Pill key={s} text={s} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400 font-medium">None added</p>
+        )}
       </Section>
 
       {data.benefits.length > 0 && (
         <>
           <div className="h-px bg-[var(--border-color)] my-4" />
           <Section label="Benefits">
-            <div className="flex flex-wrap gap-2">{data.benefits.map(b => <Pill key={b} text={b} color="emerald" />)}</div>
+            <div className="flex flex-wrap gap-2">
+              {data.benefits.map((b) => (
+                <Pill key={b} text={b} color="emerald" />
+              ))}
+            </div>
           </Section>
         </>
       )}
@@ -674,7 +1023,11 @@ function StepReview({ data, onPublish, onDraft, saving }) {
           disabled={saving}
           className="py-4 rounded-xl border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-500/5 transition-all flex items-center justify-center gap-2 disabled:opacity-40"
         >
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+          {saving ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <FileText className="w-3.5 h-3.5" />
+          )}
           Save as draft
         </button>
         <button
@@ -682,7 +1035,15 @@ function StepReview({ data, onPublish, onDraft, saving }) {
           disabled={saving}
           className="py-4 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-40"
         >
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <img src="/flowboardlogo.png" alt="" className="w-4 h-4 invert brightness-0" />}
+          {saving ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <img
+              src="/flowboardlogo.png"
+              alt=""
+              className="w-4 h-4 invert brightness-0"
+            />
+          )}
           Publish role
         </button>
       </div>
@@ -692,168 +1053,244 @@ function StepReview({ data, onPublish, onDraft, saving }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CreateRolePage() {
-  const navigate       = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const editId         = searchParams.get("edit");
+  const editId = searchParams.get("edit");
   const { activeGroup } = useGroups();
 
-  const [mode, setMode]         = useState<null | "manual" | "ai">("manual");
-  const [step, setStep]         = useState(1);
-  const [form, setForm]         = useState(DEFAULT_FORM);
-  const [saving, setSaving]     = useState(false);
+  const [mode, setMode] = useState<null | "manual" | "ai">("manual");
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState(DEFAULT_FORM);
+  const [saving, setSaving] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(!!editId);
+
+  // Salary range builder states
+  const [salaryCurrency, setSalaryCurrency] = useState("$");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+  const [salaryPeriod, setSalaryPeriod] = useState("/ year");
+
+  // Helper to parse salary text e.g. "$80,000 – $120,000 / year"
+  const parseSalary = (salaryStr: string) => {
+    if (!salaryStr) return;
+    try {
+      let period = "/ year";
+      if (salaryStr.toLowerCase().includes("hour")) period = "/ hour";
+      else if (salaryStr.toLowerCase().includes("month")) period = "/ month";
+      setSalaryPeriod(period);
+
+      let currency = "$";
+      if (salaryStr.includes("€")) currency = "€";
+      else if (salaryStr.includes("£")) currency = "£";
+      else if (salaryStr.includes("CA$")) currency = "CA$";
+      setSalaryCurrency(currency);
+
+      const cleaned = salaryStr
+        .replace(currency, "")
+        .replace("/ year", "")
+        .replace("/ hour", "")
+        .replace("/ month", "")
+        .replace(/,/g, "")
+        .trim();
+
+      const convertShorthand = (str: string) => {
+        let numStr = str.toLowerCase().trim();
+        if (numStr.endsWith("k")) {
+          const num = parseFloat(numStr.slice(0, -1));
+          return isNaN(num) ? "" : (num * 1000).toLocaleString("en-US");
+        }
+        const num = parseFloat(numStr);
+        return isNaN(num) ? "" : num.toLocaleString("en-US");
+      };
+
+      const parts = cleaned.split(/–|-|to/);
+      if (parts.length >= 2) {
+        setSalaryMin(convertShorthand(parts[0]));
+        setSalaryMax(convertShorthand(parts[1]));
+      } else if (parts.length === 1) {
+        setSalaryMin(convertShorthand(parts[0]));
+        setSalaryMax("");
+      }
+    } catch (err) {
+      console.warn("Error parsing salary string:", err);
+    }
+  };
 
   // ── Load existing role when editing ──────────────────────────────────────
   useEffect(() => {
     if (!editId) return;
     (async () => {
       setLoadingEdit(true);
-      const { data } = await supabase.from("roles").select("*").eq("id", editId).single();
-      if (data) {
-        setForm({
-          title:              data.title              ?? "",
-          department:         data.department         ?? "",
-          type:               data.type               ?? "Full-time",
-          location:           data.location           ?? "Remote",
-          salary:             data.salary             ?? "",
-          experience_level:   data.experience_level   ?? "",
-          description:        data.description        ?? "",
-          responsibilities:   data.responsibilities   ?? [],
-          skills:             data.skills             ?? [],
-          benefits:           data.benefits           ?? [],
-          education:          data.education          ?? "",
-          other_requirements: data.other_requirements ?? [],
-        });
-        setMode("manual");
-      } else {
-        const groupId = activeGroup?.id || "default-group";
-        const localKey = `flowboard_roles_${groupId}`;
-        const localRoles = localStorage.getItem(localKey);
-        if (localRoles) {
-          const parsed = JSON.parse(localRoles);
-          const found = parsed.find((r: any) => r.id === editId);
-          if (found) {
-            setForm({
-              title:              found.title              ?? "",
-              department:         found.department         ?? "",
-              type:               found.type               ?? "Full-time",
-              location:           found.location           ?? "Remote",
-              salary:             found.salary             ?? "",
-              experience_level:   found.experience_level   ?? "",
-              description:        found.description        ?? "",
-              responsibilities:   found.responsibilities   ?? [],
-              skills:             found.skills             ?? [],
-              benefits:           found.benefits           ?? [],
-              education:          found.education          ?? "",
-              other_requirements: found.other_requirements ?? [],
-            });
-            setMode("manual");
+      try {
+        const { data, error } = await supabase
+          .from("roles")
+          .select("*")
+          .eq("id", editId)
+          .single();
+        if (data) {
+          setForm({
+            title: data.title ?? "",
+            department: data.department ?? "",
+            type: data.type ?? "Full-time",
+            location: data.location ?? "Remote",
+            location_details: data.location_details ?? "",
+            salary: data.salary ?? "",
+            experience_level: data.experience_level ?? "",
+            description: data.description ?? "",
+            responsibilities: data.responsibilities ?? [],
+            skills: data.skills ?? [],
+            benefits: data.benefits ?? [],
+            education: data.education ?? "",
+            other_requirements: data.other_requirements ?? [],
+          });
+          if (data.salary) {
+            parseSalary(data.salary);
           }
+          setMode("manual");
         }
+      } catch (err) {
+        console.error("Load role from DB error:", err);
       }
       setLoadingEdit(false);
     })();
   }, [editId]);
 
   const updateField = (key: string, value: any) =>
-    setForm(prev => ({ ...prev, [key]: value }));
+    setForm((prev) => ({ ...prev, [key]: value }));
 
-  // ── Save to Local ──────────────────────────────────────────────────────
+  // ── Save to Supabase DB ──────────────────────────────────────────────────
   const handleSave = async (status: string) => {
     setSaving(true);
     try {
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_roles_${groupId}`;
-      const existingLocal = localStorage.getItem(localKey);
-      const localRoles = existingLocal ? JSON.parse(existingLocal) : [];
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user found");
 
-      let finalRoleId = editId || crypto.randomUUID();
+      if (!activeGroup) {
+        throw new Error("Please select an active group/organization first");
+      }
+
+      let formattedSalary = "";
+      if (salaryMin.trim() || salaryMax.trim()) {
+        formattedSalary = `${salaryCurrency}${salaryMin.trim()}${salaryMax.trim() ? ` – ${salaryCurrency}${salaryMax.trim()}` : ""} ${salaryPeriod}`;
+      }
+
+      const roleData = {
+        organization_id: activeGroup.organization_id || user.id, // Auth creator's ID
+        group_id: activeGroup.id, // Current group scope
+        title: form.title.trim(),
+        department: form.department.trim(),
+        type: form.type,
+        location: form.location,
+        location_details: form.location_details.trim(),
+        salary: formattedSalary,
+        experience_level: form.experience_level,
+        description: form.description.trim(),
+        responsibilities: form.responsibilities,
+        skills: form.skills,
+        benefits: form.benefits,
+        education: form.education.trim(),
+        other_requirements: form.other_requirements,
+        status: status,
+        updated_at: new Date().toISOString(),
+      };
 
       if (editId) {
-        const updated = localRoles.map((r: any) => 
-          r.id === editId ? { 
-            ...r, 
-            ...form, 
-            status, 
-            organization_name: activeGroup?.name || "Organization", 
-            organization_avatar: activeGroup?.avatar_url || null 
-          } : r
+        const { error } = await supabase
+          .from("roles")
+          .update(roleData)
+          .eq("id", editId);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("roles").insert({
+          ...roleData,
+          id: crypto.randomUUID(),
+          applicants_count: 0,
+          created_at: new Date().toISOString(),
+        });
+
+        if (error) throw error;
+      }
+
+      // Sync to localStorage as a fallback local cache for immediate display
+      const localKey = `flowboard_roles_${activeGroup.id}`;
+      const existingLocal = localStorage.getItem(localKey);
+      const localRoles = existingLocal ? JSON.parse(existingLocal) : [];
+      let finalRoleId = editId || crypto.randomUUID();
+
+      const localRoleData = {
+        ...form,
+        id: finalRoleId,
+        salary: formattedSalary,
+        location_details: form.location_details.trim(),
+        status,
+        applicants_count: 0,
+        created_at: new Date().toISOString(),
+        organization_name: activeGroup.name || "Organization",
+        organization_avatar: activeGroup.avatar_url || null,
+      };
+
+      if (editId) {
+        const updated = localRoles.map((r: any) =>
+          r.id === editId ? { ...r, ...localRoleData } : r,
         );
         localStorage.setItem(localKey, JSON.stringify(updated));
       } else {
-        const newRole = {
-          ...form,
-          id: finalRoleId,
-          status,
-          applicants_count: 0,
-          created_at: new Date().toISOString(),
-          organization_name: activeGroup?.name || "Organization",
-          organization_avatar: activeGroup?.avatar_url || null,
-        };
-        localRoles.push(newRole);
+        localRoles.push(localRoleData);
         localStorage.setItem(localKey, JSON.stringify(localRoles));
       }
 
-      // ── Sync to Supabase public jobs list ──────────────────────────────────
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase.from("profiles").select("system_prefs").eq("id", user.id).single();
-          const existingJobs = profile?.system_prefs?.public_jobs || [];
-          
-          let updatedJobs = [];
-          if (editId) {
-            updatedJobs = existingJobs.map((j: any) => 
-              j.id === editId ? { 
-                ...j, 
-                ...form, 
-                status, 
-                organization_name: activeGroup?.name || "Organization", 
-                organization_avatar: activeGroup?.avatar_url || null 
-              } : j
-            );
-          } else {
-            const newJob = {
-              ...form,
-              id: finalRoleId,
-              status,
-              applicants_count: 0,
-              created_at: new Date().toISOString(),
-              organization_name: activeGroup?.name || "Organization",
-              organization_avatar: activeGroup?.avatar_url || null,
-            };
-            updatedJobs = [...existingJobs, newJob];
-          }
-          
-          await supabase.from("profiles").update({
-            system_prefs: {
-              ...(profile?.system_prefs || {}),
-              public_jobs: updatedJobs
-            }
-          }).eq("id", user.id);
-        }
-      } catch (dbErr) {
-        console.warn("Public jobs sync error:", dbErr);
-      }
-
       navigate("/client/roles");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Save role error:", err);
     } finally {
       setSaving(false);
     }
   };
 
-
   const canProceed = () => {
-    if (step === 1) return form.title.trim().length > 0;
-    if (step === 2) return form.description.trim().length > 0;
+    const hasHtmlTags = (str: string) => /<[^>]*>/g.test(str);
+
+    if (step === 1) {
+      const isTitleValid =
+        form.title.trim().length >= 3 && !hasHtmlTags(form.title);
+      const isDeptValid = form.department.trim().length > 0;
+      const isExpValid = form.experience_level.trim().length > 0;
+
+      let isSalaryValid = true;
+      if (salaryMin.trim() || salaryMax.trim()) {
+        const minVal = parseFloat(salaryMin.replace(/,/g, "").trim());
+        const maxVal = parseFloat(salaryMax.replace(/,/g, "").trim());
+
+        if (isNaN(minVal) || minVal < 0) isSalaryValid = false;
+        if (salaryMax.trim() && (isNaN(maxVal) || maxVal < minVal))
+          isSalaryValid = false;
+      }
+
+      return isTitleValid && isDeptValid && isExpValid && isSalaryValid;
+    }
+
+    if (step === 2) {
+      const isDescValid =
+        form.description.trim().length >= 20 && !hasHtmlTags(form.description);
+      return isDescValid;
+    }
+
+    if (step === 3) {
+      return form.skills.length >= 1;
+    }
+
     return true;
   };
 
   // When Haraka01 generates a role, pre-fill the form and drop into manual review
   const handleAIGenerated = (generated: any) => {
-    setForm(prev => ({ ...prev, ...generated }));
+    setForm((prev) => ({ ...prev, ...generated }));
+    if (generated.salary) {
+      parseSalary(generated.salary);
+    }
     setMode("manual");
     setStep(1);
   };
@@ -864,7 +1301,9 @@ export default function CreateRolePage() {
       <div className="max-w-2xl mx-auto pb-20 flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading role...</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            Loading role...
+          </p>
         </div>
       </div>
     );
@@ -887,12 +1326,15 @@ export default function CreateRolePage() {
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
             Create a role.
           </h1>
-          <p className="text-sm font-medium text-slate-500">Choose how you'd like to define this job role</p>
+          <p className="text-sm font-medium text-slate-500">
+            Choose how you'd like to define this job role
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <motion.button
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setMode("manual")}
             className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group"
           >
@@ -900,8 +1342,12 @@ export default function CreateRolePage() {
               <FileText className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
             </div>
             <div>
-              <p className="text-lg font-black dark:text-white tracking-tight mb-1">Manual</p>
-              <p className="text-sm font-medium text-slate-500 leading-relaxed">Fill in all the role details yourself step by step</p>
+              <p className="text-lg font-black dark:text-white tracking-tight mb-1">
+                Manual
+              </p>
+              <p className="text-sm font-medium text-slate-500 leading-relaxed">
+                Fill in all the role details yourself step by step
+              </p>
             </div>
             <div className="flex items-center gap-1 text-[11px] font-black text-slate-500 tracking-widest group-hover:text-blue-600 transition-colors mt-auto">
               START
@@ -909,7 +1355,8 @@ export default function CreateRolePage() {
           </motion.button>
 
           <motion.button
-            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setMode("ai")}
             className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group relative overflow-hidden"
           >
@@ -919,11 +1366,21 @@ export default function CreateRolePage() {
               </span>
             </div>
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
-              <img src="/flowboardlogo.png" alt="Haraka01" className="w-8 h-8 object-contain" />
+              <img
+                src="/flowboardlogo.png"
+                alt="Haraka01"
+                className="w-8 h-8 object-contain"
+              />
             </div>
             <div>
-              <p className="text-lg font-black dark:text-white tracking-tight mb-1">Haraka01</p>
-              <p className="text-sm font-medium text-slate-500 leading-relaxed">Describe the role in plain English — Haraka01 will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.</p>
+              <p className="text-lg font-black dark:text-white tracking-tight mb-1">
+                Haraka01
+              </p>
+              <p className="text-sm font-medium text-slate-500 leading-relaxed">
+                Describe the role in plain English — Haraka01 will generate a
+                complete job description, responsibilities, skills, and benefits
+                for you to review and refine.
+              </p>
             </div>
             <div className="flex items-center gap-1 text-[11px] font-black text-blue-600 tracking-widest mt-auto">
               GENERATE
@@ -946,13 +1403,20 @@ export default function CreateRolePage() {
         </button>
         <div className="space-y-2 mb-8">
           <div className="flex items-center gap-2 text-blue-600 text-[12px] font-bold tracking-widest">
-            <img src="/flowboardlogo.png" alt="" className="w-5 h-5 object-contain" /> Haraka01
+            <img
+              src="/flowboardlogo.png"
+              alt=""
+              className="w-5 h-5 object-contain"
+            />{" "}
+            Haraka01
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
             Generate a role.
           </h1>
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-            Describe the role in plain English — Haraka01 will generate a complete job description, responsibilities, skills, and benefits for you to review and refine.
+            Describe the role in plain English — Haraka01 will generate a
+            complete job description, responsibilities, skills, and benefits for
+            you to review and refine.
           </p>
         </div>
         <div className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm">
@@ -967,7 +1431,7 @@ export default function CreateRolePage() {
     <div className="max-w-2xl mx-auto pb-20 px-4 sm:px-0">
       <div className="flex items-center justify-between mb-8 sm:mb-10">
         <button
-          onClick={() => step > 1 ? setStep(step - 1) : setMode(null)}
+          onClick={() => (step > 1 ? setStep(step - 1) : setMode(null))}
           className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back
@@ -1007,10 +1471,34 @@ export default function CreateRolePage() {
             exit={{ opacity: 0, x: -16 }}
             transition={{ duration: 0.18 }}
           >
-            {step === 1 && <StepBasics data={form} onChange={updateField} />}
-            {step === 2 && <StepDescription data={form} onChange={updateField} />}
-            {step === 3 && <StepRequirements data={form} onChange={updateField} />}
-            {step === 4 && <StepReview data={form} saving={saving} onPublish={() => handleSave("open")} onDraft={() => handleSave("draft")} />}
+            {step === 1 && (
+              <StepBasics
+                data={form}
+                onChange={updateField}
+                salaryCurrency={salaryCurrency}
+                setSalaryCurrency={setSalaryCurrency}
+                salaryMin={salaryMin}
+                setSalaryMin={setSalaryMin}
+                salaryMax={salaryMax}
+                setSalaryMax={setSalaryMax}
+                salaryPeriod={salaryPeriod}
+                setSalaryPeriod={setSalaryPeriod}
+              />
+            )}
+            {step === 2 && (
+              <StepDescription data={form} onChange={updateField} />
+            )}
+            {step === 3 && (
+              <StepRequirements data={form} onChange={updateField} />
+            )}
+            {step === 4 && (
+              <StepReview
+                data={form}
+                saving={saving}
+                onPublish={() => handleSave("open")}
+                onDraft={() => handleSave("draft")}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
 

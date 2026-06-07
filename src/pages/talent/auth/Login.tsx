@@ -36,13 +36,12 @@ export default function Login() {
     type: "success",
     title: "",
   });
-  // Inside Login.tsx
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const emailParam = params.get("email");
     if (emailParam) {
       setEmail(emailParam);
-      // Optionally focus the password field automatically
       document.getElementById("password")?.focus();
     }
   }, []);
@@ -51,7 +50,7 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
@@ -64,7 +63,7 @@ export default function Login() {
         description: error.message,
       });
       setIsLoading(false);
-    } else {
+    } else if (data.session) {
       setNotification({
         open: true,
         type: "success",
@@ -72,22 +71,21 @@ export default function Login() {
         description: "Redirecting to your talent dashboard...",
       });
 
-      // Navigate to destination after brief delay
-      const params = new URLSearchParams(window.location.search);
-      const redirect = params.get("redirect");
-      navigate(redirect || "/talent/dashboard");
+      setTimeout(() => navigate("/talent/dashboard", { replace: true }), 1000);
     }
   };
 
   const handleSocialLogin = async (provider: "google" | "github") => {
     localStorage.setItem("intended_role", "talent");
     const params = new URLSearchParams(window.location.search);
-    const redirect = params.get("redirect");
+    const redirect = params.get("redirect") || "/talent/dashboard";
+
+    const callbackRedirectUrl = `${window.location.origin}/login/callback?redirect=${encodeURIComponent(redirect)}`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}${redirect || "/talent/dashboard"}`,
+        redirectTo: callbackRedirectUrl,
         queryParams: {
           access_type: "offline",
           prompt: "select_account",
@@ -122,7 +120,7 @@ export default function Login() {
           </div>
 
           <div className="relative z-10">
-            <Link to="/" className="flex items-center gap-2 mb-20 group">
+            <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
               <img
                 src="/flowboardlogo.png"
                 alt="Logo"
@@ -131,7 +129,7 @@ export default function Login() {
               <span className="text-2xl font-black tracking-tighter">
                 Flowboard
               </span>
-            </Link>
+            </a>
           </div>
 
           <div className="relative z-10 flex-1 flex flex-col justify-center">

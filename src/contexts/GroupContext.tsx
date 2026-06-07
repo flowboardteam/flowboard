@@ -15,6 +15,9 @@ export interface Group {
   created_at?: string;
   updated_at?: string;
   user_role?: "owner" | "admin" | "member" | "viewer";
+  is_pending_invite?: boolean;
+  invite_token?: string;
+  invite_id?: string;
   user_permissions?: {
     can_edit: boolean;
     can_invite: boolean;
@@ -26,13 +29,16 @@ interface GroupContextType {
   activeGroup: Group | null;
   groups: Group[];
   loading: boolean;
+  organizationId: string | null; // Add this line
   setActiveGroup: (group: Group) => void;
   refreshGroups: () => Promise<void>;
   createGroup: (name: string, settingsType?: "manual" | "replicate", replicateFromId?: string) => Promise<Group | null>;
   setPrimaryGroup: (groupId: string) => Promise<void>;
   updateGroup: (groupId: string, updates: Partial<Group>) => Promise<void>;
-inviteAdminToGroup: (groupId: string, email: string) => Promise<{ success: boolean; error?: string; inviteLink?: string }>;
+  inviteAdminToGroup: (groupId: string, email: string) => Promise<{ success: boolean; error?: string; inviteLink?: string }>;
   deleteGroup: (groupId: string) => Promise<{ success: boolean; error?: string }>;
+  acceptPendingInvite: (groupId: string, token: string) => Promise<boolean>;
+  declinePendingInvite: (token: string) => Promise<boolean>;
 }
 
 const GroupContext = createContext<GroupContextType | undefined>(undefined);
@@ -41,6 +47,7 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [activeGroup, setActiveGroupState] = useState<Group | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+   const [organizationId, setOrganizationId] = useState<string | null>(null);
 
   const deleteGroup = async (groupId: string): Promise<{ success: boolean; error?: string }> => {
   try {
@@ -90,15 +97,19 @@ export const GroupProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 };
 
 const refreshGroups = async () => {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) {
-      setGroups([]);
-      setActiveGroupState(null);
-      setLoading(false);
-      return;
-    }
+      if (!user) {
+        setGroups([]);
+        setActiveGroupState(null);
+        setOrganizationId(null); // Clear organizationId
+        setLoading(false);
+        return;
+      }
+
+      // Set organizationId from user
+      setOrganizationId(user.id);
 
     // Get groups where user is a member from group_members
     let { data: memberGroups, error: memberError } = await supabase
@@ -139,6 +150,34 @@ const refreshGroups = async () => {
       ownedGroups = [];
     }
 
+    // Also get groups where user has a pending invitation
+    let { data: pendingInvites, error: inviteFetchError } = await supabase
+      .from("group_invitations")
+      .select(`
+        id,
+        token,
+        group:groups (
+          id,
+          name,
+          organization_id,
+          avatar_url,
+          status,
+          bio,
+          is_primary,
+          is_locked,
+          admin_count,
+          contract_count,
+          created_at,
+          updated_at
+        )
+      `)
+      .eq("email", user.email?.toLowerCase().trim())
+      .eq("status", "pending");
+
+    if (inviteFetchError) {
+      console.error("Error fetching pending invites:", inviteFetchError);
+    }
+
     // Merge and deduplicate groups
     const allGroups: Group[] = [];
     const groupIds = new Set();
@@ -163,6 +202,48 @@ const refreshGroups = async () => {
         allGroups.push({
           ...groupData,
           user_role: member.role || "admin"
+        });
+      }
+    }
+
+    // Add pending invites to allGroups
+    for (const invite of pendingInvites || []) {
+      const groupData = Array.isArray(invite.group) ? invite.group[0] : invite.group;
+      if (groupData && !groupIds.has(groupData.id)) {
+        groupIds.add(groupData.id);
+        allGroups.push({
+          ...groupData,
+          user_role: "viewer", // limited access
+          is_pending_invite: true,
+          invite_token: invite.token,
+          invite_id: invite.id,
+        });
+      }
+    }
+
+    // If no groups are found, auto-create a default primary "My Workplace" group as a robust fallback/failsafe
+    if (allGroups.length === 0) {
+      console.log("No groups found. Provisioning default 'My Workplace' organization...");
+      const { data: defaultGroup, error: createError } = await supabase
+        .from("groups")
+        .insert({
+          name: "My Workplace",
+          organization_id: user.id,
+          status: "active",
+          is_primary: true,
+          admin_count: 1,
+          contract_count: 0,
+        })
+        .select()
+        .single();
+
+      if (createError) {
+        console.error("Failed to auto-create default 'My Workplace' organization:", createError.message);
+      } else if (defaultGroup) {
+        console.log("Auto-created default 'My Workplace' organization!");
+        allGroups.push({
+          ...defaultGroup,
+          user_role: "owner"
         });
       }
     }
@@ -357,6 +438,26 @@ const inviteAdminToGroup = async (groupId: string, email: string): Promise<{ suc
     
     console.log("Invitation created:", invitation);
 
+    // Increment the admin_count in the groups table to immediately reflect the invitation!
+    try {
+      const { data: currentGroup } = await supabase
+        .from("groups")
+        .select("admin_count")
+        .eq("id", groupId)
+        .single();
+
+      const newAdminCount = (currentGroup?.admin_count ?? 1) + 1;
+
+      await supabase
+        .from("groups")
+        .update({ admin_count: newAdminCount })
+        .eq("id", groupId);
+        
+      console.log("Successfully incremented group admin_count on invitation to:", newAdminCount);
+    } catch (adminErr) {
+      console.error("Failed to increment admin_count:", adminErr);
+    }
+
     const inviteLink = `${window.location.origin}/invite/${token}`;
     console.log("Invite link:", inviteLink);
     
@@ -366,6 +467,85 @@ const inviteAdminToGroup = async (groupId: string, email: string): Promise<{ suc
     return { success: false, error: error.message };
   }
 };
+
+  const acceptPendingInvite = async (groupId: string, token: string): Promise<boolean> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      // 1. Fetch the invitation to get invited_by
+      const { data: invite } = await supabase
+        .from("group_invitations")
+        .select("invited_by")
+        .eq("token", token)
+        .maybeSingle();
+
+      // 2. Add to group_members
+      const { error: memberError } = await supabase
+        .from("group_members")
+        .insert({
+          group_id: groupId,
+          user_id: user.id,
+          role: "admin",
+          invited_by: invite?.invited_by || null,
+          joined_at: new Date().toISOString()
+        });
+
+      if (memberError) throw memberError;
+
+      // 3. Update invitation status to accepted
+      await supabase
+        .from("group_invitations")
+        .update({ status: "accepted" })
+        .eq("token", token);
+
+      // 4. Mark onboarding complete as a client
+      await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", user.id);
+
+      // 5. Save the active group in localStorage and reload
+      localStorage.setItem("activeGroupId", groupId);
+      
+      // Clean up local storage invite token if matched
+      if (localStorage.getItem("pendingInviteToken") === token) {
+        localStorage.removeItem("pendingInviteToken");
+        localStorage.removeItem("pendingInviteEmail");
+        localStorage.removeItem("pendingInviteGroup");
+      }
+
+      window.location.href = "/client/dashboard";
+      return true;
+    } catch (err) {
+      console.error("Failed to accept pending invite:", err);
+      return false;
+    }
+  };
+
+  const declinePendingInvite = async (token: string): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from("group_invitations")
+        .update({ status: "expired" })
+        .eq("token", token);
+
+      if (error) throw error;
+      
+      // Clean up local storage invite token if matched
+      if (localStorage.getItem("pendingInviteToken") === token) {
+        localStorage.removeItem("pendingInviteToken");
+        localStorage.removeItem("pendingInviteEmail");
+        localStorage.removeItem("pendingInviteGroup");
+      }
+
+      await refreshGroups();
+      return true;
+    } catch (err) {
+      console.error("Failed to decline pending invite:", err);
+      return false;
+    }
+  };
 
   // Persist active group to localStorage whenever it changes
   useEffect(() => {
@@ -384,9 +564,11 @@ const inviteAdminToGroup = async (groupId: string, email: string): Promise<{ suc
         activeGroup,
         groups,
         loading,
+        organizationId, // Add this line
         setActiveGroup: (group: Group) => {
           setActiveGroupState(group);
           localStorage.setItem("activeGroupId", group.id);
+          window.location.reload();
         },
         refreshGroups,
         createGroup,
@@ -394,6 +576,8 @@ const inviteAdminToGroup = async (groupId: string, email: string): Promise<{ suc
         updateGroup,
         inviteAdminToGroup,
         deleteGroup,
+        acceptPendingInvite,
+        declinePendingInvite,
       }}
     >
       {children}

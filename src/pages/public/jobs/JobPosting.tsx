@@ -186,9 +186,9 @@ export default function JobPosting() {
         <p className="text-slate-500 max-w-md font-medium mb-8">
           The role you are looking for might have been filled, closed, or moved to a private workforce group.
         </p>
-        <Link to="/" className="px-8 py-4 bg-[#A079FF] text-white font-black text-xs uppercase tracking-widest rounded-md hover:bg-[#A079FF]/90 transition-all">
+        <a href="https://flowboard.team" className="px-8 py-4 bg-[#A079FF] text-white font-black text-xs uppercase tracking-widest rounded-md hover:bg-[#A079FF]/90 transition-all">
           Return Home
-        </Link>
+        </a>
       </div>
     );
   }

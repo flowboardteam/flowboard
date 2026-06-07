@@ -15,11 +15,14 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useGroups } from "@/contexts/GroupContext";
 import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export default function ClientDashboardIndex() {
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("all");
-  const { activeGroup } = useGroups();
+  const { activeGroup, acceptPendingInvite, declinePendingInvite } = useGroups();
+  const [isAccepting, setIsAccepting] = useState(false);
+  const [isDeclining, setIsDeclining] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -95,6 +98,58 @@ export default function ClientDashboardIndex() {
 
   return (
     <div className="space-y-10 pb-20">
+      {/* Pending invitation banner */}
+      {activeGroup?.is_pending_invite && (
+        <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl animate-fade-in">
+          <div className="flex items-center gap-4 text-left">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+              <Zap size={22} className="animate-pulse" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Organization Invitation</p>
+              <h3 className="text-lg font-black tracking-tight text-white">
+                You've been invited to join <span className="text-emerald-400 font-extrabold">{activeGroup.name}</span> as an Administrator.
+              </h3>
+              <p className="text-xs text-slate-400 mt-1 font-medium">
+                Accepting this invitation grants you access to their team, project pipelines, and workforce management.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
+            <button
+              disabled={isAccepting || isDeclining}
+              onClick={async () => {
+                setIsAccepting(true);
+                const success = await acceptPendingInvite(activeGroup.id, activeGroup.invite_token || "");
+                setIsAccepting(false);
+                if (!success) {
+                  alert("Failed to accept invitation. Please try again.");
+                }
+              }}
+              className="flex-1 md:flex-none px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-600/15 flex items-center justify-center gap-2"
+            >
+              {isAccepting ? <Loader2 size={14} className="animate-spin" /> : "Accept Invite"}
+            </button>
+            <button
+              disabled={isAccepting || isDeclining}
+              onClick={async () => {
+                if (confirm("Are you sure you want to decline this invitation?")) {
+                  setIsDeclining(true);
+                  const success = await declinePendingInvite(activeGroup.invite_token || "");
+                  setIsDeclining(false);
+                  if (!success) {
+                    alert("Failed to decline invitation.");
+                  }
+                }
+              }}
+              className="flex-1 md:flex-none px-6 py-3.5 bg-slate-800 hover:bg-slate-700 hover:text-rose-400 disabled:opacity-50 text-slate-300 font-black text-xs uppercase tracking-widest rounded-xl border border-slate-700 transition-all flex items-center justify-center"
+            >
+              {isDeclining ? <Loader2 size={14} className="animate-spin" /> : "Decline"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header Section */}
       <div className="space-y-6">
         <h1 className="text-4xl md:text-5xl font-black tracking-tight text-[#1A1C21]">

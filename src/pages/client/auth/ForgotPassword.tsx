@@ -48,10 +48,10 @@ export default function ForgotPassword() {
       <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
         <div className="relative z-10">
-          <Link to="/" className="flex items-center gap-2 mb-20 group">
+          <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
             <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
             <span className="text-2xl font-black tracking-tighter uppercase">FLOWBOARD</span>
-          </Link>
+          </a>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
               <ShieldCheck size={14} /> Secure Access Recovery

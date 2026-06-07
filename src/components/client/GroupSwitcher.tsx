@@ -65,10 +65,14 @@ export default function GroupSwitcher() {
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-6 h-6 rounded-md flex items-center justify-center border ${
+                  <div className={`w-6 h-6 rounded-md overflow-hidden flex items-center justify-center border ${
                     activeGroup.id === group.id ? "bg-[#A079FF]/10 border-[#A079FF]/20" : "bg-slate-100 border-slate-200"
                   }`}>
-                    <Building2 className={`w-3 h-3 ${activeGroup.id === group.id ? "text-[#A079FF]" : "text-slate-400"}`} />
+                    {group.avatar_url ? (
+                      <img src={group.avatar_url} alt={group.name} className="w-full h-full object-cover rounded-md" />
+                    ) : (
+                      <Building2 className={`w-3 h-3 ${activeGroup.id === group.id ? "text-[#A079FF]" : "text-slate-400"}`} />
+                    )}
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="truncate text-xs">{group.name}</span>

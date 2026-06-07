@@ -12,6 +12,7 @@ import { parseTalentPrompt, TalentSpec } from "@/lib/haraka/promptParser";
 import { GitHubProfile, mineGitHubTalent } from "@/lib/haraka/githubMiner";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import { useGroups } from "@/contexts/GroupContext";
 
 interface ScoredCandidate extends GitHubProfile {
   matchScore: number;
@@ -21,6 +22,7 @@ interface ScoredCandidate extends GitHubProfile {
 
 export default function HarakaAgent() {
   const location = useLocation();
+  const { activeGroup } = useGroups();
 
   // ── Read state passed from TalentSourcingPage ─────────────────────────────
   // navigate("/client/haraka", { state: { harakaPrompt, autoRun, sourceRole } })
@@ -84,9 +86,11 @@ export default function HarakaAgent() {
         if (error) throw error;
         toast({ title: "Removed from Shortlist", description: `${person.name || person.login} has been removed.` });
       } else {
+        const targetGroupId = (location.state as any)?.groupId || activeGroup?.id || "default-group";
         const { error } = await supabase.from("shortlisted_talent").upsert(
           {
             user_id: user.id, github_id: person.login,
+            group_id: targetGroupId,
             full_name: person.name || person.login, avatar_url: person.avatar_url,
             role_title: spec?.role_title || "Expert", match_score: person.matchScore,
             seniority_label: person.seniorityLabel, bio: person.bio || "",

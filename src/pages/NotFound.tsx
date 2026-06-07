@@ -60,9 +60,10 @@ const NotFound = () => {
             asChild
             className="w-full sm:w-auto px-8 py-7 bg-white text-slate-900 hover:bg-slate-200 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-xl"
           >
-            <Link to="/">
+            <a href="https://flowboard.team">
+
               <Home className="w-4 h-4 mr-2" /> Return to Base
-            </Link>
+            </a>
           </Button>
 
           <Button 

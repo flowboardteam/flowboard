@@ -7,7 +7,7 @@ import {
   ArrowLeft, Zap, Loader2, Users, X, MapPin, BriefcaseBusiness,
   CheckCircle2, Trash2, MoreHorizontal, RefreshCw, ListChecks,
   Send, DollarSign, Calendar, Clock, FileText, UserCheck,
-  ChevronDown, AlertCircle,
+  ChevronDown, AlertCircle, ExternalLink, Mail,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,7 +22,6 @@ const PIPELINE_STAGES = [
   { key: "rejected",     label: "Rejected",     color: "bg-red-400",     text: "text-red-500",     bg: "bg-red-500/10 border-red-500/20"       },
 ];
 const stageConfig = Object.fromEntries(PIPELINE_STAGES.map(s => [s.key, s]));
-
 
 // ─── Confirm Dialog ───────────────────────────────────────────────────────────
 function ConfirmDialog({title,message,confirmLabel="Delete",onConfirm,onCancel}:{
@@ -59,200 +58,385 @@ function scoreLabel(score: number) {
   return               { color: "text-slate-500",   bg: "bg-slate-500/10 border-slate-500/20"     };
 }
 
-// ─── Hire Offer Modal ─────────────────────────────────────────────────────────
-function HireOfferModal({ candidate, role, activeGroup, onClose, onConfirm, sending }) {
-  const [form, setForm] = useState({
-    role_title:      role?.title ?? "",
-    role_type:       "full_time",
-    salary_monthly:  "",
-    salary_currency: "USD",
-    start_date:      new Date().toISOString().split("T")[0],
-    contract_length: "Indefinite",
-    offer_message:   "",
-  });
+// ─── Hire Offer Modal (Replicated from TalentPublicProfile) ───────────────────
+function HireOfferModal({ candidate, role, activeGroup, onClose, onOfferSent }) {
+  const { toast } = useToast();
+  const [clientGroups, setClientGroups] = useState<any[]>([]);
+  const [clientRoles, setClientRoles]   = useState<any[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(activeGroup?.id || "");
+  const [selectedRoleId, setSelectedRoleId]   = useState<string>(role?.id || "new");
+  const [currentUser, setCurrentUser]         = useState<any>(null);
+  const [sending, setSending]                 = useState(false);
 
-  const update = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+  useEffect(() => {
+    const fetchModalData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-  const isValid = form.role_title.trim() && form.offer_message.trim();
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      setCurrentUser(profile);
+
+      const { data: ownedGroups } = await supabase.from("groups")
+        .select("*").eq("organization_id", user.id).eq("status", "active");
+
+      const { data: memberGroups } = await supabase.from("group_members")
+        .select(`group:groups!group_id (*)`).eq("user_id", user.id);
+
+      const allGroups: any[] = [];
+      const groupIds = new Set<string>();
+
+      if (ownedGroups) {
+        ownedGroups.forEach((g: any) => {
+          if (g.status === "active" && !groupIds.has(g.id)) {
+            groupIds.add(g.id);
+            allGroups.push(g);
+          }
+        });
+      }
+
+      if (memberGroups) {
+        memberGroups.forEach((mg: any) => {
+          const g = mg.group;
+          if (g && g.status === "active" && !groupIds.has(g.id)) {
+            groupIds.add(g.id);
+            allGroups.push(g);
+          }
+        });
+      }
+
+      setClientGroups(allGroups);
+      if (allGroups.length > 0 && !selectedGroupId) {
+        setSelectedGroupId(allGroups[0].id);
+      }
+
+      const { data: rolesData } = await supabase.from("roles")
+        .select("*").eq("status", "open");
+
+      if (rolesData) {
+        const userGroupIds = Array.from(groupIds);
+        const filteredRoles = rolesData.filter(r => userGroupIds.includes(r.group_id) || r.organization_id === user.id);
+        setClientRoles(filteredRoles);
+      }
+    };
+
+    fetchModalData();
+  }, [activeGroup?.id, role?.id]);
+
+  const handleHireSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    const formData = new FormData(e.currentTarget);
+    const message = formData.get("message") as string;
+
+    let finalRoleId = selectedRoleId;
+    let finalRoleTitle = "";
+    let finalRoleType = "";
+    let finalSalaryRaw = "";
+    let groupId = selectedGroupId || activeGroup?.id || "default-group";
+    let groupName = activeGroup?.name || "";
+
+    try {
+      setSending(true);
+
+      if (selectedRoleId === "new") {
+        const userGroup = clientGroups.find((g) => g.id === selectedGroupId);
+        if (!userGroup && !activeGroup) {
+          throw new Error("You must select an active organization group to create roles.");
+        }
+        const targetGroup = userGroup || activeGroup;
+        groupId = targetGroup.id;
+        groupName = targetGroup.name;
+
+        finalRoleTitle = formData.get("newRoleTitle") as string;
+        finalRoleType = formData.get("newRoleType") as string;
+        finalSalaryRaw = formData.get("newRoleSalary") as string;
+
+        const newRoleId = crypto.randomUUID();
+
+        const { data: newRole, error: roleError } = await supabase
+          .from("roles")
+          .insert({
+            id: newRoleId,
+            organization_id: targetGroup.organization_id || currentUser.id,
+            group_id: targetGroup.id,
+            title: finalRoleTitle,
+            type: finalRoleType,
+            salary: finalSalaryRaw,
+            status: "open",
+            department: "",
+            location: "Remote",
+            location_details: "",
+            experience_level: candidate.talent_level || "Mid-Level",
+            description: "Role automatically created from shortlist offer.",
+            responsibilities: [],
+            skills: candidate.talent_skills || [],
+            benefits: [],
+            education: "",
+            other_requirements: [],
+            applicants_count: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (roleError) throw roleError;
+        finalRoleId = newRole.id;
+      } else {
+        const existingRole = clientRoles.find((r) => r.id === selectedRoleId) || role;
+        if (existingRole) {
+          finalRoleTitle = existingRole.title;
+          finalRoleType = existingRole.type;
+          finalSalaryRaw = existingRole.salary;
+          groupId = existingRole.group_id;
+
+          const { data: gData } = await supabase.from("groups").select("name").eq("id", groupId).single();
+          if (gData) groupName = gData.name;
+        }
+      }
+
+      const numericSalary = finalSalaryRaw
+        ? parseFloat(finalSalaryRaw.replace(/,/g, "").replace(/[^0-9.]/g, ""))
+        : null;
+
+      const offerId = crypto.randomUUID();
+
+      let realTalentId = candidate.talent_id;
+      if (!realTalentId || realTalentId.length < 30 || realTalentId.includes("|")) {
+        const { data: pData } = await supabase.from("profiles").select("id").eq("full_name", candidate.talent_name).limit(1).single();
+        if (pData?.id) {
+          realTalentId = pData.id;
+        } else {
+          const { data: fallbackP } = await supabase.from("profiles").select("id").eq("role_type", "talent").limit(1).single();
+          if (fallbackP?.id) realTalentId = fallbackP.id;
+        }
+      }
+
+      const { error } = await supabase.from("hire_inquiries").insert({
+        id: offerId,
+        talent_id: realTalentId,
+        client_id: currentUser.id,
+        sender_name: groupName || currentUser.full_name,
+        sender_email: currentUser.email,
+        message: message + `\n\n[GROUP_ID:${groupId}]`,
+        offer_message: message + `\n\n[GROUP_ID:${groupId}]`,
+        role_id: finalRoleId !== "new" ? finalRoleId : null,
+        role_title: finalRoleTitle,
+        role_type: finalRoleType.toLowerCase().replace("-", "_"),
+        salary_monthly: numericSalary && !isNaN(numericSalary) ? numericSalary : null,
+        source: "role_shortlist",
+        shortlist_id: null, // Omit to prevent FK violation against role_shortlist table
+        status: "pending",
+      });
+
+      if (error) {
+        console.error("Supabase hire_inquiries insert failed:", error);
+        throw error;
+      }
+
+      await supabase.from("notifications").insert({
+        user_id: candidate.talent_id,
+        title: "New Job Offer! 🎉",
+        message: `${groupName || currentUser.full_name} has sent you a formal offer for ${finalRoleTitle}.\n\n[OFFER_DATA:${JSON.stringify({
+          id: offerId,
+          role_title: finalRoleTitle,
+          salary_monthly: numericSalary,
+          sender_name: groupName || currentUser.full_name,
+          status: "pending"
+        })}]`,
+        type: "hire_offer",
+      });
+
+      toast({
+        title: "Offer Sent! 🚀",
+        description: `We've delivered your offer to ${candidate.talent_name?.split(" ")[0]} regarding the ${finalRoleTitle} position.`,
+      });
+
+      onOfferSent(candidate.id, "contacted");
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        variant: "destructive",
+        title: "Transmission Error",
+        description: err.message || "We couldn't deliver your offer. Please try again.",
+      });
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      >
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          onClick={e => e.stopPropagation()}
-          className="w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl overflow-hidden"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-white rounded-[40px] w-full max-w-lg p-10 lg:p-14 shadow-2xl relative max-h-[90vh] overflow-y-auto"
         >
-          {/* Header */}
-          <div className="p-8 pb-0">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-slate-500/10 border border-[var(--border-color)] overflow-hidden flex items-center justify-center shrink-0">
-                  {candidate.talent_avatar
-                    ? <img src={candidate.talent_avatar} alt={candidate.talent_name} className="w-full h-full object-cover" />
-                    : <span className="text-sm font-black text-slate-400 uppercase">{candidate.talent_name?.charAt(0)}</span>
-                  }
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    {activeGroup?.avatar_url && (
-                      <img src={activeGroup.avatar_url} className="w-4 h-4 rounded-none object-cover border border-[var(--border-color)]" alt="Group" />
-                    )}
-                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-600">Send hire offer</p>
-                  </div>
-                  <h2 className="text-lg font-black dark:text-white tracking-tight">
-                    Hire {candidate.talent_name?.split(" ")[0]}
-                  </h2>
-                  <p className="text-xs font-medium text-slate-400 mt-0.5">{candidate.talent_role}</p>
-                </div>
-              </div>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Info banner */}
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 mb-6">
-              <AlertCircle className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-relaxed">
-                This will send a formal hire offer to {candidate.talent_name?.split(" ")[0]}. They will receive a notification and can accept or decline from their dashboard.
+          <button
+            onClick={onClose}
+            className="absolute top-8 right-8 text-slate-300 hover:text-[#1A1C21] transition-colors"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <h2 className="text-4xl font-black text-[#1A1C21] uppercase tracking-tighter leading-none">
+                Hire {candidate.talent_name?.split(" ")[0]}
+              </h2>
+              <p className="text-slate-500 font-bold">
+                Signal formal interest for your project. Discussion starts instantly.
               </p>
             </div>
-          </div>
 
-          {/* Form — scrollable */}
-          <div className="px-8 pb-0 space-y-4 max-h-[50vh] overflow-y-auto">
-            {/* Role title */}
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Role title *</label>
-              <input
-                value={form.role_title}
-                onChange={e => update("role_title", e.target.value)}
-                placeholder="e.g. Senior Frontend Engineer"
-                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
-              />
-            </div>
-
-            {/* Employment type */}
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Employment type *</label>
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { value: "full_time",  label: "Full-time"  },
-                  { value: "contract",   label: "Contract"   },
-                  { value: "part_time",  label: "Part-time"  },
-                ].map(t => (
-                  <button key={t.value} type="button" onClick={() => update("role_type", t.value)}
-                    className={`py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border ${
-                      form.role_type === t.value
-                        ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
-                        : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"
-                    }`}>
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Salary + Start date */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                  <DollarSign className="inline w-3 h-3 mr-0.5" />Monthly salary
-                </label>
-                <input
-                  value={form.salary_monthly}
-                  onChange={e => update("salary_monthly", e.target.value)}
-                  placeholder="e.g. 5000"
-                  type="number"
-                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                  <Calendar className="inline w-3 h-3 mr-0.5" />Start date
-                </label>
-                <input
-                  type="date"
-                  value={form.start_date}
-                  onChange={e => update("start_date", e.target.value)}
-                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
-                />
-              </div>
-            </div>
-
-            {/* Contract length (shown for contract/part-time) */}
-            {form.role_type !== "full_time" && (
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                  <Clock className="inline w-3 h-3 mr-0.5" />Contract length
-                </label>
-                <div className="relative">
+            <form onSubmit={handleHireSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    Organization / Workplace
+                  </label>
                   <select
-                    value={form.contract_length}
-                    onChange={e => update("contract_length", e.target.value)}
-                    className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all cursor-pointer"
+                    value={selectedGroupId}
+                    onChange={(e) => {
+                      setSelectedGroupId(e.target.value);
+                      setSelectedRoleId("new");
+                    }}
+                    className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl px-6 py-4 text-sm font-bold text-[#1A1C21] outline-none focus:border-emerald-500 transition-all cursor-pointer"
                   >
-                    {["1 month","3 months","6 months","1 year","2 years","Indefinite"].map(l => (
-                      <option key={l}>{l}</option>
+                    {clientGroups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+                </div>
+
+                {/* Removed local storage checks for existing offers/workforce */}
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    Target Role Offer (in selected workplace)
+                  </label>
+                  <select
+                    value={selectedRoleId}
+                    onChange={(e) => setSelectedRoleId(e.target.value)}
+                    className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl px-6 py-4 text-sm font-bold text-[#1A1C21] outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                  >
+                    <option value="new">+ Create New Role Offer</option>
+                    {clientRoles
+                      .filter((r) => r.group_id === selectedGroupId)
+                      .map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.title} ({r.type})
+                        </option>
+                      ))}
+                  </select>
                 </div>
               </div>
-            )}
 
-            {/* Offer message */}
-            <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                <FileText className="inline w-3 h-3 mr-0.5" />Offer message *
-              </label>
-              <textarea
-                value={form.offer_message}
-                onChange={e => update("offer_message", e.target.value)}
-                rows={4}
-                placeholder="Dear [Name], we are excited to offer you this position. Describe the role, team, expectations and why you want them..."
-                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl p-4 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all resize-none"
-              />
-            </div>
-          </div>
+              {selectedRoleId === "new" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 bg-slate-50/50 border border-[#EEEEF0] rounded-3xl">
+                  <div className="space-y-2 sm:col-span-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                      Role Title
+                    </label>
+                    <input
+                      type="text"
+                      name="newRoleTitle"
+                      required
+                      defaultValue={role?.title || ""}
+                      placeholder="e.g. Senior Frontend Engineer"
+                      className="w-full bg-white border border-[#EEEEF0] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                      Role Type
+                    </label>
+                    <select
+                      name="newRoleType"
+                      required
+                      defaultValue={role?.type || "Full-time"}
+                      className="w-full bg-white border border-[#EEEEF0] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500"
+                    >
+                      <option value="Full-time">Full-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Part-time">Part-time</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                      Monthly Salary
+                    </label>
+                    <input
+                      type="text"
+                      name="newRoleSalary"
+                      required
+                      defaultValue={role?.salary || candidate.talent_rate || ""}
+                      placeholder="e.g. $5,000"
+                      className="w-full bg-white border border-[#EEEEF0] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+              )}
 
-          {/* Footer actions */}
-          <div className="p-8 pt-5 flex gap-3">
-            <button onClick={onClose}
-              className="flex-1 py-3.5 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">
-              Cancel
-            </button>
-            <button
-              onClick={() => onConfirm(form)}
-              disabled={!isValid || sending}
-              className="flex-1 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {sending
-                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                : <Send className="w-3.5 h-3.5" />
-              }
-              Send offer
-            </button>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                  Offer & Mission Details
+                </label>
+                <textarea
+                  name="message"
+                  required
+                  rows={4}
+                  className="w-full bg-slate-50 border border-[#EEEEF0] rounded-3xl p-6 text-sm font-bold outline-none focus:border-emerald-500 focus:bg-white transition-all resize-none"
+                  placeholder={`Describe the position, team, expectations, and why you want ${candidate.talent_name?.split(" ")[0]}...`}
+                />
+              </div>
+
+              <div className="p-6 bg-emerald-50 rounded-3xl flex items-start gap-4">
+                <Mail className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
+                <p className="text-xs font-bold text-emerald-700 leading-relaxed">
+                  Your verified client identity will be shared with the talent to facilitate immediate communication.
+                </p>
+              </div>
+
+                <button
+                  disabled={sending}
+                  type="submit"
+                  className="w-full h-16 bg-[#1A1C21] hover:bg-black text-white rounded-[24px] font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98] disabled:opacity-50"
+                >
+                  {sending ? "Transmitting..." : "Send Formal Offer"}
+                </button>
+            </form>
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </AnimatePresence>
   );
 }
 
 // ─── Candidate Card ───────────────────────────────────────────────────────────
-function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
+function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
+  const { toast } = useToast();
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string|null>(null);
   const stage  = stageConfig[candidate.status] ?? stageConfig.shortlisted;
   const sLabel = scoreLabel(candidate.overall_score ?? 0);
+
+  const handleViewProfile = async () => {
+    try {
+      const { data, error } = await supabase.from("profiles").select("username").eq("id", candidate.talent_id).single();
+      if (data?.username) {
+        window.open(`/${data.username}`, "_blank");
+      } else {
+        window.open(`/@${candidate.talent_id}`, "_blank");
+      }
+    } catch (err) {
+      window.open(`/@${candidate.talent_id}`, "_blank");
+    }
+  };
 
   return (
     <motion.div
@@ -262,7 +446,6 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
       exit={{ opacity: 0, scale: 0.97 }}
       className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-4 hover:border-blue-500/30 transition-all relative"
     >
-      {/* Stage + menu */}
       <div className="flex items-center justify-between">
         <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${stage.bg}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${stage.color}`} />
@@ -307,7 +490,6 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
         </div>
       </div>
 
-      {/* Talent info */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shrink-0">
           {candidate.talent_avatar
@@ -321,7 +503,6 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
         </div>
       </div>
 
-      {/* Meta */}
       <div className="flex flex-wrap gap-x-3 gap-y-1">
         {candidate.talent_location && (
           <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
@@ -335,10 +516,9 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
         )}
       </div>
 
-      {/* Skills */}
       {candidate.talent_skills?.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {candidate.talent_skills.slice(0, 4).map(s => (
+          {candidate.talent_skills.slice(0, 4).map((s: string) => (
             <span key={s} className="text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-lg">{s}</span>
           ))}
           {candidate.talent_skills.length > 4 && (
@@ -347,7 +527,6 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
         </div>
       )}
 
-      {/* Score bar */}
       <div className="h-1 w-full bg-slate-500/10 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all"
@@ -355,11 +534,10 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
         />
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 pt-2 border-t border-[var(--border-color)]">
-        <button onClick={() => onView(candidate)}
+        <button onClick={handleViewProfile}
           className="flex-1 py-2.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-500/20 transition-all">
-          Profile
+          View Profile
         </button>
         {candidate.status === "hired" ? (
           <span className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-500/20">
@@ -371,7 +549,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire, onView }) {
           </span>
         ) : (
           <button onClick={() => onHire(candidate)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-50 transition-all shadow-md shadow-blue-600/20">
             <Zap className="w-3 h-3 fill-current" /> Send offer
           </button>
         )}
@@ -401,8 +579,6 @@ export default function RoleShortlistPage() {
   const [loading, setLoading]         = useState(true);
   const [activeStage, setActiveStage] = useState("all");
   const [hireTarget, setHireTarget]   = useState<any>(null);
-  const [sending, setSending]         = useState(false);
-  const [viewTarget, setViewTarget]   = useState<any>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -419,47 +595,32 @@ export default function RoleShortlistPage() {
         localRole = parsed.find((r: any) => r.id === roleId);
       }
 
-      const [{ data: roleData }, { data: listData }, { data: notifData }] = await Promise.all([
+      const [{ data: roleData }, { data: listData }] = await Promise.all([
         supabase.from("roles").select("*").eq("id", roleId).single(),
         supabase.from("role_shortlist").select("*")
           .eq("role_id", roleId)
           .eq("organization_id", user.id)
-          .order("overall_score", { ascending: false }),
-        supabase.from("notifications").select("*").eq("user_id", user.id).eq("type", "job_application")
+          .or(`group_id.eq.${groupId},group_id.is.null`) // Scoped to activeGroup with fallback
+          .order("overall_score", { ascending: false })
       ]);
 
-      if (roleData) setRole(roleData);
-      else if (localRole) setRole(localRole);
-      
-      const localShortlistKey = `flowboard_local_shortlist_${user.id}`;
-      const existingShortlist = localStorage.getItem(localShortlistKey);
-      const localShortlist = existingShortlist ? JSON.parse(existingShortlist).filter((a: any) => a.role_id === roleId) : [];
-
-      // Extract from notifications
-      const notifShortlist: any[] = [];
-      if (notifData) {
-        notifData.forEach(n => {
-          if (n.message && n.message.includes("[APP_DATA:")) {
-            try {
-              const data = JSON.parse(n.message.split("[APP_DATA:")[1].split("]")[0]);
-              if (data.role_id === roleId) {
-                notifShortlist.push(data);
-              }
-            } catch(e) {}
-          }
-        });
-      }
-
-      const combinedList = [...(listData || [])];
-      
-      // Merge local and notification apps
-      [...localShortlist, ...notifShortlist].forEach((ls: any) => {
-        if (!combinedList.some(cl => cl.talent_id === ls.talent_id)) {
-          combinedList.push(ls);
+      if (roleData) {
+        if (activeGroup && roleData.group_id && roleData.group_id !== activeGroup.id) {
+          toast({ title: "Role Not in Active Workplace", description: `Redirecting to ${activeGroup.name} roles.` });
+          navigate("/client/roles");
+          return;
         }
-      });
-
-      setCandidates(combinedList);
+        setRole(roleData);
+      } else if (localRole) {
+        if (activeGroup && localRole.group_id && localRole.group_id !== activeGroup.id) {
+          toast({ title: "Role Not in Active Workplace", description: `Redirecting to ${activeGroup.name} roles.` });
+          navigate("/client/roles");
+          return;
+        }
+        setRole(localRole);
+      }
+      
+      setCandidates(listData || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -469,112 +630,17 @@ export default function RoleShortlistPage() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // ── Stage change ────────────────────────────────────────────────────────
   const handleStageChange = async (id: string, newStatus: string) => {
     setCandidates(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
     const { error } = await supabase.from("role_shortlist").update({ status: newStatus }).eq("id", id);
     if (error) { console.error(error); fetchAll(); }
   };
 
-  // ── Remove ──────────────────────────────────────────────────────────────
   const handleRemove = async (id: string) => {
     setCandidates(prev => prev.filter(c => c.id !== id));
     const { error } = await supabase.from("role_shortlist").delete().eq("id", id);
     if (error) { console.error(error); fetchAll(); }
     else toast({ title: "Removed from shortlist" });
-  };
-
-  // ── Send formal hire offer ───────────────────────────────────────────────
-  const handleSendOffer = async (offerForm: any) => {
-    if (!hireTarget) return;
-    setSending(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: profile }  = await supabase.from("profiles").select("full_name, email").eq("id", user!.id).single();
-
-      const groupId = activeGroup?.id || "default-group";
-
-      const offerId = crypto.randomUUID();
-
-      // Insert / upsert the hire inquiry as a formal offer
-      const { error: offerError } = await supabase.from("hire_inquiries").insert({
-        id:              offerId,
-        talent_id:       hireTarget.talent_id,
-        client_id:       user!.id,
-        sender_name:     profile?.full_name ?? "Organisation",
-        sender_email:    profile?.email ?? user!.email ?? "",
-        role_title:      offerForm.role_title,
-        role_type:       offerForm.role_type,
-        salary_monthly:  offerForm.salary_monthly ? Number(offerForm.salary_monthly) : null,
-        salary_currency: offerForm.salary_currency,
-        start_date:      offerForm.start_date || null,
-        contract_length: offerForm.contract_length,
-        offer_message:   offerForm.offer_message + `\n\n[GROUP_ID:${groupId}][GROUP_AVATAR:${activeGroup?.avatar_url || ""}]`,
-        message:         offerForm.offer_message + `\n\n[GROUP_ID:${groupId}][GROUP_AVATAR:${activeGroup?.avatar_url || ""}]`,   // keep legacy field in sync
-        source:          "role_shortlist",
-        role_id:         roleId,
-        shortlist_id:    hireTarget.id,
-        status:          "pending",
-      });
-      if (offerError) throw offerError;
-
-      const newOffer: any = {
-        id: offerId,
-        talent_id: hireTarget.talent_id,
-        client_id: user!.id,
-        sender_name: activeGroup?.name || profile?.full_name || "Organisation",
-        sender_email: profile?.email || user!.email || "",
-        role_title: offerForm.role_title,
-        role_type: offerForm.role_type,
-        salary_monthly: offerForm.salary_monthly ? Number(offerForm.salary_monthly) : null,
-        salary_currency: offerForm.salary_currency,
-        start_date: offerForm.start_date || null,
-        contract_length: offerForm.contract_length,
-        offer_message: offerForm.offer_message,
-        group_avatar: activeGroup?.avatar_url || null,
-        status: "pending",
-        source: "role_shortlist",
-        created_at: new Date().toISOString(),
-        talent_profile: {
-          full_name: hireTarget.talent_name,
-          avatar_url: hireTarget.talent_avatar || null,
-          primary_role: hireTarget.talent_role || null,
-          location: hireTarget.talent_location || null
-        }
-      };
-
-      // Notify the talent
-      await supabase.from("notifications").insert({
-        user_id: hireTarget.talent_id,
-        title:   "You have a new job offer! 🎉",
-        message: `${activeGroup?.name || profile?.full_name || "An organisation"} has sent you a formal offer for ${offerForm.role_title}.\n\n[OFFER_DATA:${JSON.stringify(newOffer)}]`,
-        type:    "hire_offer",
-      });
-
-      const localKey = `flowboard_offers_${groupId}`;
-      const existing = localStorage.getItem(localKey);
-      const offersArr = existing ? JSON.parse(existing) : [];
-      localStorage.setItem(localKey, JSON.stringify([...offersArr, newOffer]));
-
-      const globalTalentKey = `global_talent_offers_${hireTarget.talent_id}`;
-      const existingGlobal = localStorage.getItem(globalTalentKey);
-      const globalArr = existingGlobal ? JSON.parse(existingGlobal) : [];
-      localStorage.setItem(globalTalentKey, JSON.stringify([...globalArr, newOffer]));
-
-      // Advance shortlist stage to contacted
-      await handleStageChange(hireTarget.id, "contacted");
-
-      toast({
-        title: "Offer sent ✓",
-        description: `Formal offer delivered to ${hireTarget.talent_name?.split(" ")[0]}. Awaiting their response.`,
-      });
-      setHireTarget(null);
-    } catch (err: any) {
-      console.error(err);
-      toast({ variant: "destructive", title: "Error", description: err.message });
-    } finally {
-      setSending(false);
-    }
   };
 
   const filtered = activeStage === "all"
@@ -597,7 +663,7 @@ export default function RoleShortlistPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-20">
+    <div className="max-w-7xl mx-auto space-y-8 pb-20 p-4 sm:p-6 lg:p-10 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div className="space-y-3">
@@ -615,10 +681,16 @@ export default function RoleShortlistPage() {
             {candidates.length} shortlisted · {stageCounts.hired ?? 0} hired · {stageCounts.interviewing ?? 0} interviewing
           </p>
         </div>
-        <Link to={`/client/roles/${roleId}/source`}
-          className="flex-shrink-0 flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
-          <Users className="w-3.5 h-3.5" /> Source more talent
-        </Link>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <Link to="/client/shortlist"
+            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-black tracking-widest text-slate-600 hover:border-blue-500/40 transition-all shadow-sm">
+            Master Pipeline
+          </Link>
+          <Link to={`/client/roles/${roleId}/source`}
+            className="flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+            <Users className="w-3.5 h-3.5" /> Source more talent
+          </Link>
+        </div>
       </div>
 
       {/* Stage tabs */}
@@ -638,15 +710,15 @@ export default function RoleShortlistPage() {
       </div>
 
       {/* Pipeline summary strip */}
-      <div className="flex gap-0 rounded-2xl overflow-hidden border border-[var(--border-color)]">
+      <div className="flex gap-0 rounded-2xl overflow-hidden border border-[var(--border-color)] shadow-sm bg-[var(--card-bg)]">
         {PIPELINE_STAGES.map((s, i) => {
           const count = stageCounts[s.key] ?? 0;
           return (
             <div key={s.key}
-              className={`flex-1 p-3 text-center cursor-pointer transition-all ${activeStage === s.key ? "bg-slate-500/10" : "hover:bg-slate-500/5"} ${i < PIPELINE_STAGES.length - 1 ? "border-r border-[var(--border-color)]" : ""}`}
+              className={`flex-1 p-4 text-center cursor-pointer transition-all ${activeStage === s.key ? "bg-slate-500/10" : "hover:bg-slate-500/5"} ${i < PIPELINE_STAGES.length - 1 ? "border-r border-[var(--border-color)]" : ""}`}
               onClick={() => setActiveStage(s.key)}>
-              <p className={`text-base font-black ${s.text}`}>{count}</p>
-              <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">{s.label}</p>
+              <p className={`text-xl font-black ${s.text}`}>{count}</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">{s.label}</p>
             </div>
           );
         })}
@@ -655,31 +727,30 @@ export default function RoleShortlistPage() {
       {/* Grid */}
       <AnimatePresence mode="popLayout">
         {filtered.length > 0 ? (
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence>
               {filtered.map(c => (
                 <CandidateCard key={c.id} candidate={c}
                   onStageChange={handleStageChange}
                   onRemove={handleRemove}
                   onHire={setHireTarget}
-                  onView={setViewTarget}
                 />
               ))}
             </AnimatePresence>
           </motion.div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
+            className="py-28 text-center space-y-4 bg-[var(--card-bg)] rounded-2xl border border-dashed border-[var(--border-color)] shadow-sm">
             <ListChecks className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="text-xl font-black tracking-tighter uppercase dark:text-white">
               {activeStage === "all" ? "No candidates yet" : `No ${activeStage} candidates`}
             </h3>
-            <p className="text-sm text-slate-400 font-medium">
-              {activeStage === "all" ? "Source talent to start building your shortlist" : "Move candidates here from other stages"}
+            <p className="text-sm text-slate-400 font-medium max-w-md mx-auto">
+              {activeStage === "all" ? "Source talent to start building your shortlist for this role." : "Move candidates here from other stages."}
             </p>
             {activeStage === "all" && (
               <Link to={`/client/roles/${roleId}/source`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
                 <Users className="w-3.5 h-3.5" /> Source talent
               </Link>
             )}
@@ -694,9 +765,8 @@ export default function RoleShortlistPage() {
             candidate={hireTarget}
             role={role}
             activeGroup={activeGroup}
-            sending={sending}
             onClose={() => setHireTarget(null)}
-            onConfirm={handleSendOffer}
+            onOfferSent={handleStageChange}
           />
         )}
       </AnimatePresence>

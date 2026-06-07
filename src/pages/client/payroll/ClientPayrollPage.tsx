@@ -33,17 +33,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useGroups } from "@/contexts/GroupContext";
+import { usePayroll } from "@/hooks/usePayroll";
 
-// --- Interfaces ---
+// --- Interfaces (must match usePayroll exports) ---
 interface PayrollRecord {
   id: string;
   name: string;
   date: string;
   amount: string;
-  status: "Completed" | "Active";
+  status: "Completed" | "Active" | "pending" | "processing" | "failed";
   employeesPaid: number;
   type: string;
   employeesIncluded: Employee[];
+  scheduledDate?: string;
 }
 
 interface Employee {
@@ -56,6 +58,7 @@ interface Employee {
   bank: string;
   account: string;
   type: "Contractor" | "Full-time" | "Part-time";
+  tags?: string[];
 }
 
 interface SalaryComponent {
@@ -90,38 +93,35 @@ interface ContractorInvoice {
 export default function ClientPayrollPage() {
   const { toast } = useToast();
   const { activeGroup } = useGroups();
-  const [activeTab, setActiveTab] = useState("history");
-  const [loading, setLoading] = useState(true);
   
-  // --- State Management ---
-  const [payrollHistory, setPayrollHistory] = useState<PayrollRecord[]>([]);
+  const {
+    loading,
+    payrollHistory,
+    setPayrollHistory,
+    employees,
+    setEmployees,
+    components,
+    setComponents,
+    policies,
+    contractorInvoices,
+    initPayroll,
+    runPayroll,
+    addEmployee,
+    deleteEmployee,
+    updateInvoiceStatus,
+    updateEmployeeSalary,
+    updatePayrollStatus,
+    exportPayrollCsv,
+  } = usePayroll();
 
-  const [employees, setEmployees] = useState<Employee[]>([
-    { id: "EMP-001", name: "Sarah Jenkins", role: "Web Designer", department: "Design", salary: 5500, status: "Active", bank: "Flowboard Wallet", account: "Acct-9901", type: "Full-time" },
-    { id: "EMP-002", name: "Michael Kojo", role: "Marketer", department: "Marketing", salary: 4000, status: "Active", bank: "Flowboard Wallet", account: "Acct-2234", type: "Contractor" },
-    { id: "EMP-003", name: "Kenneth Dedu", role: "Social Media Manager", department: "Marketing", salary: 3500, status: "Active", bank: "Flowboard Wallet", account: "Acct-0019", type: "Part-time" },
-    { id: "EMP-004", name: "Anime World", role: "Software Engineer", department: "Engineering", salary: 8500, status: "Suspended", bank: "Flowboard Wallet", account: "Acct-7781", type: "Full-time" }
-  ]);
-
-  const [components, setComponents] = useState<SalaryComponent[]>([
-    { id: "COMP-001", name: "Housing Allowance", type: "Earning", amountType: "Fixed", value: 500, description: "Standard housing tier" },
-    { id: "COMP-002", name: "PAYE Tax", type: "Deduction", amountType: "Percentage", value: 15, description: "Statutory federal income tax" },
-    { id: "COMP-003", name: "Pension Scheme", type: "Deduction", amountType: "Percentage", value: 5, description: "Retirement savings plan" }
-  ]);
-
-  const [policies, setPolicies] = useState<Policy[]>([
-    { id: "POL-001", roleName: "Senior Engineer", baseSalary: 8000, taxProfile: "Tier 3 (15%)", allowances: ["Housing", "Medical"] },
-    { id: "POL-002", roleName: "Associate Marketer", baseSalary: 3800, taxProfile: "Tier 1 (10%)", allowances: ["Transport"] }
-  ]);
-
-  const [contractorInvoices, setContractorInvoices] = useState<ContractorInvoice[]>([]);
+  const [activeTab, setActiveTab] = useState("history");
 
   // Modals
   const [isRunModalOpen, setIsRunModalOpen] = useState(false);
   const [payrollRunName, setPayrollRunName] = useState("");
   const [selectedEmpIds, setSelectedEmpIds] = useState<string[]>([]);
-  const [empFilter, setEmpFilter] = useState<string>("All");
-  const [tagFilter, setTagFilter] = useState<string>("All");
+  const [empFilter, setEmpFilter] = useState("All");
+  const [tagFilter, setTagFilter] = useState("All");
   const [newTag, setNewTag] = useState("");
   const [selectedRun, setSelectedRun] = useState<PayrollRecord | null>(null);
 
@@ -139,7 +139,7 @@ export default function ClientPayrollPage() {
   const [newEmpName, setNewEmpName] = useState("");
   const [newEmpRole, setNewEmpRole] = useState("");
   const [newEmpSalary, setNewEmpSalary] = useState("");
-  const [newEmpType, setNewEmpType] = useState<"Full-time" | "Contractor" | "Part-time" | "One-Time Item">("Full-time");
+  const [newEmpType, setNewEmpType] = useState<"Full-time" | "Contractor" | "Part-time">("Full-time");
 
   const [compName, setCompName] = useState("");
   const [compType, setCompType] = useState<"Earning" | "Deduction">("Earning");
@@ -147,100 +147,22 @@ export default function ClientPayrollPage() {
   const [compValue, setCompValue] = useState("");
   const [compDesc, setCompDesc] = useState("");
 
-  const initPayroll = useCallback(async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_payroll_${groupId}`;
-      const localData = localStorage.getItem(localKey);
-      
-      let initialHistory: PayrollRecord[] = [];
-      let initialEmployees: Employee[] = [];
-      let initialComponents: SalaryComponent[] = [];
-      let initialPolicies: Policy[] = [];
-      let initialInvoices: ContractorInvoice[] = [];
-
-      if (localData) {
-        const parsed = JSON.parse(localData);
-        initialHistory = parsed.history || [];
-        initialEmployees = parsed.employees || [];
-        initialComponents = parsed.components || [];
-        initialPolicies = parsed.policies || [];
-        initialInvoices = parsed.invoices || [];
-      }
-
-      // ── FETCH REMOTE INVOICES ──
-      // 1. Get all workforce members for this organization
-      const orgIds = [user.id];
-      if (activeGroup?.id) orgIds.push(activeGroup.id);
-
-      const { data: members } = await supabase
-        .from("workforce_members")
-        .select("profile_id")
-        .in("organization_id", orgIds);
-
-      if (members && members.length > 0) {
-        const profileIds = members.map(m => m.profile_id);
-        
-        // 2. Fetch profiles for these members to check their system_prefs.raised_invoices
-        const { data: talProfiles } = await supabase
-          .from("profiles")
-          .select("id, system_prefs")
-          .in("id", profileIds);
-
-        if (talProfiles) {
-          talProfiles.forEach(p => {
-            const remoteInvoices = p.system_prefs?.raised_invoices || [];
-            remoteInvoices.forEach((ri: any) => {
-              if (ri.client_id === user.id || ri.client_id === (activeGroup?.id || "default-group")) {
-                if (!initialInvoices.some(li => li.id === ri.id)) {
-                  initialInvoices.push(ri);
-                }
-              }
-            });
-          });
-        }
-      }
-
-      setPayrollHistory(initialHistory);
-      setEmployees(initialEmployees);
-      setComponents(initialComponents);
-      setPolicies(initialPolicies);
-      setContractorInvoices(initialInvoices);
-      
-      if (initialInvoices.length > 0) {
-        console.log(`[Payroll] Loaded ${initialInvoices.length} invoices for organization(s):`, orgIds);
-      }
-      
-      const mergedData = {
-        history: initialHistory,
-        employees: initialEmployees,
-        components: initialComponents,
-        policies: initialPolicies,
-        invoices: initialInvoices
-      };
-      localStorage.setItem(localKey, JSON.stringify(mergedData));
-
-    } catch (e) {
-      console.error("Payroll init failed", e);
-    } finally {
-      setLoading(false);
-    }
-  }, [activeGroup?.id]);
-
+  // Refresh data periodically
   useEffect(() => {
-    initPayroll();
+    const interval = setInterval(() => {
+      initPayroll();
+    }, 30000);
+    return () => clearInterval(interval);
   }, [initPayroll]);
 
+  // Schedule checker effect
   useEffect(() => {
     const checkSchedules = async () => {
       let hasChanged = false;
       const now = Date.now();
       
       const updatedHistory = payrollHistory.map(pr => {
-        if (pr.status === "Active" && pr.scheduledDate) {
+        if ((pr.status === "Active" || pr.status === "pending") && pr.scheduledDate) {
           try {
             const parts = pr.scheduledDate.split(" ");
             if (parts.length >= 5) {
@@ -267,6 +189,7 @@ export default function ClientPayrollPage() {
                 const schedDate = new Date(parseInt(yearStr), month, parseInt(dayStr), hour, minute);
                 if (now >= schedDate.getTime()) {
                   hasChanged = true;
+                  updatePayrollStatus(pr.id, "completed");
                   return { ...pr, status: "Completed" as const };
                 }
               }
@@ -280,36 +203,13 @@ export default function ClientPayrollPage() {
       
       if (hasChanged) {
         setPayrollHistory(updatedHistory);
-        await syncState({ payroll_history: updatedHistory });
-        toast({ title: "Auto-Disbursal Scheduled", description: "Auto-Disbursal Scheduled" });
+        toast({ title: "Auto-Disbursal Completed", description: "Scheduled payroll has been disbursed." });
       }
     };
     
     const interval = setInterval(checkSchedules, 4000);
-    const invoiceInterval = setInterval(initPayroll, 10000); 
-    return () => {
-      clearInterval(interval);
-      clearInterval(invoiceInterval);
-    };
-  }, [payrollHistory, initPayroll]);
-
-  const syncState = async (updatedPayload: any) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase.from("profiles").select("system_prefs").eq("id", user.id).single();
-      
-      await supabase.from("profiles").update({
-        system_prefs: {
-          ...(profile?.system_prefs || {}),
-          ...updatedPayload
-        }
-      }).eq("id", user.id);
-    } catch (err) {
-      console.error("Database synchronization error:", err);
-    }
-  };
+    return () => clearInterval(interval);
+  }, [payrollHistory, updatePayrollStatus, setPayrollHistory, toast]);
 
   const executePayrollRun = async () => {
     if (!payrollRunName) {
@@ -318,28 +218,35 @@ export default function ClientPayrollPage() {
     }
 
     const subset = employees.filter(e => selectedEmpIds.includes(e.id));
-    const total = subset.reduce((sum, e) => sum + e.salary, 0);
+    
+    if (subset.length === 0) {
+      toast({ title: "No Employees Selected", description: "Please select at least one employee.", variant: "destructive" });
+      return;
+    }
+    
+    // Set period start/end (e.g., current month)
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    const newRecord: PayrollRecord = {
-      id: `PR-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: payrollRunName,
-      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-      amount: `$${total.toLocaleString()}`,
-      status: "Active",
-      employeesPaid: subset.length,
-      type: "Disbursement",
-      employeesIncluded: subset
-    };
+    try {
+      await runPayroll(payrollRunName, subset, periodStart, periodEnd);
+      
+      setPayrollRunName("");
+      setSelectedEmpIds([]);
+      setIsRunModalOpen(false);
 
-    const updatedHistory = [newRecord, ...payrollHistory];
-    setPayrollHistory(updatedHistory);
-    await syncState({ payroll_history: updatedHistory });
-
-    setPayrollRunName("");
-    setSelectedEmpIds([]);
-    setIsRunModalOpen(false);
-
-    toast({ title: "Payroll Run Initiated", description: `Cycle '${newRecord.name}' deployed.` });
+      toast({ 
+        title: "Payroll Run Initiated", 
+        description: `Payroll run created successfully.` 
+      });
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "Failed to create payroll run", 
+        variant: "destructive" 
+      });
+    }
   };
 
   const allocateInvoiceToPayroll = async () => {
@@ -350,39 +257,6 @@ export default function ClientPayrollPage() {
 
     const targetInvoice = contractorInvoices.find(i => i.id === approvingInvoiceId);
     if (!targetInvoice) return;
-
-    const payrollToUpdate = payrollHistory.find(pr => pr.id === selectedPayrollRunId);
-    if (payrollToUpdate) {
-      const invoiceValue = parseFloat(targetInvoice.amount.replace("$", "").replace(",", "")) || 0;
-      const oldTotal = parseFloat(payrollToUpdate.amount.replace("$", "").replace(",", "")) || 0;
-      const newTotal = oldTotal + invoiceValue;
-
-      const mockEmp: Employee = {
-        id: targetInvoice.talent_id,
-        name: targetInvoice.talent_name,
-        role: "Contractor",
-        department: "Contractors",
-        salary: invoiceValue,
-        status: "Active",
-        bank: "Flowboard Wallet",
-        account: "Acct-XXXX",
-        type: "Contractor"
-      };
-
-      const updatedHistory = payrollHistory.map(pr => 
-        pr.id === selectedPayrollRunId 
-          ? { 
-              ...pr, 
-              amount: `$${newTotal.toLocaleString()}`,
-              employeesPaid: pr.employeesPaid + 1,
-              employeesIncluded: [...(pr.employeesIncluded || []), mockEmp]
-            } 
-          : pr
-      );
-
-      setPayrollHistory(updatedHistory);
-      await syncState({ payroll_history: updatedHistory });
-    }
 
     await updateInvoiceStatus(approvingInvoiceId, "Approved");
     setIsApprovalModalOpen(false);
@@ -413,13 +287,12 @@ export default function ClientPayrollPage() {
     const updatedHistory = payrollHistory.map(pr => pr.id === selectedRun.id ? updatedRun : pr);
     setPayrollHistory(updatedHistory);
     setSelectedRun(updatedRun);
-    await syncState({ payroll_history: updatedHistory });
   };
 
   const handleAddEmployee = async () => {
     if (!newEmpName || !newEmpRole) return;
-    const newEmp: Employee = {
-      id: `EMP-${Math.floor(100 + Math.random() * 900)}`,
+    
+    await addEmployee({
       name: newEmpName,
       role: newEmpRole,
       department: "General",
@@ -428,24 +301,15 @@ export default function ClientPayrollPage() {
       bank: "Flowboard Wallet",
       account: "Acct-9999",
       type: newEmpType
-    };
-
-    const updatedEmployees = [...employees, newEmp];
-    setEmployees(updatedEmployees);
-    await syncState({ payroll_employees: updatedEmployees });
+    });
 
     setNewEmpName("");
     setNewEmpRole("");
     setNewEmpSalary("");
-
-    toast({ title: "Employee Added", description: `${newEmpName} onboarded.` });
   };
 
   const handleDeleteEmployee = async (empId: string) => {
-    const updatedEmployees = employees.filter(e => e.id !== empId);
-    setEmployees(updatedEmployees);
-    await syncState({ payroll_employees: updatedEmployees });
-    toast({ title: "Employee Removed" });
+    await deleteEmployee(empId);
   };
 
   const handleAddSalaryComponent = async () => {
@@ -461,7 +325,6 @@ export default function ClientPayrollPage() {
 
     const updatedComponents = [...components, newComp];
     setComponents(updatedComponents);
-    await syncState({ payroll_components: updatedComponents });
 
     setCompName("");
     setCompValue("");
@@ -470,69 +333,28 @@ export default function ClientPayrollPage() {
     toast({ title: "Component Added" });
   };
 
-  const updateInvoiceStatus = async (invId: string, newStatus: "Approved" | "Denied") => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const updatedInvoices = contractorInvoices.map(inv => 
-        inv.id === invId ? { ...inv, status: newStatus } : inv
-      );
-      setContractorInvoices(updatedInvoices);
-
-      const { data: profile } = await supabase.from("profiles").select("system_prefs").eq("id", user.id).single();
-      const prefs = profile?.system_prefs || {};
-      
-      let approvedIds = prefs.approved_invoice_ids || [];
-      let deniedIds = prefs.denied_invoice_ids || [];
-
-      if (newStatus === "Approved") {
-        if (!approvedIds.includes(invId)) approvedIds.push(invId);
-        deniedIds = deniedIds.filter((id: string) => id !== invId);
-      } else {
-        if (!deniedIds.includes(invId)) deniedIds.push(invId);
-        approvedIds = approvedIds.filter((id: string) => id !== invId);
-      }
-
-      await supabase.from("profiles").update({
-        system_prefs: {
-          ...prefs,
-          approved_invoice_ids: approvedIds,
-          denied_invoice_ids: deniedIds
-        }
-      }).eq("id", user.id);
-
-      const targetInvoice = contractorInvoices.find(i => i.id === invId);
-      if (targetInvoice) {
-        const { data: tProfile } = await supabase.from("profiles").select("system_prefs").eq("id", targetInvoice.talent_id).single();
-        if (tProfile) {
-          const tInvoices = (tProfile.system_prefs?.raised_invoices || []).map((ti: any) => 
-            ti.id === invId ? { ...ti, status: newStatus } : ti
-          );
-          await supabase.from("profiles").update({
-            system_prefs: {
-              ...(tProfile.system_prefs || {}),
-              raised_invoices: tInvoices
-            }
-          }).eq("id", targetInvoice.talent_id);
-        }
-      }
-
-      toast({ title: `Invoice ${newStatus}` });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const filteredEmployees = employees.filter(e => {
     const typeMatch = empFilter === "All" || e.type === empFilter;
     const tagMatch = tagFilter === "All" || (e.tags && e.tags.includes(tagFilter));
     return typeMatch && tagMatch;
   });
 
-  if (loading) {
-    return <div className="w-full p-8 text-slate-400 text-xs font-bold">Synchronizing parameters...</div>;
-  }
+  // Temporary debug component - add this before the return statement
+if (typeof window !== 'undefined') {
+  console.log("Debug Info:", {
+    hasActiveGroup: !!activeGroup,
+    activeGroupId: activeGroup?.id,
+    employeesCount: employees.length,
+    employees: employees,
+    payrollHistoryCount: payrollHistory.length,
+    payrollHistory: payrollHistory
+  });
+}
+
+// Optional: Show debug UI temporarily
+const showDebug = true; // Set to false when done
+
+
 
   return (
     <div className="w-full p-8 bg-[#FAFAFB] min-h-screen font-sans text-[#1A1C21]">
@@ -562,7 +384,7 @@ export default function ClientPayrollPage() {
                 <div className="space-y-1.5">
                   <Label className="text-xs font-bold">Payroll Name</Label>
                   <Input 
-                    placeholder="e.g. April 2025 Payroll / Nigeria Contractors" 
+                    placeholder="e.g. April 2025 Payroll" 
                     value={payrollRunName} 
                     onChange={(e) => setPayrollRunName(e.target.value)}
                     className="text-xs border-slate-200"
@@ -595,32 +417,6 @@ export default function ClientPayrollPage() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 p-2 bg-slate-50/80 rounded-md border border-slate-100">
-                    <Input 
-                      placeholder="Create & assign tag to selected" 
-                      value={newTag} 
-                      onChange={(e) => setNewTag(e.target.value)}
-                      className="text-xs h-7 border-slate-200 bg-white"
-                    />
-                    <Button 
-                      onClick={async () => {
-                        if (!newTag.trim()) return;
-                        const updated = employees.map(e => 
-                          selectedEmpIds.includes(e.id) 
-                            ? { ...e, tags: Array.from(new Set([...(e.tags || []), newTag.trim()])) } 
-                            : e
-                        );
-                        setEmployees(updated);
-                        await syncState({ payroll_employees: updated });
-                        setNewTag("");
-                        toast({ title: "Tags Assigned", description: `Successfully associated tag.` });
-                      }}
-                      className="text-[10px] font-bold h-7 bg-[#1A1C21] hover:bg-black text-white rounded-md shadow-sm"
-                    >
-                      Apply Tag
-                    </Button>
-                  </div>
-
                   <div className="flex gap-2 pb-2">
                     <Button 
                       variant="outline" 
@@ -638,9 +434,9 @@ export default function ClientPayrollPage() {
                     </Button>
                   </div>
 
-                  <div className="border border-slate-100 rounded-md divide-y divide-slate-100 max-h-48 overflow-y-auto p-2 space-y-2 bg-slate-50/50">
+                  <div className="border border-slate-100 rounded-md divide-y divide-slate-100 max-h-48 overflow-y-auto bg-slate-50/50">
                     {filteredEmployees.map(emp => (
-                      <div key={emp.id} className="flex items-center gap-3 py-1.5 px-2">
+                      <div key={emp.id} className="flex items-center gap-3 py-2 px-3">
                         <Checkbox 
                           checked={selectedEmpIds.includes(emp.id)} 
                           onCheckedChange={(checked) => {
@@ -648,31 +444,11 @@ export default function ClientPayrollPage() {
                             else setSelectedEmpIds(selectedEmpIds.filter(id => id !== emp.id));
                           }} 
                         />
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-slate-900">{emp.name}</span>
-                          <span className="text-[10px] font-medium text-slate-500">{emp.role} • {emp.type}</span>
-                          {emp.tags && emp.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-0.5">
-                              {emp.tags.map(t => (
-                                <span key={t} className="text-[8px] font-bold bg-slate-200/80 text-slate-600 px-1 rounded">{t}</span>
-                              ))}
-                            </div>
-                          )}
+                        <div className="flex-1">
+                          <div className="text-xs font-bold text-slate-900">{emp.name}</div>
+                          <div className="text-[10px] font-medium text-slate-500">{emp.role} • {emp.type}</div>
                         </div>
-                        <div className="flex items-center gap-1 ml-auto">
-                          <span className="text-xs font-bold text-slate-400">$</span>
-                          <Input 
-                            type="number"
-                            value={emp.salary}
-                            onChange={async (e) => {
-                              const val = parseFloat(e.target.value) || 0;
-                              const updated = employees.map(item => item.id === emp.id ? { ...item, salary: val } : item);
-                              setEmployees(updated);
-                              await syncState({ payroll_employees: updated });
-                            }}
-                            className="text-xs h-8 w-24 border-slate-200 bg-white text-right font-bold text-[#1A1C21] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
-                        </div>
+                        <div className="text-xs font-bold">${emp.salary.toLocaleString()}</div>
                       </div>
                     ))}
                   </div>
@@ -691,29 +467,16 @@ export default function ClientPayrollPage() {
           <Dialog open={isApprovalModalOpen} onOpenChange={setIsApprovalModalOpen}>
             <DialogContent className="bg-white border-slate-200 rounded-md">
               <DialogHeader>
-                <DialogTitle className="text-base font-bold">Approve & Allocate Invoice</DialogTitle>
-                <DialogDescription className="text-xs">Select which active payroll run accounts for this invoice spend.</DialogDescription>
+                <DialogTitle className="text-base font-bold">Approve Invoice</DialogTitle>
+                <DialogDescription className="text-xs">Confirm approval of contractor invoice.</DialogDescription>
               </DialogHeader>
               
-              <div className="py-3 space-y-2">
-                <Label className="text-xs font-bold">Select Payroll Cycle</Label>
-                {payrollHistory.filter(pr => pr.status === "Active").length === 0 ? (
-                  <p className="text-xs text-amber-600 font-medium">No currently active payroll runs. Please launch a new payroll cycle first.</p>
-                ) : (
-                  <Select value={selectedPayrollRunId} onValueChange={setSelectedPayrollRunId}>
-                    <SelectTrigger className="text-xs border-slate-200"><SelectValue placeholder="Choose target cycle" /></SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      {payrollHistory.filter(pr => pr.status === "Active").map(pr => (
-                        <SelectItem key={pr.id} value={pr.id} className="text-xs">{pr.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+              <div className="py-3">
+                <p className="text-xs text-slate-600">This invoice will be marked as approved and added to the next payroll run.</p>
               </div>
 
               <DialogFooter>
                 <Button 
-                  disabled={payrollHistory.filter(pr => pr.status === "Active").length === 0}
                   onClick={allocateInvoiceToPayroll} 
                   className="w-full bg-[#1A1C21] text-xs font-bold"
                 >
@@ -747,7 +510,7 @@ export default function ClientPayrollPage() {
         {/* --- 1. PAYROLL HISTORY --- */}
         <TabsContent value="history">
           <Card className="bg-white border border-[#EEEEF0] rounded-md shadow-none">
-            <CardContent className="px-0 pb-0 overflow-x-auto">
+            <CardContent className="p-0 overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#EEEEF0] bg-[#FAFAFB]/60">
@@ -768,64 +531,28 @@ export default function ClientPayrollPage() {
                       <td className="px-6 py-4 text-xs text-[#1A1C21]/60">{rec.employeesPaid} Individuals</td>
                       <td className="px-6 py-4 text-xs">
                         <Badge className={`text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-none ${
-                          rec.status === "Completed" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+                          rec.status === "Completed" ? "bg-emerald-500/10 text-emerald-600" : 
+                          rec.status === "Active" || rec.status === "pending" ? "bg-amber-500/10 text-amber-600" :
+                          "bg-slate-500/10 text-slate-600"
                         }`}>
-                          {rec.status}
+                          {rec.status === "Completed" ? "Completed" : "Active"}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
-                        {rec.status === "Active" && (
-                          <div className="flex items-center gap-2 justify-end">
-                            {rec.scheduledDate ? (
-                              <button 
-                                onClick={() => {
-                                  setSchedulingRunId(rec.id);
-                                  setSchedDateOnly("");
-                                  setSchedHour("12");
-                                  setSchedMinute("00");
-                                  setSchedAmpm("AM");
-                                  setIsScheduleModalOpen(true);
-                                }}
-                                className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-md border border-slate-200 flex items-center gap-1 hover:bg-slate-200/50 hover:text-[#1A1C21] transition-all cursor-pointer"
-                              >
-                                <Calendar className="w-3 h-3 text-slate-500" /> Scheduled
-                              </button>
-                            ) : (
-                              <Button 
-                                onClick={() => {
-                                  setSchedulingRunId(rec.id);
-                                  setSchedDateOnly("");
-                                  setSchedHour("12");
-                                  setSchedMinute("00");
-                                  setSchedAmpm("AM");
-                                  setIsScheduleModalOpen(true);
-                                }}
-                                variant="outline" 
-                                className="text-xs font-bold h-8 border-[#EEEEF0] hover:bg-[#FAFAFB] text-[#1A1C21]"
-                              >
-                                <Calendar className="w-3.5 h-3.5 mr-1.5 text-slate-500" /> Schedule
-                              </Button>
-                            )}
-                            {!rec.scheduledDate && (
-                              <Button 
-                                onClick={async () => {
-                                  const updated = payrollHistory.map(pr => 
-                                    pr.id === rec.id ? { ...pr, status: "Completed" as const } : pr
-                                  );
-                                  setPayrollHistory(updated);
-                                  await syncState({ payroll_history: updated });
-                                  toast({ title: "Auto-Disbursal Scheduled", description: "Auto-Disbursal Scheduled" });
-                                }}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-3 rounded-md"
-                              >
-                                Disburse
-                              </Button>
-                            )}
-                          </div>
+                      <td className="px-6 py-4 text-right">
+                        {rec.status !== "Completed" && (
+                          <Button 
+                            onClick={async () => {
+                              await updatePayrollStatus(rec.id, 'completed');
+                              toast({ title: "Payroll Disbursed", description: "Funds have been sent." });
+                            }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-3 rounded-md"
+                          >
+                            Disburse
+                          </Button>
                         )}
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="ghost" onClick={() => setSelectedRun(rec)} className="text-xs font-bold text-[#A079FF] hover:bg-[#A079FF]/5 h-8 px-3">
+                            <Button variant="ghost" onClick={() => setSelectedRun(rec)} className="text-xs font-bold text-[#A079FF] hover:bg-[#A079FF]/5 h-8 px-3 ml-2">
                               <Eye className="w-3.5 h-3.5 mr-1.5" /> Details
                             </Button>
                           </DialogTrigger>
@@ -834,146 +561,21 @@ export default function ClientPayrollPage() {
                               <DialogTitle className="text-base font-bold">{selectedRun?.name}</DialogTitle>
                               <DialogDescription className="text-xs">Processed on {selectedRun?.date}</DialogDescription>
                             </DialogHeader>
-                            <div className="py-2 space-y-4">
-                              <div className="flex justify-between text-xs font-medium pb-2 border-b border-slate-100">
-                                <span className="text-slate-500">Overall Ledger Total</span>
-                                <span className="text-slate-900 font-bold">{selectedRun?.amount}</span>
-                              </div>
-                              
+                            <div className="py-2">
                               <div className="space-y-2">
-                                <span className="text-[10px] font-black uppercase text-slate-400">Included Roster</span>
-                                <div className="max-h-48 overflow-y-auto divide-y divide-slate-100 bg-slate-50/30 rounded-md p-2 space-y-2 border border-slate-100">
-                                  {selectedRun?.status === "Active" ? (
-                                    (() => {
-                                      const empIds = employees.map(e => e.id);
-                                      const extraIncluded = (selectedRun.employeesIncluded || []).filter(e => !empIds.includes(e.id));
-                                      const fullRoster = [...employees, ...extraIncluded];
-                                      
-                                      return fullRoster.map(emp => {
-                                        const isChecked = selectedRun.employeesIncluded?.some(e => e.id === emp.id) || false;
-                                        return (
-                                          <div key={emp.id} className="flex items-center gap-3 py-1.5 px-1">
-                                            <Checkbox 
-                                              checked={isChecked} 
-                                              onCheckedChange={() => toggleEmpInActiveRun(emp)} 
-                                            />
-                                            <div className="flex flex-col">
-                                              <span className="text-xs font-bold text-slate-900">{emp.name}</span>
-                                              <span className="text-[10px] text-slate-500">{emp.role} • {emp.type}</span>
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-900 ml-auto">${emp.salary.toLocaleString()}</span>
-                                          </div>
-                                        );
-                                      });
-                                    })()
-                                  ) : (
-                                    (!selectedRun?.employeesIncluded || selectedRun?.employeesIncluded.length === 0) ? (
-                                      <p className="text-xs text-slate-400 italic p-2">Detailed roster mapping unavailable.</p>
-                                    ) : (
-                                      selectedRun.employeesIncluded.map(emp => (
-                                        <div key={emp.id} className="flex justify-between items-center py-2 px-1">
-                                          <div className="flex flex-col">
-                                            <span className="text-xs font-bold text-slate-900">{emp.name}</span>
-                                            <span className="text-[10px] text-slate-500">{emp.role}</span>
-                                          </div>
-                                          <span className="text-xs font-bold text-slate-900">${emp.salary.toLocaleString()}</span>
-                                        </div>
-                                      ))
-                                    )
-                                  )}
+                                <div className="flex justify-between text-xs font-medium pb-2 border-b border-slate-100">
+                                  <span className="text-slate-500">Total Amount</span>
+                                  <span className="text-slate-900 font-bold">{selectedRun?.amount}</span>
                                 </div>
-                                
-                                {selectedRun?.status === "Active" && (
-                                  <div className="pt-4 border-t border-slate-100 space-y-2">
-                                    <span className="text-[10px] font-black uppercase text-slate-400">Add New Recipient</span>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      <Input 
-                                        placeholder="Name" 
-                                        value={newEmpName} 
-                                        onChange={(e) => setNewEmpName(e.target.value)} 
-                                        className="text-xs h-8 border-slate-200 bg-white" 
-                                      />
-                                      <Input 
-                                        placeholder="Role" 
-                                        value={newEmpRole} 
-                                        onChange={(e) => setNewEmpRole(e.target.value)} 
-                                        className="text-xs h-8 border-slate-200 bg-white" 
-                                      />
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-black uppercase text-slate-400">Recipients</span>
+                                  {selectedRun?.employeesIncluded.map(emp => (
+                                    <div key={emp.id} className="flex justify-between items-center py-1">
+                                      <span className="text-xs text-slate-700">{emp.name}</span>
+                                      <span className="text-xs font-bold">${emp.salary.toLocaleString()}</span>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      <Input 
-                                        placeholder="Salary ($)" 
-                                        type="number"
-                                        value={newEmpSalary} 
-                                        onChange={(e) => setNewEmpSalary(e.target.value)} 
-                                        className="text-xs h-8 border-slate-200 bg-white" 
-                                      />
-                                      <Select value={newEmpType} onValueChange={(v: any) => setNewEmpType(v)}>
-                                        <SelectTrigger className="text-xs h-8 border-slate-200 bg-white text-[#1A1C21]"><SelectValue /></SelectTrigger>
-                                        <SelectContent className="bg-white border-slate-200">
-                                          <SelectItem value="Full-time" className="text-xs">Full-time</SelectItem>
-                                          <SelectItem value="Contractor" className="text-xs">Contractor</SelectItem>
-                                          <SelectItem value="Part-time" className="text-xs">Part-time</SelectItem>
-                                          <SelectItem value="One-Time Item" className="text-xs">One-Time Item</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    <Button 
-                                      onClick={async () => {
-                                        if (!newEmpName || !newEmpRole) return;
-                                        const newEmp: Employee = {
-                                          id: `EMP-${Math.floor(100 + Math.random() * 900)}`,
-                                          name: newEmpName,
-                                          role: newEmpRole,
-                                          department: "General",
-                                          salary: parseFloat(newEmpSalary) || 3000,
-                                          status: "Active",
-                                          bank: "Flowboard Wallet",
-                                          account: "Acct-9999",
-                                          type: newEmpType
-                                        };
-                                        
-                                        let updatedEmployees = employees;
-                                        if (newEmpType !== "One-Time Item") {
-                                          updatedEmployees = [...employees, newEmp];
-                                          setEmployees(updatedEmployees);
-                                        }
-                                        
-                                        const updatedIncluded = [...(selectedRun.employeesIncluded || []), newEmp];
-                                        const total = updatedIncluded.reduce((sum, e) => sum + e.salary, 0);
-                                        const updatedRun = {
-                                          ...selectedRun,
-                                          employeesIncluded: updatedIncluded,
-                                          amount: `$${total.toLocaleString()}`,
-                                          employeesPaid: updatedIncluded.length
-                                        };
-                                        
-                                        const updatedHistory = payrollHistory.map(pr => pr.id === selectedRun.id ? updatedRun : pr);
-                                        setPayrollHistory(updatedHistory);
-                                        setSelectedRun(updatedRun);
-                                        
-                                        if (newEmpType !== "One-Time Item") {
-                                          await syncState({ 
-                                            payroll_employees: updatedEmployees,
-                                            payroll_history: updatedHistory
-                                          });
-                                        } else {
-                                          await syncState({ 
-                                            payroll_history: updatedHistory
-                                          });
-                                        }
-                                        
-                                        setNewEmpName("");
-                                        setNewEmpRole("");
-                                        setNewEmpSalary("");
-                                        toast({ title: "Recipient Added", description: `${newEmp.name} appended to cycle.` });
-                                      }}
-                                      className="h-8 bg-[#1A1C21] text-xs font-bold rounded-md"
-                                    >
-                                      Add to Run
-                                    </Button>
-                                    </div>
-                                  )}
+                                  ))}
+                                </div>
                               </div>
                             </div>
                           </DialogContent>
@@ -987,117 +589,13 @@ export default function ClientPayrollPage() {
           </Card>
         </TabsContent>
 
-        <Dialog open={isScheduleModalOpen} onOpenChange={setIsScheduleModalOpen}>
-          <DialogContent className="bg-white border-slate-200 rounded-md max-w-xs">
-            <DialogHeader>
-              <DialogTitle className="text-sm font-bold text-[#1A1C21]">Schedule Auto-Disbursal</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-2">
-              <div className="space-y-3">
-                <Label className="text-xs font-bold text-[#1A1C21]">Select Date</Label>
-                <Input 
-                  type="date" 
-                  value={schedDateOnly}
-                  className="text-xs h-8 bg-white border-slate-200 text-[#1A1C21]" 
-                  onChange={(e) => setSchedDateOnly(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-[#1A1C21]">Select Time</Label>
-                <div className="flex gap-2">
-                  <Select value={schedHour} onValueChange={setSchedHour}>
-                    <SelectTrigger className="text-xs h-8 border-slate-200 bg-white text-[#1A1C21]"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      {Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')).map(hr => (
-                        <SelectItem key={hr} value={hr} className="text-xs">{hr}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={schedMinute} onValueChange={setSchedMinute}>
-                    <SelectTrigger className="text-xs h-8 border-slate-200 bg-white text-[#1A1C21]"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      {["00", "15", "30", "45"].map(min => (
-                        <SelectItem key={min} value={min} className="text-xs">{min}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={schedAmpm} onValueChange={setSchedAmpm}>
-                    <SelectTrigger className="text-xs h-8 border-slate-200 bg-white text-[#1A1C21]"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
-                      <SelectItem value="AM" className="text-xs">AM</SelectItem>
-                      <SelectItem value="PM" className="text-xs">PM</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <Button 
-                disabled={!schedDateOnly}
-                onClick={async () => {
-                  const d = new Date(schedDateOnly);
-                  const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-                  const combined = `${dateStr} ${schedHour}:${schedMinute} ${schedAmpm}`;
-                  
-                  try {
-                    const parts = combined.split(" ");
-                    if (parts.length >= 5) {
-                      const monthStr = parts[0].substring(0, 3);
-                      const dayStr = parts[1].replace(",", "");
-                      const yearStr = parts[2];
-                      const timeStr = parts[3];
-                      const ampm = parts[4];
-                      
-                      const [hourStr, minuteStr] = timeStr.split(":");
-                      let hour = parseInt(hourStr);
-                      const minute = parseInt(minuteStr);
-                      
-                      if (ampm === "PM" && hour < 12) hour += 12;
-                      if (ampm === "AM" && hour === 12) hour = 0;
-                      
-                      const months: Record<string, number> = {
-                        Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
-                        Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11
-                      };
-                      
-                      const month = months[monthStr];
-                      if (month !== undefined) {
-                        const schedDate = new Date(parseInt(yearStr), month, parseInt(dayStr), hour, minute);
-                        if (schedDate.getTime() <= Date.now()) {
-                          toast({ title: "Invalid Schedule", description: "Schedule time must be in the future.", variant: "destructive" });
-                          return;
-                        }
-                      }
-                    }
-                  } catch (e) {
-                    console.error("Validation failed", e);
-                  }
-                  
-                  const updated = payrollHistory.map(pr => 
-                    pr.id === schedulingRunId ? { ...pr, scheduledDate: combined } : pr
-                  );
-                  setPayrollHistory(updated);
-                  await syncState({ payroll_history: updated });
-                  setIsScheduleModalOpen(false);
-                  toast({ title: "Auto-Disbursal Scheduled", description: "Auto-Disbursal Scheduled" });
-                }}
-                className="w-full h-8 bg-[#1A1C21] hover:bg-black text-white text-xs font-bold rounded-md"
-              >
-                Confirm Schedule
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
         {/* --- 2. EMPLOYEES --- */}
         <TabsContent value="employees">
           <Card className="bg-white border border-[#EEEEF0] rounded-md shadow-none">
             <div className="px-6 py-4 flex items-center justify-between border-b border-[#EEEEF0]">
               <div>
                 <CardTitle className="text-base font-bold">Employee Roster</CardTitle>
-                <CardDescription className="text-xs">Update bank routes reacting to offboarding flags.</CardDescription>
+                <CardDescription className="text-xs">Manage your workforce members.</CardDescription>
               </div>
               
               <Dialog>
@@ -1113,15 +611,15 @@ export default function ClientPayrollPage() {
                   <div className="space-y-4 py-4">
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold">Full Name</Label>
-                      <Input placeholder="John Doe" value={newEmpName} onChange={(e) => setNewEmpName(e.target.value)} className="text-xs rounded-md focus-visible:ring-[#A079FF]" />
+                      <Input placeholder="John Doe" value={newEmpName} onChange={(e) => setNewEmpName(e.target.value)} className="text-xs" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold">Role Position</Label>
-                      <Input placeholder="e.g. Lead Developer" value={newEmpRole} onChange={(e) => setNewEmpRole(e.target.value)} className="text-xs rounded-md focus-visible:ring-[#A079FF]" />
+                      <Input placeholder="e.g. Lead Developer" value={newEmpRole} onChange={(e) => setNewEmpRole(e.target.value)} className="text-xs" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold">Base Compensation ($)</Label>
-                      <Input type="number" placeholder="3500" value={newEmpSalary} onChange={(e) => setNewEmpSalary(e.target.value)} className="text-xs rounded-md focus-visible:ring-[#A079FF]" />
+                      <Input type="number" placeholder="3500" value={newEmpSalary} onChange={(e) => setNewEmpSalary(e.target.value)} className="text-xs" />
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-bold">Employment Type</Label>
@@ -1141,61 +639,32 @@ export default function ClientPayrollPage() {
                 </DialogContent>
               </Dialog>
             </div>
-            <CardContent className="px-0 pb-0 overflow-x-auto">
+            <CardContent className="p-0 overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#EEEEF0] bg-[#FAFAFB]/60">
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Employee</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Department</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Class</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Salary</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Banking Route</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Status</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest text-right">Actions</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Employee</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Role</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Type</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Salary</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EEEEF0]">
                   {employees.map((emp) => (
                     <tr key={emp.id} className="hover:bg-[#FAFAFB]/30 transition-all">
-                      <td className="px-6 py-4 flex flex-col">
-                        <span className="text-xs font-bold text-[#1A1C21]">{emp.name}</span>
-                        <span className="text-[10px] text-[#1A1C21]/50">{emp.role}</span>
+                      <td className="px-6 py-4">
+                        <div className="text-xs font-bold text-[#1A1C21]">{emp.name}</div>
                       </td>
-                      <td className="px-6 py-4 text-xs text-[#1A1C21]/70 font-medium">{emp.department}</td>
-                      <td className="px-6 py-4 text-xs">
-                        <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-widest border-[#EEEEF0]">{emp.type}</Badge>
+                      <td className="px-6 py-4 text-xs text-[#1A1C21]/70">{emp.role}</td>
+                      <td className="px-6 py-4">
+                        <Badge variant="outline" className="text-[9px] font-bold uppercase">{emp.type}</Badge>
                       </td>
                       <td className="px-6 py-4 text-xs font-bold">${emp.salary.toLocaleString()}</td>
-                      <td className="px-6 py-4 flex flex-col">
-                        <span className="text-xs text-[#1A1C21]/80 font-medium">{emp.bank}</span>
-                        <span className="text-[10px] text-[#1A1C21]/40">{emp.account}</span>
-                      </td>
-                      <td className="px-6 py-4 text-xs">
-                        <Select 
-                          value={emp.status} 
-                          onValueChange={async (newStatus: "Active" | "Suspended" | "Terminated") => {
-                            const updated = employees.map(e => e.id === emp.id ? { ...e, status: newStatus } : e);
-                            setEmployees(updated);
-                            await syncState({ payroll_employees: updated });
-                            toast({ title: "Status Updated", description: `${emp.name} is now ${newStatus}.` });
-                          }}
-                        >
-                          <SelectTrigger className={`h-7 text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-none border-0 w-24 px-2 focus:ring-0 ${
-                            emp.status === "Active" ? "bg-emerald-500/10 text-emerald-600" : 
-                            emp.status === "Suspended" ? "bg-amber-500/10 text-amber-600" : 
-                            "bg-slate-500/10 text-slate-600"
-                          }`}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white border-slate-100 min-w-[100px]">
-                            <SelectItem value="Active" className="text-[10px] font-bold uppercase">Active</SelectItem>
-                            <SelectItem value="Suspended" className="text-[10px] font-bold uppercase">Suspended</SelectItem>
-                            <SelectItem value="Terminated" className="text-[10px] font-bold uppercase">Terminated</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </td>
-                      <td className="px-6 py-4 text-right justify-end flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteEmployee(emp.id)} className="hover:bg-red-50 h-8 w-8"><Trash2 className="w-3.5 h-3.5 text-red-500" /></Button>
+                      <td className="px-6 py-4 text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteEmployee(emp.id)} className="hover:bg-red-50 h-8 w-8">
+                          <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -1209,56 +678,50 @@ export default function ClientPayrollPage() {
         <TabsContent value="invoices">
           <Card className="bg-white border border-[#EEEEF0] rounded-md shadow-none">
             <CardHeader className="px-6 pt-6 pb-4 border-b border-[#EEEEF0]">
-              <CardTitle className="text-base font-bold">HR Approval Ledger</CardTitle>
-              <CardDescription className="text-xs">Review raised contractor invoices.</CardDescription>
+              <CardTitle className="text-base font-bold">Contractor Invoices</CardTitle>
+              <CardDescription className="text-xs">Review and approve contractor invoices.</CardDescription>
             </CardHeader>
-            <CardContent className="px-0 pb-0 overflow-x-auto">
+            <CardContent className="p-0 overflow-x-auto">
               {contractorInvoices.length === 0 ? (
-                <p className="text-xs p-6 text-slate-400 font-bold">No contractor invoices raised.</p>
+                <p className="text-xs p-6 text-slate-400 font-bold">No contractor invoices found.</p>
               ) : (
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-[#EEEEF0] bg-[#FAFAFB]/60">
-                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Contractor</th>
-                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Inv #</th>
-                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Amount</th>
-                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Status</th>
-                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest text-right">Authorization</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Contractor</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Invoice #</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Amount</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Status</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#EEEEF0]">
                     {contractorInvoices.map((inv) => (
                       <tr key={inv.id} className="hover:bg-[#FAFAFB]/30">
                         <td className="px-6 py-4 text-xs font-bold">{inv.talent_name}</td>
-                        <td className="px-6 py-4 text-xs font-medium text-[#1A1C21]/60">#{inv.invoice_number}</td>
+                        <td className="px-6 py-4 text-xs">#{inv.invoice_number}</td>
                         <td className="px-6 py-4 text-xs font-bold">{inv.amount}</td>
-                        <td className="px-6 py-4 text-xs">
-                          <Badge className={`text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-none ${
+                        <td className="px-6 py-4">
+                          <Badge className={`text-[9px] font-bold uppercase ${
                             inv.status === "Approved" ? "bg-emerald-500/10 text-emerald-600" : 
                             inv.status === "Denied" ? "bg-red-500/10 text-red-600" : 
                             "bg-amber-500/10 text-amber-600"
                           }`}>{inv.status}</Badge>
                         </td>
-                        <td className="px-6 py-4 text-right flex justify-end gap-1">
+                        <td className="px-6 py-4 text-right">
                           <Button 
                             disabled={inv.status !== "Pending"}
                             onClick={() => {
                               setApprovingInvoiceId(inv.id);
                               setIsApprovalModalOpen(true);
                             }} 
-                            variant="ghost" size="icon" className="h-8 w-8 hover:bg-emerald-50 border border-emerald-100 disabled:opacity-40 disabled:hover:bg-transparent"
+                            variant="ghost" 
+                            className="h-8 px-3 text-emerald-600 hover:bg-emerald-50"
                           >
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-                          </Button>
-                          <Button 
-                            disabled={inv.status !== "Pending"}
-                            onClick={() => updateInvoiceStatus(inv.id, "Denied")} 
-                            variant="ghost" size="icon" className="h-8 w-8 hover:bg-red-50 border border-red-100 disabled:opacity-40 disabled:hover:bg-transparent"
-                          >
-                            <XCircle className="w-3.5 h-3.5 text-red-600" />
+                            <CheckCircle className="w-3.5 h-3.5 mr-1" /> Approve
                           </Button>
                         </td>
-                      </tr>
+                       </tr>
                     ))}
                   </tbody>
                 </table>
@@ -1270,10 +733,10 @@ export default function ClientPayrollPage() {
         {/* --- 4. SALARY COMPONENTS --- */}
         <TabsContent value="components">
           <Card className="bg-white border border-[#EEEEF0] rounded-md shadow-none">
-            <CardHeader className="px-6 pt-6 pb-4 border-b border-[#EEEEF0] flex flex-row items-center justify-between space-y-0">
+            <CardHeader className="px-6 pt-6 pb-4 border-b border-[#EEEEF0] flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold">Earning & Deduction Architectures</CardTitle>
-                <CardDescription className="text-xs">Manage gross calculation configurations.</CardDescription>
+                <CardTitle className="text-base font-bold">Salary Components</CardTitle>
+                <CardDescription className="text-xs">Manage earnings and deductions.</CardDescription>
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -1285,7 +748,7 @@ export default function ClientPayrollPage() {
                   <DialogHeader><DialogTitle className="text-base font-bold">Add Salary Component</DialogTitle></DialogHeader>
                   <div className="space-y-3 py-2">
                     <Label className="text-xs font-bold">Component Name</Label>
-                    <Input value={compName} onChange={(e)=>setCompName(e.target.value)} className="text-xs border-slate-200" />
+                    <Input value={compName} onChange={(e)=>setCompName(e.target.value)} className="text-xs" />
                     
                     <Label className="text-xs font-bold">Category</Label>
                     <Select value={compType} onValueChange={(v: any) => setCompType(v)}>
@@ -1306,10 +769,10 @@ export default function ClientPayrollPage() {
                     </Select>
 
                     <Label className="text-xs font-bold">Amount / Rate</Label>
-                    <Input type="number" value={compValue} onChange={(e)=>setCompValue(e.target.value)} className="text-xs border-slate-200" />
+                    <Input type="number" value={compValue} onChange={(e)=>setCompValue(e.target.value)} className="text-xs" />
 
                     <Label className="text-xs font-bold">Description</Label>
-                    <Input value={compDesc} onChange={(e)=>setCompDesc(e.target.value)} className="text-xs border-slate-200" />
+                    <Input value={compDesc} onChange={(e)=>setCompDesc(e.target.value)} className="text-xs" />
                   </div>
                   <DialogFooter>
                     <Button onClick={handleAddSalaryComponent} className="w-full bg-[#1A1C21] text-xs font-bold">Save Component</Button>
@@ -1317,27 +780,22 @@ export default function ClientPayrollPage() {
                 </DialogContent>
               </Dialog>
             </CardHeader>
-            <CardContent className="px-0 pb-0 overflow-x-auto">
+            <CardContent className="p-0 overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#EEEEF0] bg-[#FAFAFB]/60">
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Name</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Type</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Value Type</th>
-                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-widest">Rate</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Name</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Type</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Value Type</th>
+                    <th className="px-6 py-3 text-[10px] font-black uppercase text-[#1A1C21]/40">Rate</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#EEEEF0]">
                   {components.map((comp) => (
-                    <tr key={comp.id} className="hover:bg-[#FAFAFB]/30">
-                      <td className="px-6 py-4 text-xs font-bold text-[#1A1C21]">{comp.name}</td>
-                      <td className="px-6 py-4 text-xs font-medium">
-                        <span className={`flex items-center gap-1 ${comp.type === "Earning" ? "text-emerald-600" : "text-red-500"}`}>
-                          {comp.type === "Earning" ? <ArrowDownRight className="w-3.5 h-3.5" /> : <ArrowUpRight className="w-3.5 h-3.5" />}
-                          {comp.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs text-[#1A1C21]/60">{comp.amountType}</td>
+                    <tr key={comp.id}>
+                      <td className="px-6 py-4 text-xs font-bold">{comp.name}</td>
+                      <td className="px-6 py-4 text-xs">{comp.type}</td>
+                      <td className="px-6 py-4 text-xs">{comp.amountType}</td>
                       <td className="px-6 py-4 text-xs font-bold">{comp.amountType === "Percentage" ? `${comp.value}%` : `$${comp.value}`}</td>
                     </tr>
                   ))}
@@ -1347,29 +805,22 @@ export default function ClientPayrollPage() {
           </Card>
         </TabsContent>
 
-        {/* --- 5. COMPENSATION POLICIES --- */}
+        {/* --- 5. POLICIES --- */}
         <TabsContent value="policies">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {policies.map((policy) => (
               <Card key={policy.id} className="bg-white border border-[#EEEEF0] rounded-md shadow-none">
-                <CardHeader className="p-6 border-b border-[#EEEEF0] flex flex-row items-start justify-between space-y-0">
-                  <div>
-                    <CardTitle className="text-sm font-bold">{policy.roleName}</CardTitle>
-                    <CardDescription className="text-xs">Base Structure: ${policy.baseSalary.toLocaleString()}/mo</CardDescription>
-                  </div>
-                  <Button variant="ghost" size="icon" className="h-8 w-8"><Edit3 className="w-3.5 h-3.5 text-[#1A1C21]/50" /></Button>
+                <CardHeader className="p-6 border-b border-[#EEEEF0]">
+                  <CardTitle className="text-sm font-bold">{policy.roleName}</CardTitle>
+                  <CardDescription className="text-xs">Base: ${policy.baseSalary.toLocaleString()}/mo</CardDescription>
                 </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-black uppercase text-[#1A1C21]/40 tracking-wider">Statutory Deductions</span>
-                    <div className="flex items-center gap-1.5 text-xs font-medium"><ShieldAlert className="w-3.5 h-3.5 text-amber-600" /> {policy.taxProfile}</div>
-                  </div>
+                <CardContent className="p-6">
+                  <div className="text-xs text-slate-600">{policy.taxProfile}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
         </TabsContent>
-
       </Tabs>
     </div>
   );

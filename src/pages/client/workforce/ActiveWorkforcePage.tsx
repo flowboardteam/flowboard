@@ -145,7 +145,7 @@ function HistoryPanel({history,loading}:{history:HistoryEntry[];loading:boolean}
   );
 }
 
-function ProfileDrawer({member,onClose,onRemove,onRequestChange,onAvailabilityChange}:{member:WorkforceMember;onClose:()=>void;onRemove:(id:string)=>void;onRequestChange:(m:WorkforceMember)=>void;onAvailabilityChange:(id:string,s:AvailStatus)=>void;}){
+function ProfileDrawer({member,onClose,onRemove,onRequestChange,onAvailabilityChange,onDirectEdit}:{member:WorkforceMember;onClose:()=>void;onRemove:(id:string)=>void;onRequestChange:(m:WorkforceMember)=>void;onAvailabilityChange:(id:string,s:AvailStatus)=>void;onDirectEdit:(m:WorkforceMember)=>void;}){
   const [tab,setTab]=useState<"info"|"history">("info");
   const [confirmRemove,setConfirmRemove]=useState(false);
   const [history,setHistory]=useState<HistoryEntry[]>([]);
@@ -173,6 +173,7 @@ function ProfileDrawer({member,onClose,onRemove,onRequestChange,onAvailabilityCh
         <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-[var(--border-color)] bg-[var(--card-bg)]">
           <div className="flex items-center gap-3 min-w-0"><MemberAvatar member={member} size="sm"/><div className="min-w-0"><p className="text-sm font-black dark:text-white truncate">{name}</p><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">{member.role_title||"No title"}</p></div></div>
           <div className="flex items-center gap-1 shrink-0 ml-2">
+            <button onClick={()=>onDirectEdit(member)} title="Edit profile directly" className="p-2 rounded-xl hover:bg-blue-500/10 text-slate-400 hover:text-blue-600 transition-colors"><Pencil className="w-4 h-4"/></button>
             <button onClick={()=>onRequestChange(member)} title="Request contract change" className="p-2 rounded-xl hover:bg-blue-500/10 text-slate-400 hover:text-blue-600 transition-colors"><ArrowRightLeft className="w-4 h-4"/></button>
             <button onClick={()=>setConfirmRemove(true)} title="Remove" className="p-2 rounded-xl hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4"/></button>
             <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 transition-colors"><X className="w-5 h-5"/></button>
@@ -356,6 +357,85 @@ function AssignProjectModal({member,projects,navigate,onAssign,onClose,saving}:a
   );
 }
 
+function EditMemberModal({member,onClose,onSave,saving}:{member:WorkforceMember;onClose:()=>void;onSave:(f:any)=>void;saving:boolean;}){
+  const [form,setForm]=useState({
+    full_name: member.full_name || "",
+    email: member.email || "",
+    role_title: member.role_title || "",
+    location: member.location || "",
+    department: member.department || "",
+    member_type: member.member_type,
+    start_date: member.start_date || "",
+    end_date: member.end_date || "",
+    payment_monthly: member.payment_monthly?.toString() || ""
+  });
+  const upd=(k:string,v:string)=>setForm(p=>({...p,[k]:v}));
+
+  return(
+    <AnimatePresence>
+      <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose}
+        className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+        <motion.div initial={{opacity:0,scale:0.95,y:16}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:0.95,y:16}}
+          onClick={e=>e.stopPropagation()}
+          className="w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-black dark:text-white tracking-tight">Edit workforce profile</h2>
+              <p className="text-xs font-bold text-blue-600 mt-1">Direct admin modifications</p>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 shrink-0"><X className="w-4 h-4"/></button>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Member type *</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["employee","hired_full_time","hired_contract"] as MemberType[]).map(t=>{
+                  const cfg=TYPE_CFG[t];
+                  return<button key={t} type="button" onClick={()=>upd("member_type",t)}
+                    className={`py-2.5 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border text-center leading-tight ${form.member_type===t?`${cfg.bg} ${cfg.color} border-current`:"border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>{cfg.label}</button>;
+                })}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[{k:"full_name",l:"Full name *",p:"Full Name"},{k:"email",l:"Email",p:"email@company.com"},{k:"role_title",l:"Role title",p:"Role Title"},{k:"location",l:"Location",p:"Location"},{k:"department",l:"Department",p:"Department"}].map(f=>(
+                <div key={f.k}>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{f.l}</label>
+                  <input value={(form as any)[f.k]} onChange={e=>upd(f.k,e.target.value)} placeholder={f.p}
+                    className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"/>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Start date</label>
+                <input type="date" value={form.start_date} onChange={e=>upd("start_date",e.target.value)}
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"/>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">End date</label>
+                <input type="date" value={form.end_date} onChange={e=>upd("end_date",e.target.value)}
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"/>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Monthly payment</label>
+              <input value={form.payment_monthly} onChange={e=>upd("payment_monthly",e.target.value)} placeholder="e.g. 5000" type="number"
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"/>
+            </div>
+          </div>
+          <div className="flex gap-3 mt-6">
+            <button onClick={onClose} className="flex-1 py-3.5 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">Cancel</button>
+            <button onClick={()=>onSave(form)} disabled={!form.full_name.trim()||saving}
+              className="flex-1 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 disabled:opacity-40">
+              {saving?<Loader2 className="w-3.5 h-3.5 animate-spin"/>:<Briefcase className="w-3.5 h-3.5"/>}Save Profile
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 function AddMemberModal({onAdd,onClose,saving}:any){
   const [form,setForm]=useState({full_name:"",email:"",role_title:"",location:"",department:"",member_type:"employee" as MemberType,start_date:new Date().toISOString().split("T")[0],payment_monthly:""});
   const upd=(k:string,v:string)=>setForm(p=>({...p,[k]:v}));
@@ -377,32 +457,153 @@ export default function ActiveWorkforcePage(){
   const [assignTarget,setAssignTarget]=useState<WorkforceMember|null>(null);
   const [profileTarget,setProfileTarget]=useState<WorkforceMember|null>(null);
   const [changeTarget,setChangeTarget]=useState<WorkforceMember|null>(null);
+  const [directEditTarget,setDirectEditTarget]=useState<WorkforceMember|null>(null);
   const [showAddModal,setShowAddModal]=useState(false);
   const [saving,setSaving]=useState(false);
 
   const fetchAll=useCallback(async()=>{
     setLoading(true);setError(null);
     try{
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_workforce_${groupId}`;
-      const localData = localStorage.getItem(localKey);
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user) throw new Error("Not authenticated");
+
+      // 1. Fetch workforce members from Supabase scoped to this user (org owner) and the active group
+      let query = supabase
+        .from("workforce_members")
+        .select(`
+          *,
+          profile:profile_id (full_name, avatar_url, location, email, bio, skills)
+        `)
+        .eq("organization_id", user.id)
+        .eq("is_active", true)
+        .order("created_at",{ascending:false});
       
-      if(localData) {
-        setMembers(JSON.parse(localData));
-        setProjects([
-          { id: `proj-${groupId}-1`, name: "Talent Cloud V2", status: "active" },
-          { id: `proj-${groupId}-2`, name: "Workflow Integrations", status: "active" }
-        ]);
-        setLoading(false);
-        return;
+      if (activeGroup?.id) {
+        query = query.eq("group_id", activeGroup.id);
+      } else {
+        query = query.is("group_id", null);
       }
 
-      // Start fresh
-      setMembers([]);
-      setProjects([]);
+      const {data:dbMembers,error:dbErr} = await query;
+
+      if(dbErr) console.warn("workforce_members fetch error:", dbErr.message);
+
+      // 2. Fetch project_members to resolve each member's projects
+      const {data:pmData}=await supabase
+        .from("project_members")
+        .select("workforce_member_id, role_on_project, project:project_id(id,name,status)")
+        .eq("organization_id", user.id);
+
+      const pmMap: Record<string,MemberProject[]>={};
+      (pmData||[]).forEach((pm:any)=>{
+        if(!pmMap[pm.workforce_member_id]) pmMap[pm.workforce_member_id]=[];
+        if(pm.project) pmMap[pm.workforce_member_id].push({id:pm.project.id,name:pm.project.name,role_on_project:pm.role_on_project});
+      });
+
+      const dbMapped:WorkforceMember[]=(dbMembers||[]).map((m:any)=>({
+        ...m,
+        projects: pmMap[m.id]||[]
+      }));
+
+      const combined=[...dbMapped];
+      setMembers(combined);
+
+      // 4. Fetch real projects
+      let projQuery = supabase
+        .from("projects")
+        .select("id,name,status")
+        .eq("organization_id",user.id)
+        .eq("status","active");
+
+      if (activeGroup?.id) {
+        projQuery = projQuery.eq("group_id", activeGroup.id);
+      } else {
+        projQuery = projQuery.is("group_id", null);
+      }
+
+      const {data:projData}=await projQuery;
+
+      setProjects(projData||[]);
+
     }catch(err:any){setError(err.message??"Could not load workforce.");}
     finally{setLoading(false);}
   },[activeGroup?.id]);
+
+  const autoBackfillGroupIds = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: nullMembers } = await supabase
+        .from("workforce_members")
+        .select("*")
+        .eq("organization_id", user.id)
+        .is("group_id", null)
+        .eq("is_active", true);
+
+      if (!nullMembers || nullMembers.length === 0) return;
+
+      const { data: groups } = await supabase
+        .from("groups")
+        .select("id")
+        .eq("organization_id", user.id)
+        .eq("status", "active")
+        .limit(1);
+      const defaultGroupId = groups?.[0]?.id || activeGroup?.id;
+
+      for (const member of nullMembers) {
+        let resolvedGroupId = null;
+
+        if (member.source_role_id) {
+          const { data: roleData } = await supabase
+            .from("roles")
+            .select("group_id")
+            .eq("id", member.source_role_id)
+            .single();
+          if (roleData?.group_id) {
+            resolvedGroupId = roleData.group_id;
+          }
+        }
+
+        if (!resolvedGroupId && member.profile_id) {
+          const { data: inquiries } = await supabase
+            .from("hire_inquiries")
+            .select("offer_message, message")
+            .eq("talent_id", member.profile_id)
+            .eq("client_id", user.id)
+            .eq("status", "accepted")
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          const inquiry = inquiries?.[0];
+          if (inquiry) {
+            const msgText = inquiry.offer_message || inquiry.message || "";
+            const match = msgText.match(/\[GROUP_ID:([^\]]+)\]/);
+            if (match) {
+              resolvedGroupId = match[1];
+            }
+          }
+        }
+
+        if (!resolvedGroupId) {
+          resolvedGroupId = defaultGroupId;
+        }
+
+        if (resolvedGroupId) {
+          await supabase
+            .from("workforce_members")
+            .update({ group_id: resolvedGroupId })
+            .eq("id", member.id);
+        }
+      }
+    } catch (e) {
+      console.warn("Backfill error:", e);
+    }
+  }, [activeGroup?.id]);
+
+  useEffect(() => {
+    autoBackfillGroupIds();
+  }, [autoBackfillGroupIds]);
 
   useEffect(()=>{fetchAll();},[fetchAll]);
   useEffect(()=>{
@@ -416,36 +617,47 @@ export default function ActiveWorkforcePage(){
   const handleAddMember=async(form:any)=>{
     setSaving(true);
     try{
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_workforce_${groupId}`;
-      
-      const newMember: WorkforceMember = {
-        id: `wf-${groupId}-${Math.random().toString(36).substr(2, 9)}`,
-        profile_id: null,
-        full_name: form.full_name,
-        avatar_url: null,
-        email: form.email || null,
-        role_title: form.role_title || null,
-        location: form.location || null,
-        department: form.department || null,
-        member_type: form.member_type,
-        start_date: form.start_date || null,
-        end_date: null,
-        payment_monthly: form.payment_monthly ? Number(form.payment_monthly) : 0,
-        payment_currency: "USD",
-        is_active: true,
-        online_status: "online",
-        availability_status: "available",
-        document_url: null,
-        document_name: null,
-        notes: null,
-        created_at: new Date().toISOString(),
-        projects: []
-      };
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user) throw new Error("Not authenticated");
 
-      const updated = [...members, newMember];
-      setMembers(updated);
-      localStorage.setItem(localKey, JSON.stringify(updated));
+      const {data:inserted,error:insErr}=await supabase.from("workforce_members").insert({
+        organization_id: user.id,
+        group_id:        activeGroup?.id || null,
+        full_name:       form.full_name,
+        email:           form.email||null,
+        role_title:      form.role_title||null,
+        location:        form.location||null,
+        department:      form.department||null,
+        member_type:     form.member_type,
+        start_date:      form.start_date||null,
+        payment_monthly: form.payment_monthly?Number(form.payment_monthly):null,
+        payment_currency:"USD",
+        is_active:       true,
+        online_status:   "online",
+        availability_status:"available"
+      }).select().single();
+
+      if(insErr){
+        throw insErr;
+      } else {
+        // Log to employment_history
+        await supabase.from("employment_history").insert({
+          workforce_member_id: inserted.id,
+          change_type: "hired",
+          new_values: {
+            full_name: inserted.full_name,
+            role_title: inserted.role_title,
+            member_type: inserted.member_type,
+            payment_monthly: inserted.payment_monthly
+          },
+          old_values: {},
+          notes: "Manually hired and onboarded to organization.",
+          triggered_by: "HR Manager"
+        });
+
+        // Refresh from DB so we get the canonical data
+        await fetchAll();
+      }
 
       toast({title:"Member added ✓"});
       setShowAddModal(false);
@@ -456,36 +668,81 @@ export default function ActiveWorkforcePage(){
   const handleAssignProject=async({projectId,role}:any)=>{
     if(!assignTarget) return;setSaving(true);
     try{
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_workforce_${groupId}`;
+      const {data:{user}}=await supabase.auth.getUser();if(!user) throw new Error("Not authenticated");
+      
+      const {error}=await supabase.from("project_members").upsert({
+        project_id:projectId,
+        workforce_member_id:assignTarget.id,
+        organization_id:user.id,
+        role_on_project:role||null,
+      },{onConflict:"project_id,workforce_member_id"});
+      if(error) throw error;
+
       const proj = projects.find(p=>p.id===projectId);
 
-      const updated = members.map(m => {
-        if(m.id === assignTarget.id) {
-          return {
-            ...m,
-            projects: [...m.projects, { id: projectId, name: proj?.name || "Unknown Project", role_on_project: role || null }]
-          };
-        }
-        return m;
+      // Log to employment_history
+      await supabase.from("employment_history").insert({
+        workforce_member_id: assignTarget.id,
+        change_type: "project_assigned",
+        new_values: {
+          project_id: projectId,
+          project_name: proj?.name || "Unknown Project",
+          role_on_project: role || "Member"
+        },
+        old_values: {},
+        notes: `Assigned to project "${proj?.name || "Unknown Project"}"${role ? ` as ${role}` : ""}.`,
+        triggered_by: "HR Manager"
       });
 
-      setMembers(updated);
-      localStorage.setItem(localKey, JSON.stringify(updated));
+      // Notify the talent
+      if(assignTarget.profile_id){
+        await supabase.from("notifications").insert({
+          user_id:assignTarget.profile_id,
+          title:"You've been assigned to a project! 📁",
+          message:`You have been assigned to "${proj?.name || "Unknown Project"}"${role?` as ${role}`:""}. Check your Flowboard dashboard.`,
+          type:"project_assigned",
+        });
+      }
 
-      toast({title:"Assigned ✓",description:`${rName(assignTarget)} assigned to ${proj?.name}.`});
+      await fetchAll();
+      toast({title:"Assigned ✓",description:`${rName(assignTarget)} assigned to project.`});
       setAssignTarget(null);
     }catch(err:any){toast({variant:"destructive",title:"Error",description:err.message});}
     finally{setSaving(false);}
   };
 
   const handleRemove=async(id:string)=>{
-    const groupId = activeGroup?.id || "default-group";
-    const localKey = `flowboard_workforce_${groupId}`;
-    
+    // Optimistic UI update
     const updated = members.filter(m=>m.id!==id);
     setMembers(updated);
-    localStorage.setItem(localKey, JSON.stringify(updated));
+    
+    // Fetch profile_id to notify the talent before soft-deleting
+    const { data: memberData } = await supabase.from("workforce_members").select("profile_id").eq("id", id).single();
+    
+    // Persist to DB (soft delete: mark inactive)
+    const {error} = await supabase.from("workforce_members").update({is_active:false}).eq("id",id);
+    if(error) {
+      console.warn("DB remove failed:", error.message);
+    } else {
+      // Log to employment_history
+      await supabase.from("employment_history").insert({
+        workforce_member_id: id,
+        change_type: "removed",
+        new_values: { is_active: false },
+        old_values: { is_active: true },
+        notes: "Workforce member contract/employment terminated by HR.",
+        triggered_by: "HR Manager"
+      });
+
+      if (memberData?.profile_id) {
+        await supabase.from("notifications").insert({
+           user_id: memberData.profile_id,
+           title: "Workforce Update 🏢",
+           message: `Your contract/position with the organization has been terminated.`,
+           type: "system"
+        });
+      }
+    }
     toast({title:"Member removed"});
   };
 
@@ -502,9 +759,81 @@ export default function ActiveWorkforcePage(){
   };
 
   const handleAvailabilityChange=async(id:string,status:AvailStatus)=>{
+    const member = members.find(m=>m.id===id);
+    const oldStatus = member?.availability_status || "available";
     setMembers(prev=>prev.map(m=>m.id===id?{...m,availability_status:status}:m));
     await supabase.from("workforce_members").update({availability_status:status}).eq("id",id);
+    
+    // Log to employment_history
+    await supabase.from("employment_history").insert({
+      workforce_member_id: id,
+      change_type: "availability_changed",
+      new_values: { availability_status: status },
+      old_values: { availability_status: oldStatus },
+      notes: `Availability changed from ${oldStatus} to ${status}.`,
+      triggered_by: "HR Manager"
+    });
+
     toast({title:"Availability updated"});
+  };
+
+  const handleDirectEdit = async (form: any) => {
+    if (!directEditTarget) return;
+    setSaving(true);
+    try {
+      const payload = {
+        full_name: form.full_name,
+        email: form.email || null,
+        role_title: form.role_title || null,
+        location: form.location || null,
+        department: form.department || null,
+        member_type: form.member_type,
+        start_date: form.start_date || null,
+        end_date: form.end_date || null,
+        payment_monthly: form.payment_monthly ? Number(form.payment_monthly) : null,
+      };
+
+      const oldValues: Record<string, any> = {};
+      const newValues: Record<string, any> = {};
+
+      Object.keys(payload).forEach((key) => {
+        const newVal = (payload as any)[key];
+        const oldVal = (directEditTarget as any)[key];
+        if (newVal !== oldVal) {
+          oldValues[key] = oldVal;
+          newValues[key] = newVal;
+        }
+      });
+
+      const { data: updatedMember, error: updErr } = await supabase
+        .from("workforce_members")
+        .update(payload)
+        .eq("id", directEditTarget.id)
+        .select()
+        .single();
+
+      if (updErr) throw updErr;
+
+      // Only insert into history if there were actual changes
+      if (Object.keys(newValues).length > 0) {
+        await supabase.from("employment_history").insert({
+          workforce_member_id: directEditTarget.id,
+          change_type: "role_changed",
+          new_values: newValues,
+          old_values: oldValues,
+          notes: "Profile details updated directly by Administrator.",
+          triggered_by: "HR Manager",
+        });
+      }
+
+      await fetchAll();
+      toast({ title: "Profile updated ✓" });
+      setDirectEditTarget(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Error", description: err.message });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const depts=["All departments",...new Set(members.map(m=>m.department).filter(Boolean))];
@@ -571,7 +900,8 @@ export default function ActiveWorkforcePage(){
 
       <AnimatePresence>{showAddModal&&<AddMemberModal onAdd={handleAddMember} onClose={()=>setShowAddModal(false)} saving={saving}/>}</AnimatePresence>
       <AnimatePresence>{assignTarget&&<AssignProjectModal member={assignTarget} projects={projects} navigate={navigate} onAssign={handleAssignProject} onClose={()=>setAssignTarget(null)} saving={saving}/>}</AnimatePresence>
-      <AnimatePresence>{profileTarget&&<ProfileDrawer member={profileTarget} onClose={()=>setProfileTarget(null)} onRemove={handleRemove} onRequestChange={m=>{setProfileTarget(null);setChangeTarget(m);}} onAvailabilityChange={handleAvailabilityChange}/>}</AnimatePresence>
+      <AnimatePresence>{profileTarget&&<ProfileDrawer member={profileTarget} onClose={()=>setProfileTarget(null)} onRemove={handleRemove} onRequestChange={m=>{setProfileTarget(null);setChangeTarget(m);}} onAvailabilityChange={handleAvailabilityChange} onDirectEdit={m=>{setProfileTarget(null);setDirectEditTarget(m);}}/>}</AnimatePresence>
+      <AnimatePresence>{directEditTarget&&<EditMemberModal member={directEditTarget} onClose={()=>setDirectEditTarget(null)} onSave={handleDirectEdit} saving={saving}/>}</AnimatePresence>
       <AnimatePresence>{changeTarget&&<ContractChangeModal member={changeTarget} onClose={()=>setChangeTarget(null)} onSend={handleSendChangeRequest} sending={saving}/>}</AnimatePresence>
     </div>
   );

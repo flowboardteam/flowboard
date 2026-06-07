@@ -78,10 +78,10 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-white font-jakarta p-6">
       <div className="max-w-[400px] w-full space-y-10">
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 mb-8 group">
+          <a href="https://flowboard.team" className="inline-flex items-center gap-2 mb-8 group">
             <img src="/flowboardlogo.png" alt="Logo" className="w-12 h-12 object-contain" />
             <span className="text-2xl font-black tracking-tighter uppercase text-slate-900">FLOWBOARD</span>
-          </Link>
+          </a>
           <h1 className="text-4xl font-medium text-slate-900 mb-2 tracking-tighter">New password</h1>
           <p className="text-slate-500 font-medium">Reset your credentials to continue.</p>
         </div>

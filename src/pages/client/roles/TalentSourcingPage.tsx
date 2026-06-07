@@ -390,6 +390,11 @@ export default function TalentSourcingPage() {
       .then(({ data }) => {
         if (cancelled) return;
         if (data) {
+          if (activeGroup && data.group_id && data.group_id !== activeGroup.id) {
+            toast({ title: "Role Not in Active Workplace", description: `Redirecting to ${activeGroup.name} roles.` });
+            navigate("/client/roles");
+            return;
+          }
           setRole(data);
           setRoleLoading(false);
         } else {
@@ -400,6 +405,11 @@ export default function TalentSourcingPage() {
             const parsed = JSON.parse(localRoles);
             const found = parsed.find((r: any) => r.id === roleId);
             if (found) {
+              if (activeGroup && found.group_id && found.group_id !== activeGroup.id) {
+                toast({ title: "Role Not in Active Workplace", description: `Redirecting to ${activeGroup.name} roles.` });
+                navigate("/client/roles");
+                return;
+              }
               setRole(found);
               setRoleLoading(false);
               return;
@@ -473,6 +483,7 @@ export default function TalentSourcingPage() {
         const { error } = await supabase.from("role_shortlist").insert({
           role_id: roleId, 
           organization_id: user.id, 
+          group_id: activeGroup?.id || "default-group",
           talent_id: talent.id,
           talent_name: talent.full_name, talent_avatar: talent.avatar_url,
           talent_role: talent.primary_role, talent_location: talent.location,

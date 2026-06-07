@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/use-toast";
 interface ChangeRequest {
   id: string;
   organization_id: string;
+  workforce_member_id: string;
   change_types: string[];
   proposed_member_type: string | null;
   proposed_salary: number | null;
@@ -297,6 +298,82 @@ export default function TalentContractChangesPage(){
   const handleRespond=async(req:ChangeRequest,response:"accepted"|"declined",reason="")=>{
     setResponding(true);
     try{
+      if (response === "accepted") {
+        const workforceMemberId = req.workforce_member_id;
+        if (!workforceMemberId) {
+          throw new Error("Workforce member ID is missing from this request.");
+        }
+
+        // Fetch current workforce member details to log old and new values accurately
+        const { data: member, error: fetchErr } = await supabase
+          .from("workforce_members")
+          .select("*")
+          .eq("id", workforceMemberId)
+          .single();
+
+        if (fetchErr || !member) {
+          throw new Error(fetchErr ? fetchErr.message : "Workforce member not found");
+        }
+
+        const payload: Record<string, any> = {};
+        const oldValues: Record<string, any> = {};
+        const newValues: Record<string, any> = {};
+
+        if (req.change_types.includes("member_type") && req.proposed_member_type) {
+          payload.member_type = req.proposed_member_type;
+          oldValues.member_type = member.member_type;
+          newValues.member_type = req.proposed_member_type;
+        }
+        if (req.change_types.includes("salary") && req.proposed_salary) {
+          payload.payment_monthly = req.proposed_salary;
+          oldValues.payment_monthly = member.payment_monthly;
+          newValues.payment_monthly = req.proposed_salary;
+        }
+        if (req.change_types.includes("role_title") && req.proposed_role_title) {
+          payload.role_title = req.proposed_role_title;
+          oldValues.role_title = member.role_title;
+          newValues.role_title = req.proposed_role_title;
+        }
+        if (req.change_types.includes("department") && req.proposed_department) {
+          payload.department = req.proposed_department;
+          oldValues.department = member.department;
+          newValues.department = req.proposed_department;
+        }
+        if (req.change_types.includes("end_date") && req.proposed_end_date) {
+          payload.end_date = req.proposed_end_date;
+          oldValues.end_date = member.end_date;
+          newValues.end_date = req.proposed_end_date;
+        }
+        if (req.proposed_start_date) {
+          payload.start_date = req.proposed_start_date;
+          oldValues.start_date = member.start_date;
+          newValues.start_date = req.proposed_start_date;
+        }
+
+        if (Object.keys(payload).length > 0) {
+          const { error: updErr } = await supabase
+            .from("workforce_members")
+            .update(payload)
+            .eq("id", workforceMemberId);
+
+          if (updErr) throw updErr;
+
+          // Log to employment_history
+          const { error: histErr } = await supabase
+            .from("employment_history")
+            .insert({
+              workforce_member_id: workforceMemberId,
+              change_type: "contract_changed",
+              new_values: newValues,
+              old_values: oldValues,
+              notes: `Contract change request accepted by the Talent. Message from organization was: "${req.message || ""}"`,
+              triggered_by: "Talent",
+            });
+
+          if (histErr) throw histErr;
+        }
+      }
+
       const {error}=await supabase.from("contract_change_requests").update({status:response,decline_reason:response==="declined"?reason:null}).eq("id",req.id);
       if(error) throw error;
       setRequests(prev=>prev.map(r=>r.id===req.id?{...r,status:response}:r));

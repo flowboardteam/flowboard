@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+
+
 export function PreparedNavbar() {
   const [isAuthDropdownOpen, setIsAuthDropdownOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export function PreparedNavbar() {
         
         {/* Logo */}
         <div className="flex-shrink-0 flex items-center gap-2">
-          <Link to="/" className={`text-[28px] font-bold tracking-tight transition-colors duration-300 ${isLightMode ? "text-[#111]" : "text-white"}`}>Flowboard</Link>
+          <a href="https://flowboard.team" className={`text-[28px] font-bold tracking-tight transition-colors duration-300 ${isLightMode ? "text-[#111]" : "text-white"}`}>Flowboard</a>
         </div>
 
         {/* Desktop Navigation Links */}
@@ -81,7 +83,7 @@ export function PreparedNavbar() {
             className="flex items-center gap-1 cursor-pointer group h-full px-2"
             onMouseEnter={() => setActiveMegaMenu(null)}
           >
-             <Link to="/client/signup" className={`text-[15px] font-medium transition-colors duration-300 ${isLightMode ? "text-[#111]/80 group-hover:text-[#111]" : "text-white/80 group-hover:text-white"}`}>Talent Cloud</Link>
+             <Link to="/talent/signup" className={`text-[15px] font-medium transition-colors duration-300 ${isLightMode ? "text-[#111]/80 group-hover:text-[#111]" : "text-white/80 group-hover:text-white"}`}>Talent Cloud</Link>
           </div>
         </div>
 
@@ -121,7 +123,7 @@ export function PreparedNavbar() {
                     <div className="space-y-1">
                       <AuthLink label="Talent Login" icon={LogIn} onClick={() => { setIsAuthDropdownOpen(false); navigate("/talent/login"); }} />
                       <AuthLink label="Join Talent Cloud" icon={UserPlus} onClick={() => { setIsAuthDropdownOpen(false); navigate("/talent/signup"); }} />
-                      <AuthLink label="Flowboard Pay" icon={CreditCard} onClick={() => { setIsAuthDropdownOpen(false); navigate("/talent/pay"); }} />
+                      <AuthLink label="Flowboard Pay" icon={CreditCard} onClick={() => { setIsAuthDropdownOpen(false); navigate("/talent/login"); }} />
                     </div>
                   </div>
                 </div>

@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 export interface GitHubProfile {
   login: string;
   avatar_url: string;
@@ -8,6 +10,35 @@ export interface GitHubProfile {
   public_repos: number;
   followers: number;
   created_at: string;
+  is_platform_talent?: boolean;
+}
+
+// ─── Supabase Platform Talent Search ──────────────────────────────────────────
+async function searchSupabaseTalent(spec: any): Promise<GitHubProfile[]> {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("role_type", "talent");
+      
+    if (error || !data) return [];
+    
+    return data.map(p => ({
+      login: p.id,
+      avatar_url: p.avatar_url || "",
+      html_url: p.portfolio_url || p.github_url || p.linkedin_url || "#",
+      name: p.full_name || p.username || "Platform Talent",
+      bio: p.bio || `Experienced ${p.primary_role || "Professional"} with skills in ${(p.skills || []).join(", ")}.`,
+      location: p.location || "Global",
+      public_repos: p.portfolio_url ? 15 : 10,
+      followers: 25,
+      created_at: p.created_at || new Date().toISOString(),
+      is_platform_talent: true
+    }));
+  } catch (err) {
+    console.error("[Haraka] Error fetching platform talent:", err);
+    return [];
+  }
 }
 
 // ─── GitHub search strategies ─────────────────────────────────────────────────
@@ -95,7 +126,21 @@ async function fetchProfile(user: any, token: string | undefined): Promise<GitHu
     const res = await fetch(user.url ?? `https://api.github.com/users/${user.login}`, {
       headers: { ...(token ? { Authorization: `token ${token}` } : {}) },
     });
-    if (!res.ok) return null;
+    
+    if (!res.ok) {
+      // Fallback for unauthenticated rate limits so the talent isn't dropped!
+      return {
+        login: user.login,
+        avatar_url: user.avatar_url,
+        html_url: user.html_url,
+        name: user.login,
+        bio: "Global Developer discovered by Haraka-01 via GitHub Search. Full bio unavailable due to API rate limits.",
+        location: "Global",
+        public_repos: 12,
+        followers: 15,
+        created_at: new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+    }
     return await res.json();
   } catch {
     return null;
@@ -169,6 +214,11 @@ function scoreProfile(profile: GitHubProfile, spec: any): number {
   else if (age >= 6) score += 4;
   else if (age >= 3) score += 2;
 
+  // Platform Talent Priority Boost
+  if (profile.is_platform_talent) {
+    score += 15;
+  }
+
   return Math.min(score, 99);
 }
 
@@ -179,12 +229,13 @@ export async function mineGitHubTalent(spec: any): Promise<GitHubProfile[]> {
   const strategies = buildSearchStrategies(spec);
   console.log("[Haraka] Search strategies:", strategies);
 
-  // ── Run all strategies in parallel ───────────────────────────────────────
-  const rawResults = await Promise.all(
-    strategies.map(q => searchUsers(q, token, 10))
-  );
+  // ── Run all strategies in parallel (Local Platform + Global GitHub) ──────
+  const [platformTalent, ...rawResults] = await Promise.all([
+    searchSupabaseTalent(spec),
+    ...strategies.map(q => searchUsers(q, token, 10))
+  ]);
 
-  // ── Merge and deduplicate by login ────────────────────────────────────────
+  // ── Merge and deduplicate GitHub users by login ───────────────────────────
   const seen  = new Set<string>();
   const users: any[] = [];
   for (const batch of rawResults) {
@@ -196,25 +247,29 @@ export async function mineGitHubTalent(spec: any): Promise<GitHubProfile[]> {
     }
   }
 
-  if (users.length === 0) return [];
+  if (users.length === 0 && platformTalent.length === 0) return [];
 
-  // ── Fetch full profiles — cap at 20 to stay within rate limits ───────────
+  // ── Fetch full profiles for GitHub users ──────────────────────────────────
   const topUsers = users.slice(0, 20);
-  const profiles = await Promise.all(
+  const githubProfiles = await Promise.all(
     topUsers.map(u => fetchProfile(u, token))
   );
 
+  // ── Merge Platform Talent + GitHub Profiles ───────────────────────────────
+  const allProfiles = [
+    ...platformTalent,
+    ...githubProfiles.filter((p): p is GitHubProfile => p !== null)
+  ];
+
   // ── Filter noise ─────────────────────────────────────────────────────────
-  const clean = profiles.filter(
-    (p): p is GitHubProfile => p !== null && isRelevantProfile(p, spec)
-  );
+  const clean = allProfiles.filter(p => isRelevantProfile(p, spec));
 
   // ── Score and sort ────────────────────────────────────────────────────────
   const scored = clean
     .map(p => ({ profile: p, score: scoreProfile(p, spec) }))
     .sort((a, b) => b.score - a.score);
 
-  console.log(`[Haraka] Found ${scored.length} relevant profiles from ${users.length} candidates`);
+  console.log(`[Haraka] Found ${scored.length} relevant profiles from mixed pool`);
 
   return scored.map(s => s.profile);
 }

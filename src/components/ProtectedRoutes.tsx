@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
 
+
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
@@ -17,10 +18,17 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
 
-      // 1. No User? Send them to the appropriate login based on URL, or default to talent
+      // 1. No User? Send them to the appropriate login based on origin
       if (!user) {
         const isClientPath = location.pathname.startsWith("/client");
         navigate(isClientPath ? "/client/login" : "/talent/login", { replace: true });
+        return;
+      }
+
+      // Check for pending invitation redirect first
+      const pendingInviteToken = localStorage.getItem("pendingInviteToken");
+      if (pendingInviteToken && !location.pathname.startsWith("/invite/")) {
+        navigate(`/invite/${pendingInviteToken}`, { replace: true });
         return;
       }
 
@@ -47,7 +55,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
 
       if (!profile) {
-        // Fallback: If no profile exists yet, they definitely need to login again
         navigate("/talent/login", { replace: true });
         return;
       }
@@ -90,8 +97,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       // 5. ONBOARDING LOGIC
       const isOnOnboardingPage = path === config.onboarding;
 
-      // If not completed -> Force them to their specific onboarding
-      if (!hasCompleted && !isOnOnboardingPage) {
+      // If not completed -> Force them to their specific onboarding (except if they are visiting an invite link)
+      if (!hasCompleted && !isOnOnboardingPage && !path.startsWith("/invite/")) {
         navigate(config.onboarding, { replace: true });
         return;
       }

@@ -47,24 +47,23 @@ export default function ClientLogin() {
   }, []);
 
   // Check for pending invitation after successful login
-useEffect(() => {
-  const checkPendingInvite = async () => {
-    const pendingToken = localStorage.getItem("pendingInviteToken");
-    const pendingEmail = localStorage.getItem("pendingInviteEmail");
-    
-    if (pendingToken && window.location.pathname === "/client/login") {
-      // Don't remove immediately - wait for login to complete
-      // The handleLogin function will handle the redirect
-    }
-  };
-  checkPendingInvite();
-}, []);
+  useEffect(() => {
+    const checkPendingInvite = async () => {
+      const pendingToken = localStorage.getItem("pendingInviteToken");
+      const pendingEmail = localStorage.getItem("pendingInviteEmail");
+      
+      if (pendingToken && window.location.pathname === "/client/login") {
+        // Handled by handleLogin
+      }
+    };
+    checkPendingInvite();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
@@ -77,7 +76,7 @@ useEffect(() => {
         description: error.message,
       });
       setIsLoading(false);
-    } else {
+    } else if (data.session) {
       setNotification({
         open: true,
         type: "success",
@@ -86,23 +85,38 @@ useEffect(() => {
       });
 
       const pendingToken = localStorage.getItem("pendingInviteToken");
-  if (pendingToken) {
-    localStorage.removeItem("pendingInviteToken");
-    localStorage.removeItem("pendingInviteEmail");
-    localStorage.removeItem("pendingInviteGroup");
-    navigate(`/invite/${pendingToken}`);
-  } else {
-    navigate("/client/dashboard");
-  }
+      const intendedRedirect = localStorage.getItem("intended_redirect");
+      
+      let defaultRedirect = "/client/dashboard";
+      if (pendingToken) {
+        defaultRedirect = `/invite/${pendingToken}`;
+      } else if (intendedRedirect) {
+        defaultRedirect = intendedRedirect;
+        localStorage.removeItem("intended_redirect");
+      }
+
+      setTimeout(() => navigate(defaultRedirect, { replace: true }), 1000);
     }
   };
 
   const handleSocialLogin = async (provider: "google" | "github") => {
     localStorage.setItem("intended_role", "client");
+    
+    const pendingToken = localStorage.getItem("pendingInviteToken");
+    const intendedRedirect = localStorage.getItem("intended_redirect");
+    let redirect = "/client/dashboard";
+    if (pendingToken) {
+      redirect = `/invite/${pendingToken}`;
+    } else if (intendedRedirect) {
+      redirect = intendedRedirect;
+    }
+
+    const callbackRedirectUrl = `${window.location.origin}/login/callback?redirect=${encodeURIComponent(redirect)}`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/client/dashboard`,
+        redirectTo: callbackRedirectUrl,
         queryParams: {
           access_type: 'offline',
           prompt: 'select_account',
@@ -137,10 +151,10 @@ useEffect(() => {
           </div>
           
           <div className="relative z-10">
-            <Link to="/" className="flex items-center gap-2 mb-20 group">
+            <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black tracking-tighter">Flowboard</span>
-            </Link>
+            </a>
  
             <motion.div
               initial={{ opacity: 0, y: 20 }}

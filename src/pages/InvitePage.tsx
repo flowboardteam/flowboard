@@ -122,13 +122,13 @@ const processInvitation = async () => {
     setCurrentUserEmail(user.email ?? "");
 
     // ── 7. Email must match ───────────────────────────────────────────────
-    if (user.email?.toLowerCase() !== invitation.email.toLowerCase()) {
+    if (user.email?.toLowerCase().trim() !== invitation.email.toLowerCase().trim()) {
       setStatus("wrong-email");
       return;
     }
 
-    // ── 8. Role must be "client" ─────────────────────────────────────────
-    const { data: profile } = await supabase
+    // ── 8. Profile & Role Validation / Auto-Correction ────────────────────
+    let { data: profile } = await supabase
       .from("profiles")
       .select("role_type")
       .eq("id", user.id)
@@ -136,9 +136,41 @@ const processInvitation = async () => {
 
     console.log("User profile:", profile);
 
-    if (profile?.role_type !== "client") {
+    // If no profile exists yet, let's create a default client profile for them
+    if (!profile) {
+      console.log("No profile found. Auto-creating a client profile...");
+      const { data: newProfile, error: profileCreateError } = await supabase
+        .from("profiles")
+        .upsert({
+          id: user.id,
+          full_name: user.user_metadata?.full_name || "Anonymous Client",
+          role_type: "client",
+          email: user.email,
+          onboarding_completed: false,
+          company_name: resolvedGroupName,
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (profileCreateError) {
+        console.error("Failed to auto-create profile:", profileCreateError.message);
+        setStatus("error");
+        setErrorMessage("We could not create your user profile. Please contact support.");
+        return;
+      }
+      profile = newProfile;
+    } else if (profile.role_type !== "client") {
+      // If it exists but role is wrong (e.g. they are a talent user), we strictly reject them to protect their role
+      console.log("User is logged in as talent. Rejecting invitation...");
       setStatus("wrong-role");
       return;
+    } else {
+      // If they are client and profile exists, ensure company name is synced (keep their onboarding status intact)
+      await supabase
+        .from("profiles")
+        .update({ company_name: resolvedGroupName })
+        .eq("id", user.id);
     }
 
     // ── 9. Add user to group_members ─────────────────────────────────────
@@ -155,7 +187,6 @@ const processInvitation = async () => {
 
     if (memberError) {
       console.error("Error adding to group_members:", memberError);
-      // Don't fail, just log the error
     } else {
       console.log("Successfully added to group_members");
     }
@@ -172,6 +203,9 @@ const processInvitation = async () => {
     } else {
       console.log("Invitation status updated to accepted");
     }
+
+    // Save the accepted group's ID in localStorage so the dashboard immediately selects it
+    localStorage.setItem("activeGroupId", invitation.group_id);
 
     // Clean up any stored pending invite data
     localStorage.removeItem("pendingInviteToken");
@@ -274,7 +308,12 @@ const processInvitation = async () => {
                 <LogOut size={16} /> Log out & use correct account
               </Button>
               <Button
-                onClick={() => navigate("/client/dashboard")}
+                onClick={() => {
+                  localStorage.removeItem("pendingInviteToken");
+                  localStorage.removeItem("pendingInviteEmail");
+                  localStorage.removeItem("pendingInviteGroup");
+                  navigate("/client/dashboard");
+                }}
                 variant="ghost"
                 className="w-full text-slate-500"
               >
@@ -295,21 +334,18 @@ const processInvitation = async () => {
               This invitation is for a{" "}
               <span className="font-bold text-indigo-600">Client</span> account.
             </p>
-            <p className="text-sm text-slate-500 mb-6">
-              Your current account is a{" "}
-              <span className="font-bold text-amber-600">Talent</span> account.
+            <p className="text-sm text-slate-500 mb-6 font-medium">
+              Your current account is registered as a <span className="font-bold text-amber-600">Talent</span> account. Since roles cannot be mixed, you cannot join this organization with your Talent profile.
             </p>
             <div className="space-y-3">
               <Button
-                onClick={handleLogoutAndRetry}
+                onClick={() => {
+                  localStorage.removeItem("pendingInviteToken");
+                  localStorage.removeItem("pendingInviteEmail");
+                  localStorage.removeItem("pendingInviteGroup");
+                  navigate("/talent/dashboard");
+                }}
                 className="w-full bg-[#1A1C21] hover:bg-black text-white flex items-center justify-center gap-2"
-              >
-                <LogOut size={16} /> Log out & sign up as Client
-              </Button>
-              <Button
-                onClick={() => navigate("/talent/dashboard")}
-                variant="ghost"
-                className="w-full text-slate-500"
               >
                 Go to Talent dashboard
               </Button>

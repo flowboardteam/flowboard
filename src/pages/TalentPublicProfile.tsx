@@ -24,9 +24,14 @@ import {
   X,
   Sparkles,
   Link2,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import NotFound from "./NotFound";
+import { useGroups } from "@/contexts/GroupContext";
 import { useToast } from "@/components/ui/use-toast";
 
 interface TalentProfile {
@@ -72,11 +77,17 @@ export function TalentPublicProfile() {
   const [showHireModal, setShowHireModal] = useState(false);
   const [sending, setSending] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [clientRoles, setClientRoles] = useState<any[]>([]);
+  const [selectedRoleId, setSelectedRoleId] = useState<string>("new");
+  const [clientGroups, setClientGroups] = useState<any[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
@@ -84,6 +95,68 @@ export function TalentPublicProfile() {
           .eq("id", user.id)
           .single();
         setCurrentUser(profile);
+
+        // Get groups where user is the owner
+        const { data: ownedGroups } = await supabase
+          .from("groups")
+          .select("*")
+          .eq("organization_id", user.id)
+          .eq("status", "active");
+
+        // Get groups where user is a member
+        const { data: memberGroups } = await supabase
+          .from("group_members")
+          .select(`group:groups!group_id (*)`)
+          .eq("user_id", user.id);
+
+        const allGroups: any[] = [];
+        const groupIds = new Set<string>();
+
+        if (ownedGroups) {
+          ownedGroups.forEach((g: any) => {
+            if (g.status === "active" && !groupIds.has(g.id)) {
+              groupIds.add(g.id);
+              allGroups.push(g);
+            }
+          });
+        }
+
+        if (memberGroups) {
+          memberGroups.forEach((m: any) => {
+            const g = Array.isArray(m.group) ? m.group[0] : m.group;
+            if (g && g.status === "active" && !groupIds.has(g.id)) {
+              groupIds.add(g.id);
+              allGroups.push(g);
+            }
+          });
+        }
+
+        if (allGroups.length > 0) {
+          setClientGroups(allGroups);
+          setSelectedGroupId(allGroups[0].id);
+
+          const { data: roles } = await supabase
+            .from("roles")
+            .select("*")
+            .in("group_id", Array.from(groupIds))
+            .eq("status", "open");
+
+          if (roles) setClientRoles(roles);
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("hire") === "true") {
+          if (profile?.role_type === "client") {
+            setShowHireModal(true);
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Access Denied",
+              description: "Only clients can send hire inquiries.",
+            });
+          }
+          window.history.replaceState({}, "", window.location.pathname);
+        }
       }
     };
 
@@ -103,7 +176,10 @@ export function TalentPublicProfile() {
 
       if (!identifier) throw new Error("Invalid username");
 
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          identifier,
+        );
 
       let query = supabase
         .from("profiles")
@@ -130,6 +206,34 @@ export function TalentPublicProfile() {
     }
   };
 
+  const handleOpenHireModal = () => {
+    if (!currentUser) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description:
+          "You need to be logged in as a client to reach out to talent.",
+      });
+      localStorage.setItem(
+        "intended_redirect",
+        window.location.pathname + "?hire=true",
+      );
+      navigate("/client/login");
+      return;
+    }
+
+    if (currentUser.role_type !== "client") {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only clients can send hire inquiries.",
+      });
+      return;
+    }
+
+    setShowHireModal(true);
+  };
+
   const handleHireSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -142,30 +246,127 @@ export function TalentPublicProfile() {
       return;
     }
 
+    if (currentUser.role_type !== "client") {
+      toast({
+        variant: "destructive",
+        title: "Access Denied",
+        description: "Only clients can send hire inquiries.",
+      });
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
+    const message = formData.get("message") as string;
+
+    let finalRoleId = selectedRoleId;
+    let finalRoleTitle = "";
+    let finalRoleType = "";
+    let finalSalaryRaw = "";
 
     try {
       setSending(true);
+
+      let groupId = "default-group";
+      let groupName = "";
+
+      if (selectedRoleId === "new") {
+        const userGroup = clientGroups.find((g) => g.id === selectedGroupId);
+        if (!userGroup) {
+          throw new Error(
+            "You must select an active organization group to create roles.",
+          );
+        }
+
+        groupId = userGroup.id;
+        groupName = userGroup.name;
+
+        finalRoleTitle = formData.get("newRoleTitle") as string;
+        finalRoleType = formData.get("newRoleType") as string;
+        finalSalaryRaw = formData.get("newRoleSalary") as string;
+
+        const newRoleId = crypto.randomUUID();
+
+        const { data: newRole, error: roleError } = await supabase
+          .from("roles")
+          .insert({
+            id: newRoleId,
+            organization_id: userGroup.organization_id || currentUser.id,
+            group_id: userGroup.id,
+            title: finalRoleTitle,
+            type: finalRoleType,
+            salary: finalSalaryRaw,
+            status: "draft",
+            department: "",
+            location: "Remote",
+            location_details: "",
+            experience_level: "Mid-Level",
+            description: "Role automatically drafted from talent offer.",
+            responsibilities: [],
+            skills: [],
+            benefits: [],
+            education: "",
+            other_requirements: [],
+            applicants_count: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (roleError) throw roleError;
+        finalRoleId = newRole.id;
+      } else {
+        const existingRole = clientRoles.find((r) => r.id === selectedRoleId);
+        if (existingRole) {
+          finalRoleTitle = existingRole.title;
+          finalRoleType = existingRole.type;
+          finalSalaryRaw = existingRole.salary;
+          groupId = existingRole.group_id;
+
+          // Optionally fetch the group name for this existing role
+          const { data: gData } = await supabase
+            .from("groups")
+            .select("name")
+            .eq("id", groupId)
+            .single();
+          if (gData) groupName = gData.name;
+        }
+      }
+
+      const numericSalary = finalSalaryRaw
+        ? parseFloat(finalSalaryRaw.replace(/,/g, "").replace(/[^0-9.]/g, ""))
+        : null;
+
       const { error } = await supabase.from("hire_inquiries").insert({
         talent_id: talent.id,
         client_id: currentUser.id,
-        sender_name: currentUser.full_name,
+        sender_name: groupName || currentUser.full_name,
         sender_email: currentUser.email,
-        message: formData.get("message"),
+        message: message + `\n\n[GROUP_ID:${groupId}]`,
+        offer_message: message + `\n\n[GROUP_ID:${groupId}]`,
+        role_id: finalRoleId !== "new" ? finalRoleId : null,
+        role_title: finalRoleTitle,
+        role_type: finalRoleType.toLowerCase().replace("-", "_"),
+        salary_monthly:
+          numericSalary && !isNaN(numericSalary) ? numericSalary : null,
+        source: "direct",
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase hire_inquiries insert failed:", error);
+        throw error;
+      }
 
       await supabase.from("notifications").insert({
         user_id: talent.id,
         title: "New Project Inquiry! 📬",
-        message: `${currentUser.full_name} wants to discuss a project with you.`,
-        type: 'inquiry'
+        message: `${currentUser.full_name} wants to discuss the ${finalRoleTitle} role with you.`,
+        type: "inquiry",
       });
 
       toast({
-        title: "Inquiry Sent! 🚀",
-        description: `We've signaled ${talent.full_name.split(" ")[0]}. You'll hear back soon!`,
+        title: "Offer Sent! 🚀",
+        description: `We've signaled ${talent.full_name.split(" ")[0]} regarding the ${finalRoleTitle} position.`,
       });
 
       setShowHireModal(false);
@@ -174,7 +375,8 @@ export function TalentPublicProfile() {
       toast({
         variant: "destructive",
         title: "Transmission Error",
-        description: err.message || "We couldn't deliver your message. Please try again.",
+        description:
+          err.message || "We couldn't deliver your message. Please try again.",
       });
     } finally {
       setSending(false);
@@ -190,8 +392,10 @@ export function TalentPublicProfile() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F9FB] font-jakarta">
         <div className="text-center space-y-4">
-           <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto" />
-           <p className="text-xs font-black uppercase tracking-widest text-slate-400">Loading Profile...</p>
+          <Loader2 className="w-10 h-10 text-emerald-600 animate-spin mx-auto" />
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+            Loading Profile...
+          </p>
         </div>
       </div>
     );
@@ -204,9 +408,17 @@ export function TalentPublicProfile() {
           <div className="w-20 h-20 mx-auto bg-red-50 rounded-3xl flex items-center justify-center">
             <X className="w-10 h-10 text-red-500" />
           </div>
-          <h2 className="text-4xl font-black text-[#1A1C21] tracking-tighter uppercase">Profile Not Found</h2>
-          <p className="text-slate-500 font-bold">We couldn't locate this talent profile. Please check the URL and try again.</p>
-          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-3 px-8 py-4 bg-[#1A1C21] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-black transition-all">
+          <h2 className="text-4xl font-black text-[#1A1C21] tracking-tighter uppercase">
+            Profile Not Found
+          </h2>
+          <p className="text-slate-500 font-bold">
+            We couldn't locate this talent profile. Please check the URL and try
+            again.
+          </p>
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-3 px-8 py-4 bg-[#1A1C21] text-white rounded-2xl font-black uppercase tracking-widest hover:bg-black transition-all"
+          >
             <ArrowLeft className="w-4 h-4" /> Go Back
           </button>
         </div>
@@ -221,25 +433,42 @@ export function TalentPublicProfile() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20">
             <div className="flex items-center gap-6">
-              <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-[#1A1C21] transition-colors group">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 text-slate-400 hover:text-[#1A1C21] transition-colors group"
+              >
                 <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                <span className="font-black text-[10px] uppercase tracking-widest">Back</span>
+                <span className="font-black text-[10px] uppercase tracking-widest">
+                  Back
+                </span>
               </button>
               <div className="hidden lg:flex items-center gap-3">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                <span className="text-[10px] font-black text-[#1A1C21] uppercase tracking-[0.2em]">Flowboard</span>
+                <span className="text-[10px] font-black text-[#1A1C21] uppercase tracking-[0.2em]">
+                  Flowboard
+                </span>
                 <span className="text-slate-300">/</span>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Talent Profile</span>
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  Talent Profile
+                </span>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               {talent?.resume_url && (
-                <a href={talent.resume_url} target="_blank" rel="noopener noreferrer" className="hidden sm:flex items-center gap-2 px-6 py-2.5 text-slate-400 hover:text-[#1A1C21] font-black uppercase tracking-widest text-[10px] transition-colors">
+                <a
+                  href={talent.resume_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:flex items-center gap-2 px-6 py-2.5 text-slate-400 hover:text-[#1A1C21] font-black uppercase tracking-widest text-[10px] transition-colors"
+                >
                   <Download className="w-4 h-4" /> Download CV
                 </a>
               )}
-              <button onClick={() => setShowHireModal(true)} className="flex items-center gap-2 px-6 py-3 bg-[#1A1C21] text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all shadow-xl shadow-slate-900/10">
+              <button
+                onClick={() => handleOpenHireModal()}
+                className="flex items-center gap-2 px-6 py-3 bg-[#1A1C21] text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-black transition-all shadow-xl shadow-slate-900/10"
+              >
                 <Mail className="w-4 h-4" /> Contact
               </button>
             </div>
@@ -254,25 +483,31 @@ export function TalentPublicProfile() {
             {/* MAIN PROFILE CARD */}
             <div className="bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-[#EEEEF0] overflow-hidden">
               <div className="relative h-32 bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600">
-                <div className="absolute inset-0 bg-black/5 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                <div className="absolute inset-0 bg-black/5 opacity-20" />
               </div>
 
               <div className="relative px-8 pb-8 text-center sm:text-left">
                 <div className="relative -mt-16 mb-6 flex justify-center sm:justify-start">
-                   <div className="relative group">
-                     <div className="w-32 h-32 rounded-[28px] overflow-hidden bg-white shadow-2xl border-4 border-white">
-                        {talent.avatar_url ? (
-                          <img src={talent.avatar_url} className="w-full h-full object-cover" alt={talent.full_name} />
-                        ) : (
-                          <div className="w-full h-full bg-[#1A1C21] flex items-center justify-center">
-                            <span className="text-4xl font-black text-white">{talent.full_name?.charAt(0)}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
-                        <CheckCircle className="w-5 h-5 text-white" />
-                      </div>
-                   </div>
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-[28px] overflow-hidden bg-white shadow-2xl border-4 border-white">
+                      {talent.avatar_url ? (
+                        <img
+                          src={talent.avatar_url}
+                          className="w-full h-full object-cover"
+                          alt={talent.full_name}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#1A1C21] flex items-center justify-center">
+                          <span className="text-4xl font-black text-white">
+                            {talent.full_name?.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center border-4 border-white shadow-lg">
+                      <CheckCircle className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -284,25 +519,60 @@ export function TalentPublicProfile() {
                       @{talent.username}
                     </p>
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/5 border border-emerald-500/10 rounded-lg text-emerald-600 text-[10px] font-black uppercase tracking-widest">
-                       {talent.primary_role || "Professional"}
+                      {talent.primary_role || "Professional"}
                     </div>
                   </div>
 
                   <div className="space-y-3 pt-6 border-t border-[#EEEEF0]">
                     {[
                       { icon: MapPin, text: talent.location },
-                      { icon: Briefcase, text: `${talent.experience_level} Years Experience` },
-                      { icon: Clock, text: talent.employment_status || "Available" }
-                    ].map((item, idx) => item.text && (
-                      <div key={idx} className="flex items-center gap-3 text-sm font-bold text-slate-600">
-                        <item.icon className="w-4 h-4 text-slate-300 flex-shrink-0" />
-                        <span>{item.text}</span>
-                      </div>
-                    ))}
+                      {
+                        icon: Globe,
+                        text: talent.timezone
+                          ? `Timezone: ${talent.timezone}`
+                          : null,
+                      },
+                      {
+                        icon: Building2,
+                        text: talent.current_company
+                          ? `Currently at ${talent.current_company}`
+                          : null,
+                      },
+                      {
+                        icon: Briefcase,
+                        text: talent.experience_level
+                          ? `${talent.experience_level} Experience`
+                          : null,
+                      },
+                      {
+                        icon: Clock,
+                        text: talent.employment_status || "Available",
+                      },
+                      {
+                        icon: Languages,
+                        text: talent.languages?.length
+                          ? talent.languages.join(", ")
+                          : null,
+                      },
+                    ].map(
+                      (item, idx) =>
+                        item.text && (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 text-sm font-bold text-slate-600"
+                          >
+                            <item.icon className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                            <span>{item.text}</span>
+                          </div>
+                        ),
+                    )}
                   </div>
 
                   <div className="pt-6 space-y-3">
-                    <button onClick={() => setShowHireModal(true)} className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98]">
+                    <button
+                      onClick={() => handleOpenHireModal()}
+                      className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98]"
+                    >
                       Hire {talent.full_name?.split(" ")[0]}
                     </button>
                     <button className="w-full py-4 bg-slate-50 text-[#1A1C21] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white hover:border-[#EEEEF0] border border-transparent transition-all">
@@ -315,38 +585,79 @@ export function TalentPublicProfile() {
 
             {/* QUICK STATS */}
             <div className="bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-[#EEEEF0] p-8 space-y-6">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Professional Metrics</h3>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                Professional Metrics
+              </h3>
               <div className="space-y-6">
                 {[
-                  { icon: Star, color: "text-amber-500", bg: "bg-amber-50", label: "Profile Score", value: `${talent.profile_completion}%` },
-                  { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-50", label: "Verified", value: "Identity Verified" }
+                  {
+                    icon: Star,
+                    color: "text-amber-500",
+                    bg: "bg-amber-50",
+                    label: "Profile Score",
+                    value: `${talent.profile_completion}%`,
+                  },
+                  {
+                    icon: CheckCircle,
+                    color: "text-emerald-500",
+                    bg: "bg-emerald-50",
+                    label: "Verified",
+                    value: "Identity Verified",
+                  },
                 ].map((stat, idx) => (
                   <div key={idx} className="flex items-center gap-4">
-                    <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+                    <div
+                      className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}
+                    >
                       <stat.icon size={20} />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-                      <p className="text-sm font-black text-[#1A1C21]">{stat.value}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        {stat.label}
+                      </p>
+                      <p className="text-sm font-black text-[#1A1C21]">
+                        {stat.value}
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* SOCIAL LINKS */}
+            {/* EXTERNAL LINKS */}
             <div className="bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-[#EEEEF0] p-8">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Connect</h3>
-              <div className="flex gap-3">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-6">
+                Links & Portfolios
+              </h3>
+              <div className="flex gap-3 flex-wrap">
                 {[
-                  { icon: Github, url: talent.github_url },
-                  { icon: Linkedin, url: talent.linkedin_url },
-                  { icon: Globe, url: talent.website_url }
-                ].map((social, idx) => social.url && (
-                  <a key={idx} href={formatExternalLink(social.url)} target="_blank" rel="noopener noreferrer" className="flex-1 h-12 bg-slate-50 border border-[#EEEEF0] rounded-xl flex items-center justify-center hover:bg-white hover:border-emerald-500/30 transition-all text-slate-400 hover:text-emerald-500">
-                    <social.icon size={18} />
-                  </a>
-                ))}
+                  { icon: Github, url: talent.github_url, label: "GitHub" },
+                  {
+                    icon: Linkedin,
+                    url: talent.linkedin_url,
+                    label: "LinkedIn",
+                  },
+                  { icon: Globe, url: talent.website_url, label: "Website" },
+                  {
+                    icon: ExternalLink,
+                    url: talent.portfolio_url,
+                    label: "Portfolio",
+                  },
+                ].map(
+                  (link, idx) =>
+                    link.url && (
+                      <a
+                        key={idx}
+                        href={formatExternalLink(link.url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={link.label}
+                        className="w-12 h-12 bg-slate-50 border border-[#EEEEF0] rounded-xl flex items-center justify-center hover:bg-emerald-50 hover:border-emerald-500/30 transition-all shadow-sm text-slate-400 hover:text-emerald-500"
+                      >
+                        <link.icon size={18} />
+                      </a>
+                    ),
+                )}
               </div>
             </div>
           </div>
@@ -375,14 +686,43 @@ export function TalentPublicProfile() {
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                     {[
-                      { label: "Experience", value: talent.experience_level || "N/A", sub: "Years Active", color: "text-emerald-600", bg: "bg-emerald-50/50" },
-                      { label: "Location", value: talent.location?.split(",")[0] || "Remote", sub: "Current Base", color: "text-blue-600", bg: "bg-blue-50/50" },
-                      { label: "Status", value: talent.employment_status || "Available", sub: "Ready for missions", color: "text-amber-600", bg: "bg-amber-50/50" }
+                      {
+                        label: "Experience",
+                        value: talent.experience_level || "N/A",
+                        sub: "Years Active",
+                        color: "text-emerald-600",
+                        bg: "bg-emerald-50/50",
+                      },
+                      {
+                        label: "Location",
+                        value: talent.location?.split(",")[0] || "Remote",
+                        sub: "Current Base",
+                        color: "text-blue-600",
+                        bg: "bg-blue-50/50",
+                      },
+                      {
+                        label: "Status",
+                        value: talent.employment_status || "Available",
+                        sub: "Ready for missions",
+                        color: "text-amber-600",
+                        bg: "bg-amber-50/50",
+                      },
                     ].map((card, idx) => (
-                      <div key={idx} className={`p-8 bg-white border border-[#EEEEF0] rounded-[32px] shadow-sm`}>
-                        <p className={`text-[10px] font-black uppercase tracking-widest mb-2 ${card.color}`}>{card.label}</p>
-                        <p className="text-2xl font-black text-[#1A1C21] tracking-tighter truncate uppercase">{card.value}</p>
-                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{card.sub}</p>
+                      <div
+                        key={idx}
+                        className={`p-8 bg-white border border-[#EEEEF0] rounded-[32px] shadow-sm`}
+                      >
+                        <p
+                          className={`text-[10px] font-black uppercase tracking-widest mb-2 ${card.color}`}
+                        >
+                          {card.label}
+                        </p>
+                        <p className="text-2xl font-black text-[#1A1C21] tracking-tighter truncate uppercase">
+                          {card.value}
+                        </p>
+                        <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">
+                          {card.sub}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -393,12 +733,12 @@ export function TalentPublicProfile() {
                         <FileText size={80} strokeWidth={3} />
                       </div>
                       <div className="relative z-10 space-y-6">
-                         <h2 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] flex items-center gap-2">
-                           <Sparkles size={14} /> Professional Summary
-                         </h2>
-                         <p className="text-xl lg:text-2xl font-bold text-[#1A1C21]/80 leading-relaxed tracking-tight">
-                            {talent.bio}
-                         </p>
+                        <h2 className="text-xs font-black text-emerald-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <Sparkles size={14} /> Professional Summary
+                        </h2>
+                        <p className="text-xl lg:text-2xl font-bold text-[#1A1C21]/80 leading-relaxed tracking-tight">
+                          {talent.bio}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -406,15 +746,27 @@ export function TalentPublicProfile() {
                   <div className="bg-[#1A1C21] rounded-[32px] p-8 lg:p-12 text-white shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/20 blur-[100px] rounded-full -mr-32 -mt-32" />
                     <div className="relative z-10 space-y-8">
-                       <div className="flex justify-between items-center">
-                          <h3 className="text-xs font-black uppercase tracking-[0.3em] text-emerald-400">Top Expertise</h3>
-                          <button onClick={() => setActiveSection("skills")} className="text-[10px] font-black uppercase tracking-widest hover:text-emerald-400 transition-colors">View All Capabilities</button>
-                       </div>
-                       <div className="flex flex-wrap gap-4">
-                          {talent.skills?.slice(0, 8).map(skill => (
-                            <span key={skill} className="px-5 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest">{skill}</span>
-                          ))}
-                       </div>
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-emerald-400">
+                          Top Expertise
+                        </h3>
+                        <button
+                          onClick={() => setActiveSection("skills")}
+                          className="text-[10px] font-black uppercase tracking-widest hover:text-emerald-400 transition-colors"
+                        >
+                          View All Capabilities
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-4">
+                        {talent.skills?.slice(0, 8).map((skill) => (
+                          <span
+                            key={skill}
+                            className="px-5 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -424,17 +776,24 @@ export function TalentPublicProfile() {
                 <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
                   <div className="bg-white rounded-[32px] border border-[#EEEEF0] p-8 lg:p-12 shadow-sm">
                     <div className="flex items-center gap-4 mb-10">
-                       <div className="w-16 h-16 bg-emerald-50 rounded-[22px] flex items-center justify-center text-emerald-600">
-                          <TrendingUp size={28} />
-                       </div>
-                       <div>
-                          <h2 className="text-2xl font-black text-[#1A1C21] uppercase tracking-tighter">Technical Proficiency</h2>
-                          <p className="text-sm font-bold text-slate-400">Core competencies and verified skillsets</p>
-                       </div>
+                      <div className="w-16 h-16 bg-emerald-50 rounded-[22px] flex items-center justify-center text-emerald-600">
+                        <TrendingUp size={28} />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-[#1A1C21] uppercase tracking-tighter">
+                          Technical Proficiency
+                        </h2>
+                        <p className="text-sm font-bold text-slate-400">
+                          Core competencies and verified skillsets
+                        </p>
+                      </div>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      {talent.skills?.map(skill => (
-                        <div key={skill} className="px-6 py-4 bg-slate-50 border border-[#EEEEF0] text-[#1A1C21] rounded-2xl font-black text-xs uppercase tracking-widest hover:border-emerald-500 hover:bg-white transition-all cursor-default">
+                      {talent.skills?.map((skill) => (
+                        <div
+                          key={skill}
+                          className="px-6 py-4 bg-slate-50 border border-[#EEEEF0] text-[#1A1C21] rounded-2xl font-black text-xs uppercase tracking-widest hover:border-emerald-500 hover:bg-white transition-all cursor-default"
+                        >
                           {skill}
                         </div>
                       ))}
@@ -447,21 +806,30 @@ export function TalentPublicProfile() {
                 <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
                   <div className="bg-white rounded-[32px] border border-[#EEEEF0] p-8 lg:p-12 shadow-sm">
                     <div className="flex items-center gap-4 mb-10">
-                       <div className="w-16 h-16 bg-blue-50 rounded-[22px] flex items-center justify-center text-blue-600">
-                          <Award size={28} />
-                       </div>
-                       <div>
-                          <h2 className="text-2xl font-black text-[#1A1C21] uppercase tracking-tighter">Software & Stack</h2>
-                          <p className="text-sm font-bold text-slate-400">The tools used to deliver world-class results</p>
-                       </div>
+                      <div className="w-16 h-16 bg-blue-50 rounded-[22px] flex items-center justify-center text-blue-600">
+                        <Award size={28} />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-black text-[#1A1C21] uppercase tracking-tighter">
+                          Software & Stack
+                        </h2>
+                        <p className="text-sm font-bold text-slate-400">
+                          The tools used to deliver world-class results
+                        </p>
+                      </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {talent.tools?.map(tool => (
-                        <div key={tool} className="flex items-center justify-between p-6 bg-slate-50 border border-[#EEEEF0] rounded-2xl group hover:bg-white hover:border-blue-400 transition-all">
-                           <span className="font-black text-[#1A1C21] uppercase tracking-widest text-xs">{tool}</span>
-                           <div className="h-1.5 w-16 bg-slate-200 rounded-full overflow-hidden">
-                              <div className="h-full w-full bg-blue-500" />
-                           </div>
+                      {talent.tools?.map((tool) => (
+                        <div
+                          key={tool}
+                          className="flex items-center justify-between p-6 bg-slate-50 border border-[#EEEEF0] rounded-2xl group hover:bg-white hover:border-blue-400 transition-all"
+                        >
+                          <span className="font-black text-[#1A1C21] uppercase tracking-widest text-xs">
+                            {tool}
+                          </span>
+                          <div className="h-1.5 w-16 bg-slate-200 rounded-full overflow-hidden">
+                            <div className="h-full w-full bg-blue-500" />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -472,32 +840,39 @@ export function TalentPublicProfile() {
               {activeSection === "about" && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="bg-white rounded-[40px] border border-[#EEEEF0] p-8 lg:p-16 shadow-sm">
-                     <div className="space-y-8">
-                        <div className="flex items-center gap-3">
-                           <Users className="w-6 h-6 text-emerald-600" />
-                           <h2 className="text-3xl font-black text-[#1A1C21] uppercase tracking-tighter">Detailed Background</h2>
-                        </div>
-                        <div className="text-xl text-slate-600 font-bold leading-relaxed space-y-6">
-                           {talent.bio?.split('\n').map((para, i) => (
-                             <p key={i}>{para}</p>
-                           ))}
-                        </div>
-                     </div>
+                    <div className="space-y-8">
+                      <div className="flex items-center gap-3">
+                        <Users className="w-6 h-6 text-emerald-600" />
+                        <h2 className="text-3xl font-black text-[#1A1C21] uppercase tracking-tighter">
+                          Detailed Background
+                        </h2>
+                      </div>
+                      <div className="text-xl text-slate-600 font-bold leading-relaxed space-y-6">
+                        {talent.bio?.split("\n").map((para, i) => (
+                          <p key={i}>{para}</p>
+                        ))}
+                      </div>
+                    </div>
 
-                     <div className="grid sm:grid-cols-2 gap-6 mt-16 pt-16 border-t border-[#EEEEF0]">
-                        <div className="p-8 bg-slate-50 rounded-[28px]">
-                           <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
-                             <Briefcase size={14} /> Primary Discipline
-                           </h3>
-                           <p className="text-lg font-black text-[#1A1C21] uppercase tracking-tighter">{talent.primary_role || "Generalist"}</p>
-                        </div>
-                        <div className="p-8 bg-slate-50 rounded-[28px]">
-                           <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
-                             <Link2 size={14} /> Talent Identity
-                           </h3>
-                           <p className="text-sm font-bold text-slate-600">Verified since {new Date(talent.created_at).toLocaleDateString()}</p>
-                        </div>
-                     </div>
+                    <div className="grid sm:grid-cols-2 gap-6 mt-16 pt-16 border-t border-[#EEEEF0]">
+                      <div className="p-8 bg-slate-50 rounded-[28px]">
+                        <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
+                          <Briefcase size={14} /> Primary Discipline
+                        </h3>
+                        <p className="text-lg font-black text-[#1A1C21] uppercase tracking-tighter">
+                          {talent.primary_role || "Generalist"}
+                        </p>
+                      </div>
+                      <div className="p-8 bg-slate-50 rounded-[28px]">
+                        <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
+                          <Link2 size={14} /> Talent Identity
+                        </h3>
+                        <p className="text-sm font-bold text-slate-600">
+                          Verified since{" "}
+                          {new Date(talent.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -510,47 +885,154 @@ export function TalentPublicProfile() {
       <footer className="border-t border-[#EEEEF0] bg-white py-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2 text-[#1A1C21]">
-             <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-             <span className="font-black uppercase tracking-widest text-xs">Flowboard Premium</span>
+            <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+            <span className="font-black uppercase tracking-widest text-xs">
+              Flowboard Team
+            </span>
           </div>
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-             © 2026 Flowboard. All rights reserved.
+            © 2026 Flowboard. All rights reserved.
           </p>
         </div>
       </footer>
 
       {showHireModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white rounded-[40px] w-full max-w-lg p-10 lg:p-14 shadow-2xl relative">
-            <button onClick={() => setShowHireModal(false)} className="absolute top-8 right-8 text-slate-300 hover:text-[#1A1C21] transition-colors">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-[40px] w-full max-w-lg p-10 lg:p-14 shadow-2xl relative max-h-[90vh] overflow-y-auto"
+          >
+            <button
+              onClick={() => setShowHireModal(false)}
+              className="absolute top-8 right-8 text-slate-300 hover:text-[#1A1C21] transition-colors"
+            >
               <X className="w-8 h-8" />
             </button>
             <div className="space-y-8">
               <div className="space-y-2">
-                 <h2 className="text-4xl font-black text-[#1A1C21] uppercase tracking-tighter leading-none">Hire {talent.full_name?.split(" ")[0]}</h2>
-                 <p className="text-slate-500 font-bold">Signal interest for your project. Discussion starts instantly.</p>
+                <h2 className="text-4xl font-black text-[#1A1C21] uppercase tracking-tighter leading-none">
+                  Hire {talent.full_name?.split(" ")[0]}
+                </h2>
+                <p className="text-slate-500 font-bold">
+                  Signal interest for your project. Discussion starts instantly.
+                </p>
               </div>
 
               <form onSubmit={handleHireSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                      Organization / Workplace
+                    </label>
+                    <select
+                      value={selectedGroupId}
+                      onChange={(e) => {
+                        setSelectedGroupId(e.target.value);
+                        setSelectedRoleId("new");
+                      }}
+                      className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl px-6 py-4 text-sm font-bold text-[#1A1C21] outline-none focus:border-emerald-500 transition-all cursor-pointer"
+                    >
+                      {clientGroups.map((group) => (
+                        <option key={group.id} value={group.id}>
+                          {group.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Removed local storage checks for existing offers/workforce */}
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                      Target Role Offer (in selected workplace)
+                    </label>
+                    <select
+                      value={selectedRoleId}
+                      onChange={(e) => setSelectedRoleId(e.target.value)}
+                      className="w-full bg-slate-50 border border-[#EEEEF0] rounded-2xl px-6 py-4 text-sm font-bold text-[#1A1C21] outline-none focus:border-emerald-50 transition-all cursor-pointer"
+                    >
+                      <option value="new">+ Create New Role Offer</option>
+                      {clientRoles
+                        .filter((role) => role.group_id === selectedGroupId)
+                        .map((role) => (
+                          <option key={role.id} value={role.id}>
+                            {role.title} ({role.type})
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                </div>
+
+                {selectedRoleId === "new" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6 bg-slate-50/50 border border-[#EEEEF0] rounded-3xl">
+                    <div className="space-y-2 sm:col-span-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Role Title
+                      </label>
+                      <input
+                        type="text"
+                        name="newRoleTitle"
+                        required
+                        placeholder="e.g. Senior Frontend Engineer"
+                        className="w-full bg-white border border-[#EEEEF0] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Role Type
+                      </label>
+                      <select
+                        name="newRoleType"
+                        required
+                        className="w-full bg-white border border-[#EEEEF0] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500"
+                      >
+                        <option value="Full-time">Full-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Part-time">Part-time</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                        Monthly Salary
+                      </label>
+                      <input
+                        type="text"
+                        name="newRoleSalary"
+                        required
+                        placeholder="e.g. $5,000"
+                        className="w-full bg-white border border-[#EEEEF0] rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Mission Details</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                    Mission Details
+                  </label>
                   <textarea
                     name="message"
                     required
-                    rows={6}
+                    rows={4}
                     className="w-full bg-slate-50 border border-[#EEEEF0] rounded-3xl p-6 text-sm font-bold outline-none focus:border-emerald-500 focus:bg-white transition-all resize-none"
-                    placeholder={`Describe the mission context...`}
+                    placeholder={`Describe why you're interested in ${talent.full_name?.split(" ")[0]}...`}
                   />
                 </div>
 
                 <div className="p-6 bg-emerald-50 rounded-3xl flex items-start gap-4">
                   <Mail className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
                   <p className="text-xs font-bold text-emerald-700 leading-relaxed">
-                     Your verified client identity will be shared with the talent to facilitate immediate communication.
+                    Your verified client identity will be shared with the talent
+                    to facilitate immediate communication.
                   </p>
                 </div>
 
-                <button disabled={sending} type="submit" className="w-full h-16 bg-[#1A1C21] hover:bg-black text-white rounded-[24px] font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98]">
+                <button
+                  disabled={sending}
+                  type="submit"
+                  className="w-full h-16 bg-[#1A1C21] hover:bg-black text-white rounded-[24px] font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98] disabled:opacity-50"
+                >
                   {sending ? "Transmitting..." : "Send Profile Signal"}
                 </button>
               </form>

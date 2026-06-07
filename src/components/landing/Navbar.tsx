@@ -173,7 +173,7 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
                         <AuthLink
                           label="Client Login"
                           icon={LogIn}
-                          onClick={() => navigateTo("/client/login")}
+                          onClick={() => navigateTo("/client/dashboard")}
                         />
                         <AuthLink
                           label="Hire Talent"
@@ -191,7 +191,7 @@ export function Navbar({ heroHeight = 700, forceOpaque = false }: NavbarProps) {
                         <AuthLink
                           label="Talent Login"
                           icon={LogIn}
-                          onClick={() => navigateTo("/talent/login")}
+                          onClick={() => navigateTo("/talent/dashboard")}
                         />
                         <AuthLink
                           label="Join Talent Cloud"

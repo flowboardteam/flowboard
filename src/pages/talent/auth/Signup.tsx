@@ -173,10 +173,10 @@ export default function TalentSignUp() {
           </div>
           
           <div className="relative z-10">
-            <Link to="/" className="flex items-center gap-2 mb-20 group">
+            <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
               <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <span className="text-2xl font-black tracking-tighter text-white">Flowboard</span>
-            </Link>
+            </a>
  
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">

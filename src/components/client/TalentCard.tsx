@@ -1,11 +1,13 @@
-import { MapPin, Briefcase } from "lucide-react";
+import { MapPin, Briefcase, Bookmark, Check } from "lucide-react";
 
 interface TalentCardProps {
   talent: any;
   onReview: (talent: any) => void;
+  isShortlisted?: boolean;
+  onShortlist?: (talent: any) => void;
 }
 
-export function TalentCard({ talent, onReview }: TalentCardProps) {
+export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: TalentCardProps) {
   const displayScore = talent.profile_completion > 0 ? talent.profile_completion : 85;
 
   return (
@@ -38,14 +40,28 @@ export function TalentCard({ talent, onReview }: TalentCardProps) {
           </div>
         </div>
         
-        <div className="flex flex-col items-center shrink-0 ml-2">
+        <div className="flex items-center gap-2 shrink-0 ml-2">
+          {onShortlist && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onShortlist(talent); }}
+              className={`p-2 rounded-xl transition-all ${
+                isShortlisted
+                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105"
+                  : "bg-slate-500/10 text-slate-400 hover:bg-emerald-500 hover:text-white"
+              }`}
+            >
+              {isShortlisted ? <Check className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+            </button>
+          )}
+          <div className="flex flex-col items-center">
             <div className="text-[9px] sm:text-[10px] font-black text-emerald-500 mb-1 leading-none">{displayScore}%</div>
             <div className="w-8 sm:w-10 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div 
-                    className="h-full bg-emerald-500 transition-all duration-1000 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
-                    style={{ width: `${displayScore}%` }} 
-                />
+              <div 
+                className="h-full bg-emerald-500 transition-all duration-1000 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+                style={{ width: `${displayScore}%` }} 
+              />
             </div>
+          </div>
         </div>
       </div>
 

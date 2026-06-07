@@ -81,8 +81,8 @@ export default function GroupsPage() {
   const [isInviting, setIsInviting] = useState(false);
 
   const [inviteLink, setInviteLink] = useState("");
-const [showInviteLinkModal, setShowInviteLinkModal] = useState(false);
-const [copied, setCopied] = useState(false);
+  const [showInviteLinkModal, setShowInviteLinkModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const closeCreateModal = () => {
     setIsCreateModalOpen(false);
@@ -105,47 +105,146 @@ const [copied, setCopied] = useState(false);
       );
       if (created) {
         toast.success(`"${created.name}" created successfully`);
+
+        // Automatically trigger invitation if an admin email was entered in the wizard
+        if (inviteEmail.trim()) {
+          const emailToInvite = inviteEmail.trim();
+          console.log(
+            "Inviting admin during group creation to group:",
+            created.id,
+            "email:",
+            emailToInvite,
+          );
+
+          const result = await inviteAdminToGroup(created.id, emailToInvite);
+          if (result.success) {
+            setInviteLink(result.inviteLink || "");
+            setShowInviteLinkModal(true);
+            setInviteEmail("");
+          } else {
+            toast.error(
+              result.error ||
+                "Group was created but admin invite failed to send",
+            );
+          }
+        }
+
         closeCreateModal();
       } else {
         toast.error("Failed to create group. Please try again.");
       }
-    } catch {
+    } catch (error) {
+      console.error("Create group error:", error);
       toast.error("Failed to create group");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const [activeDetailTab, setActiveDetailTab] = useState<"details" | "admins">(
+    "details",
+  );
+  const [groupCreator, setGroupCreator] = useState<any>(null);
+
   const fetchGroupAdmins = async (groupId: string) => {
     setLoadingAdmins(true);
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Get the group to find the owner
-      const { data: group } = await supabase
+      // 1. Get the group to find the owner/creator
+      const { data: group, error: groupError } = await supabase
         .from("groups")
         .select("*")
         .eq("id", groupId)
         .single();
 
-      const adminsList = [];
+      if (groupError || !group) throw new Error("Group not found");
 
-      // Add the current user as admin (since they're the one viewing)
-      const { data: currentProfile } = await supabase
+      const adminsList: any[] = [];
+
+      // 2. Fetch the owner/creator profile
+      const { data: ownerProfile } = await supabase
         .from("profiles")
         .select("id, full_name, email, avatar_url")
-        .eq("id", user.id)
-        .single();
+        .eq("id", group.organization_id)
+        .maybeSingle();
 
-      if (currentProfile) {
+      if (ownerProfile) {
         adminsList.push({
-          ...currentProfile,
-          role: group?.is_primary ? "Owner" : "Admin",
+          id: ownerProfile.id,
+          full_name: ownerProfile.full_name || "Creator",
+          email: ownerProfile.email,
+          avatar_url: ownerProfile.avatar_url,
+          role: "Owner",
           status: "active",
+          joined_at: group.created_at,
         });
+      }
+
+      // 3. Fetch all active members from group_members
+      const { data: memberRows, error: membersError } = await supabase
+        .from("group_members")
+        .select("user_id, joined_at, role")
+        .eq("group_id", groupId);
+
+      if (membersError)
+        console.error("Error fetching member rows:", membersError);
+
+      if (memberRows && memberRows.length > 0) {
+        // Get all user IDs from group_members (excluding owner if present)
+        const userIds = memberRows
+          .map((row) => row.user_id)
+          .filter((uid) => uid && uid !== group.organization_id);
+
+        if (userIds.length > 0) {
+          // Fetch profiles for all these user IDs in a batch query
+          const { data: memberProfiles, error: profilesError } = await supabase
+            .from("profiles")
+            .select("id, full_name, email, avatar_url")
+            .in("id", userIds);
+
+          if (profilesError)
+            console.error("Error fetching profiles:", profilesError);
+
+          if (memberProfiles) {
+            for (const profile of memberProfiles) {
+              const memberRow = memberRows.find(
+                (row) => row.user_id === profile.id,
+              );
+              adminsList.push({
+                id: profile.id,
+                full_name: profile.full_name || "Admin",
+                email: profile.email,
+                avatar_url: profile.avatar_url,
+                role: memberRow?.role || "Admin",
+                status: "active",
+                joined_at: memberRow?.joined_at,
+              });
+            }
+          }
+        }
+      }
+
+      // 4. Fetch all pending invitations for this group
+      const { data: pendingInvites, error: invitesError } = await supabase
+        .from("group_invitations")
+        .select("id, email, created_at")
+        .eq("group_id", groupId)
+        .eq("status", "pending");
+
+      if (invitesError)
+        console.error("Error fetching pending invites:", invitesError);
+
+      if (pendingInvites) {
+        for (const invite of pendingInvites) {
+          adminsList.push({
+            id: invite.id,
+            full_name: "Invited Admin",
+            email: invite.email,
+            avatar_url: null,
+            role: "Admin",
+            status: "pending",
+            joined_at: invite.created_at,
+          });
+        }
       }
 
       setGroupAdmins(adminsList);
@@ -155,6 +254,33 @@ const [copied, setCopied] = useState(false);
       setLoadingAdmins(false);
     }
   };
+
+  // Fetch creator and load admins list on detail view transition
+  useEffect(() => {
+    if (selectedGroupDetails) {
+      setActiveDetailTab("details");
+
+      const fetchCreator = async () => {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name, email, avatar_url")
+            .eq("id", selectedGroupDetails.organization_id)
+            .single();
+          if (profile) {
+            setGroupCreator(profile);
+          } else {
+            setGroupCreator(null);
+          }
+        } catch {
+          setGroupCreator(null);
+        }
+      };
+
+      fetchCreator();
+      fetchGroupAdmins(selectedGroupDetails.id);
+    }
+  }, [selectedGroupDetails?.id]);
 
   // Keep selectedGroupDetails in sync with groups
   useEffect(() => {
@@ -176,33 +302,43 @@ const [copied, setCopied] = useState(false);
     }
   }, [selectedGroupDetails]);
 
-const handleInviteAdmin = async () => {
-  if (!inviteEmail.trim() || !inviteModalGroup) return;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(inviteEmail.trim())) {
-    toast.error("Please enter a valid email address");
-    return;
-  }
-  setIsInviting(true);
-  try {
-    const result = await inviteAdminToGroup(inviteModalGroup.id, inviteEmail.trim());
-    console.log("Invite result:", result);
-    
-    if (result.success) {
-      setInviteLink(result.inviteLink || "");
-      setShowInviteLinkModal(true);
-      setInviteEmail("");
-      setInviteModalGroup(null);
-    } else {
-      toast.error(result.error || "Failed to send invitation");
+  const handleInviteAdmin = async () => {
+    if (!inviteEmail.trim() || !inviteModalGroup) return;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inviteEmail.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
     }
-  } catch (error) {
-    console.error("Invite error:", error);
-    toast.error("Failed to send invitation");
-  } finally {
-    setIsInviting(false);
-  }
-};
+    setIsInviting(true);
+    try {
+      const result = await inviteAdminToGroup(
+        inviteModalGroup.id,
+        inviteEmail.trim(),
+      );
+      console.log("Invite result:", result);
+
+      if (result.success) {
+        setInviteLink(result.inviteLink || "");
+        setShowInviteLinkModal(true);
+        setInviteEmail("");
+        setInviteModalGroup(null);
+        if (selectedGroupDetails) {
+          fetchGroupAdmins(selectedGroupDetails.id);
+          setSelectedGroupDetails({
+            ...selectedGroupDetails,
+            admin_count: (selectedGroupDetails.admin_count ?? 1) + 1,
+          });
+        }
+      } else {
+        toast.error(result.error || "Failed to send invitation");
+      }
+    } catch (error) {
+      console.error("Invite error:", error);
+      toast.error("Failed to send invitation");
+    } finally {
+      setIsInviting(false);
+    }
+  };
 
   const filteredGroups = useMemo(
     () =>
@@ -267,226 +403,264 @@ const handleInviteAdmin = async () => {
         </div>
 
         <div className="flex items-center gap-8 border-b border-slate-100">
-          <button className="pb-4 px-1 text-sm font-bold text-slate-900 border-b-2 border-emerald-500">
+          <button
+            onClick={() => setActiveDetailTab("details")}
+            className={`pb-4 px-1 text-sm font-bold transition-all border-b-2 ${
+              activeDetailTab === "details"
+                ? "text-slate-900 border-emerald-500"
+                : "text-slate-400 hover:text-slate-600 border-transparent"
+            }`}
+          >
             Group details
           </button>
           <button
             onClick={async () => {
+              setActiveDetailTab("admins");
               await fetchGroupAdmins(selectedGroupDetails.id);
-              // Wait a bit for state to update
-              setTimeout(() => {
-                const adminNames = groupAdmins
-                  .map((a) => a.full_name || a.email)
-                  .join(", ");
-                toast.info(`Admins: ${adminNames || "Only you (Owner)"}`);
-              }, 500);
             }}
-            className="pb-4 px-1 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors"
+            className={`pb-4 px-1 text-sm font-bold transition-all border-b-2 ${
+              activeDetailTab === "admins"
+                ? "text-slate-900 border-emerald-500"
+                : "text-slate-400 hover:text-slate-600 border-transparent"
+            }`}
           >
             Admins ({selectedGroupDetails.admin_count ?? 1})
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Group Details Card */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">
-                Group details
-              </span>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setEditingGroup(selectedGroupDetails);
-                  setEditGroupName(selectedGroupDetails.name);
-                  setEditGroupAvatar(selectedGroupDetails.avatar_url || "");
-                  setEditGroupBio(selectedGroupDetails.bio || "");
-                }}
-                className="h-8 text-xs font-black border border-slate-200 px-4 rounded-xl"
-              >
-                <Edit size={12} className="mr-1" /> Edit
-              </Button>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-500">
-                  Group name
+        {activeDetailTab === "details" ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Group Details Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400">
+                  Group details
                 </span>
-                <span className="text-xs font-bold text-slate-900">
-                  {selectedGroupDetails.name}
-                </span>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setEditingGroup(selectedGroupDetails);
+                    setEditGroupName(selectedGroupDetails.name);
+                    setEditGroupAvatar(selectedGroupDetails.avatar_url || "");
+                    setEditGroupBio(selectedGroupDetails.bio || "");
+                  }}
+                  className="h-8 text-xs font-black border border-slate-200 px-4 rounded-xl"
+                >
+                  <Edit size={12} className="mr-1" /> Edit
+                </Button>
               </div>
-              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-500">
-                  Group ID
-                </span>
-                <span className="text-xs font-mono text-slate-500">
-                  {selectedGroupDetails.id.slice(0, 8)}...
-                </span>
-              </div>
-              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                <span className="text-xs font-bold text-slate-500">
-                  Created
-                </span>
-                <span className="text-xs text-slate-600">
-                  {selectedGroupDetails.created_at
-                    ? new Date(
-                        selectedGroupDetails.created_at,
-                      ).toLocaleDateString()
-                    : "N/A"}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Card */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col gap-6 shadow-sm">
-            <span className="text-xs font-bold text-slate-400">
-              Organization Stats
-            </span>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 text-center">
-                <UsersIcon size={20} className="text-slate-400 mx-auto mb-2" />
-                <p className="text-2xl font-black text-slate-900">
-                  {selectedGroupDetails.admin_count ?? 1}
-                </p>
-                <p className="text-[10px] font-bold text-slate-400">Admins</p>
-              </div>
-              <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 text-center">
-                <Briefcase size={20} className="text-slate-400 mx-auto mb-2" />
-                <p className="text-2xl font-black text-slate-900">
-                  {selectedGroupDetails.contract_count ?? 0}
-                </p>
-                <p className="text-[10px] font-bold text-slate-400">
-                  Contracts
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Invoice Settings Card */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">
-                Invoice settings
-              </span>
-              <Button
-                variant="ghost"
-                onClick={() => toast.info("Invoice settings coming soon")}
-                className="h-8 text-xs font-black border border-slate-200 px-4 rounded-xl"
-              >
-                Edit
-              </Button>
-            </div>
-            <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-              <span className="text-xs font-bold text-slate-500">
-                Finalize invoices
-              </span>
-              <span className="text-xs font-bold text-slate-900">
-                10 days before due date
-              </span>
-            </div>
-          </div>
-
-          {/* General Ledger Card */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">
-                General ledger account
-              </span>
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  toast.info("General ledger settings coming soon")
-                }
-                className="h-8 text-xs font-black border border-slate-200 px-4 rounded-xl"
-              >
-                Edit
-              </Button>
-            </div>
-            <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-              <span className="text-xs font-bold text-slate-500">
-                General ledger account
-              </span>
-              <span className="text-xs font-bold text-slate-400 italic">
-                Not specified
-              </span>
-            </div>
-          </div>
-
-          {/* Expenses Approval Card */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">
-                Expenses approval policies
-              </span>
-            </div>
-            <div className="text-slate-500 text-xs font-medium">
-              This expense approval policy affects your employees and
-              contractors.
-            </div>
-            <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-xs font-bold">
-              <Info size={16} />
-              The approvals policies settings were moved to Expenses &
-              adjustments page.
-            </div>
-          </div>
-
-          {/* Contractors Approval Card */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm lg:col-span-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">
-                Contractors approval policies
-              </span>
-            </div>
-            <div className="text-slate-500 text-xs font-medium">
-              Set the policy to approve the submitted adjustments and work.
-            </div>
-            <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100 mt-2">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-900">
-                    Require approval for payment items
+              <div className="space-y-3">
+                <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500">
+                    Group name
                   </span>
-                  <span className="px-1.5 py-0.5 rounded bg-indigo-600 text-white text-[8px] font-bold">
-                    New
+                  <span className="text-xs font-bold text-slate-900">
+                    {selectedGroupDetails.name}
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-medium max-w-md">
-                  If enabled, admins with the necessary permissions will be
-                  required to review payment items before they are paid.
+                <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500">
+                    Group ID
+                  </span>
+                  <span className="text-xs font-mono text-slate-500">
+                    {selectedGroupDetails.id.slice(0, 8)}...
+                  </span>
+                </div>
+                <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500">
+                    Created
+                  </span>
+                  <span className="text-xs text-slate-600">
+                    {selectedGroupDetails.created_at
+                      ? new Date(
+                          selectedGroupDetails.created_at,
+                        ).toLocaleDateString()
+                      : "N/A"}
+                  </span>
+                </div>
+                {groupCreator && (
+                  <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                    <span className="text-xs font-bold text-slate-500">
+                      Created by
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden text-slate-400">
+                        {groupCreator.avatar_url ? (
+                          <img
+                            src={groupCreator.avatar_url}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-black">
+                            {groupCreator.full_name?.charAt(0).toUpperCase() ||
+                              "O"}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-xs font-black text-slate-900">
+                        {groupCreator.full_name || "Owner"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Stats Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col gap-6 shadow-sm">
+              <span className="text-xs font-bold text-slate-400">
+                Organization Stats
+              </span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 text-center">
+                  <UsersIcon
+                    size={20}
+                    className="text-slate-400 mx-auto mb-2"
+                  />
+                  <p className="text-2xl font-black text-slate-900">
+                    {selectedGroupDetails.admin_count ?? 1}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400">Admins</p>
+                </div>
+                <div className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 text-center">
+                  <Briefcase
+                    size={20}
+                    className="text-slate-400 mx-auto mb-2"
+                  />
+                  <p className="text-2xl font-black text-slate-900">
+                    {selectedGroupDetails.contract_count ?? 0}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400">
+                    Contracts
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Invoice Settings Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400">
+                  Invoice settings
+                </span>
+                <Button
+                  variant="ghost"
+                  onClick={() => toast.info("Invoice settings coming soon")}
+                  className="h-8 text-xs font-black border border-slate-200 px-4 rounded-xl"
+                >
+                  Edit
+                </Button>
+              </div>
+              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <span className="text-xs font-bold text-slate-500">
+                  Finalize invoices
+                </span>
+                <span className="text-xs font-bold text-slate-900">
+                  10 days before due date
                 </span>
               </div>
-              <div className="w-10 h-6 bg-indigo-600 rounded-full flex items-center justify-end px-1 cursor-pointer">
-                <div className="w-4 h-4 bg-white rounded-full shadow" />
+            </div>
+
+            {/* General Ledger Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400">
+                  General ledger account
+                </span>
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    toast.info("General ledger settings coming soon")
+                  }
+                  className="h-8 text-xs font-black border border-slate-200 px-4 rounded-xl"
+                >
+                  Edit
+                </Button>
+              </div>
+              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <span className="text-xs font-bold text-slate-500">
+                  General ledger account
+                </span>
+                <span className="text-xs font-bold text-slate-400 italic">
+                  Not specified
+                </span>
               </div>
             </div>
-            <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-              <span className="text-xs font-bold text-slate-900">
-                Contractors policy
-              </span>
-              <span className="text-xs font-bold text-slate-500 flex items-center gap-2">
-                Default payment items policy
-                <MoreVertical size={14} className="text-slate-400" />
-              </span>
-            </div>
-          </div>
 
-          {/* Archive Section */}
-          <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col gap-4 shadow-sm lg:col-span-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-400">
+            {/* Expenses Approval Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400">
+                  Expenses approval policies
+                </span>
+              </div>
+              <div className="text-slate-500 text-xs font-medium">
+                This expense approval policy affects your employees and
+                contractors.
+              </div>
+              <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-xs font-bold">
+                <Info size={16} />
+                The approvals policies settings were moved to Expenses &
+                adjustments page.
+              </div>
+            </div>
+
+            {/* Contractors Approval Card */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col justify-between gap-6 shadow-sm lg:col-span-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400">
+                  Contractors approval policies
+                </span>
+              </div>
+              <div className="text-slate-500 text-xs font-medium">
+                Set the policy to approve the submitted adjustments and work.
+              </div>
+              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100 mt-2">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900">
+                      Require approval for payment items
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded bg-indigo-600 text-white text-[8px] font-bold">
+                      New
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-medium max-w-md">
+                    If enabled, admins with the necessary permissions will be
+                    required to review payment items before they are paid.
+                  </span>
+                </div>
+                <div className="w-10 h-6 bg-indigo-600 rounded-full flex items-center justify-end px-1 cursor-pointer">
+                  <div className="w-4 h-4 bg-white rounded-full shadow" />
+                </div>
+              </div>
+              <div className="flex items-center justify-between bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <span className="text-xs font-bold text-slate-900">
+                  Contractors policy
+                </span>
+                <span className="text-xs font-bold text-slate-500 flex items-center gap-2">
+                  Default payment items policy
+                  <MoreVertical size={14} className="text-slate-400" />
+                </span>
+              </div>
+            </div>
+
+            {/* Archive Section */}
+            <div className="bg-white p-6 rounded-[2rem] border border-slate-200 flex flex-col gap-4 shadow-sm lg:col-span-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400">
+                  {selectedGroupDetails.status === "archived"
+                    ? "Restore this group"
+                    : "Archive this group"}
+                </span>
+              </div>
+              <div className="text-slate-500 text-xs font-medium max-w-xl">
                 {selectedGroupDetails.status === "archived"
-                  ? "Restore this group"
-                  : "Archive this group"}
-              </span>
-            </div>
-            <div className="text-slate-500 text-xs font-medium max-w-xl">
-              {selectedGroupDetails.status === "archived"
-                ? "Restored groups will become active again and visible in your main view."
-                : "Archived groups are hidden from your main view but can be accessed by enabling 'Archived' filter on your groups page. You can restore it at any time."}
-            </div>
-            {/* <Button 
+                  ? "Restored groups will become active again and visible in your main view."
+                  : "Archived groups are hidden from your main view but can be accessed by enabling 'Archived' filter on your groups page. You can restore it at any time."}
+              </div>
+              {/* <Button 
     onClick={async () => {
       if (selectedGroupDetails.is_primary && selectedGroupDetails.status !== "archived") {
         toast.error("Cannot archive primary group. Set another group as primary first.");
@@ -512,158 +686,460 @@ const handleInviteAdmin = async () => {
       <><Archive size={14} className="mr-1" /> Archive group</>
     )}
   </Button> */}
+            </div>
           </div>
-
-          {/* ── Edit Group Modal ─────────────────────────────────────────────────── */}
-          <Dialog
-            open={!!editingGroup}
-            onOpenChange={(open) => {
-              if (!open) setEditingGroup(null);
-            }}
-          >
-            <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[450px] max-h-[90vh] overflow-y-auto rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
-              <div className="space-y-2">
-                <h3 className="text-xl font-black tracking-tight">
-                  Edit group
+        ) : (
+          <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm space-y-6 animate-in fade-in duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-slate-900">
+                  Organization admins
                 </h3>
-                <p className="text-xs text-slate-400 font-medium">
-                  Update the organization's core details.
+                <p className="text-xs text-slate-400 font-medium mt-1">
+                  View active and pending administrators assigned to this group.
+                </p>
+              </div>
+              <Button
+                onClick={() => setInviteModalGroup(selectedGroupDetails)}
+                className="bg-[#1A1C21] hover:bg-black text-white px-6 h-10 rounded-xl font-bold text-xs flex items-center gap-2"
+              >
+                <Plus size={14} /> Invite admin
+              </Button>
+            </div>
+
+            {loadingAdmins ? (
+              <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+                <RefreshCw size={24} className="animate-spin text-slate-400" />
+                <p className="text-xs text-slate-400 font-bold">
+                  Loading administrators...
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Admin
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Role
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Assigned Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {groupAdmins.map((admin) => (
+                      <tr
+                        key={admin.id}
+                        className="hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden text-slate-400">
+                              {admin.avatar_url ? (
+                                <img
+                                  src={admin.avatar_url}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-indigo-500 text-white flex items-center justify-center text-xs font-black">
+                                  {admin.full_name?.charAt(0).toUpperCase() ||
+                                    admin.email?.charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-slate-900">
+                                {admin.full_name}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-medium">
+                                {admin.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-2 py-1 rounded-md text-[9px] font-bold ${
+                              admin.role === "Owner"
+                                ? "bg-indigo-50 text-indigo-600"
+                                : "bg-slate-50 text-slate-600"
+                            }`}
+                          >
+                            {admin.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                              admin.status === "active"
+                                ? "bg-emerald-50 text-emerald-600"
+                                : "bg-amber-50 text-amber-600 animate-pulse"
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                admin.status === "active"
+                                  ? "bg-emerald-500"
+                                  : "bg-amber-500"
+                              }`}
+                            />
+                            {admin.status === "active"
+                              ? "Active"
+                              : "Pending Invite"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-xs font-medium text-slate-400">
+                          {admin.joined_at
+                            ? new Date(admin.joined_at).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Edit Group Modal ─────────────────────────────────────────────────── */}
+        <Dialog
+          open={!!editingGroup}
+          onOpenChange={(open) => {
+            if (!open) setEditingGroup(null);
+          }}
+        >
+          <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[450px] max-h-[90vh] overflow-y-auto rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
+            <div className="space-y-2">
+              <h3 className="text-xl font-black tracking-tight">Edit group</h3>
+              <p className="text-xs text-slate-400 font-medium">
+                Update the organization's core details.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Group name
+                </label>
+                <Input
+                  value={editGroupName}
+                  onChange={(e) => setEditGroupName(e.target.value)}
+                  className="h-12 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20 font-medium text-sm"
+                  placeholder="Enter group name..."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Group logo
+                </label>
+                <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center border border-slate-200 overflow-hidden text-slate-400">
+                    {editGroupAvatar ? (
+                      <img
+                        src={editGroupAvatar}
+                        alt="Logo Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Building2 size={24} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="group-avatar-upload"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file && editingGroup) {
+                          // Show loading state
+                          toast.loading("Uploading image...");
+
+                          // Upload to Supabase Storage
+                          const { uploadGroupAvatar } =
+                            await import("@/lib/UploadAvatar");
+                          const publicUrl = await uploadGroupAvatar(
+                            editingGroup.id,
+                            file,
+                          );
+
+                          if (publicUrl) {
+                            setEditGroupAvatar(publicUrl);
+                            toast.dismiss();
+                            toast.success("Image uploaded successfully");
+                          } else {
+                            toast.dismiss();
+                            toast.error("Failed to upload image");
+                          }
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="group-avatar-upload"
+                      className="inline-flex items-center justify-center h-10 px-4 bg-[#1A1C21] hover:bg-black text-white text-xs font-bold rounded-xl cursor-pointer transition-colors uppercase tracking-widest"
+                    >
+                      Upload Image
+                    </label>
+                    {editGroupAvatar && (
+                      <button
+                        onClick={() => setEditGroupAvatar("")}
+                        className="ml-2 inline-flex items-center justify-center h-10 px-4 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-bold rounded-xl cursor-pointer transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="text-[9px] text-slate-400 ml-1">
+                  Recommended: Square image, max 2MB
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Group name
-                  </label>
-                  <Input
-                    value={editGroupName}
-                    onChange={(e) => setEditGroupName(e.target.value)}
-                    className="h-12 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20 font-medium text-sm"
-                    placeholder="Enter group name..."
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Company Bio
+                </label>
+                <textarea
+                  value={editGroupBio}
+                  onChange={(e) => setEditGroupBio(e.target.value)}
+                  className="w-full min-h-[100px] rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20 font-medium text-sm p-4 resize-none outline-none border"
+                  placeholder="Enter a brief description of the organization..."
+                />
+              </div>
+            </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Group logo
-                  </label>
-                  <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                    <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center border border-slate-200 overflow-hidden text-slate-400">
-                      {editGroupAvatar ? (
-                        <img
-                          src={editGroupAvatar}
-                          alt="Logo Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Building2 size={24} />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        id="group-avatar-upload"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file && editingGroup) {
-                            // Show loading state
-                            toast.loading("Uploading image...");
+            <div className="flex items-center justify-end gap-3 pt-4">
+              <Button
+                variant="ghost"
+                onClick={() => setEditingGroup(null)}
+                className="text-xs font-bold uppercase tracking-widest text-slate-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (editingGroup && editGroupName.trim()) {
+                    try {
+                      await updateGroup(editingGroup.id, {
+                        name: editGroupName,
+                        avatar_url: editGroupAvatar || null,
+                        bio: editGroupBio || undefined,
+                      });
+                      setSelectedGroupDetails({
+                        ...selectedGroupDetails,
+                        name: editGroupName,
+                        avatar_url: editGroupAvatar || null,
+                        bio: editGroupBio || undefined,
+                      });
+                      toast.success("Group details updated successfully");
+                      setEditingGroup(null);
+                    } catch {
+                      toast.error("Failed to update group");
+                    }
+                  }
+                }}
+                className="bg-[#1A1C21] hover:bg-black text-white h-12 px-8 rounded-xl font-bold text-xs uppercase tracking-widest"
+              >
+                Save changes
+              </Button>
+            </div>
 
-                            // Upload to Supabase Storage
-                            const { uploadGroupAvatar } =
-                              await import("@/lib/UploadAvatar");
-                            const publicUrl = await uploadGroupAvatar(
-                              editingGroup.id,
-                              file,
-                            );
+            <button
+              onClick={() => setEditingGroup(null)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
+            >
+              <X size={20} />
+            </button>
+          </DialogContent>
+        </Dialog>
 
-                            if (publicUrl) {
-                              setEditGroupAvatar(publicUrl);
-                              toast.dismiss();
-                              toast.success("Image uploaded successfully");
-                            } else {
-                              toast.dismiss();
-                              toast.error("Failed to upload image");
-                            }
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="group-avatar-upload"
-                        className="inline-flex items-center justify-center h-10 px-4 bg-[#1A1C21] hover:bg-black text-white text-xs font-bold rounded-xl cursor-pointer transition-colors uppercase tracking-widest"
-                      >
-                        Upload Image
-                      </label>
-                      {editGroupAvatar && (
-                        <button
-                          onClick={() => setEditGroupAvatar("")}
-                          className="ml-2 inline-flex items-center justify-center h-10 px-4 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-bold rounded-xl cursor-pointer transition-colors"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-[9px] text-slate-400 ml-1">
-                    Recommended: Square image, max 2MB
+        {/* ── Detail View Invite Modal ───────────────────────────────────────── */}
+        <Dialog
+          open={
+            !!inviteModalGroup &&
+            inviteModalGroup.id === selectedGroupDetails.id
+          }
+          onOpenChange={(open) => {
+            if (!open) {
+              setInviteModalGroup(null);
+              setInviteEmail("");
+            }
+          }}
+        >
+          <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[480px] rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
+            <div className="space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-[#A079FF]/10 flex items-center justify-center mb-2">
+                <Mail className="w-6 h-6 text-[#A079FF]" />
+              </div>
+              <h3 className="text-xl font-black tracking-tight">
+                Invite admin
+              </h3>
+              <p className="text-xs text-slate-400 font-medium">
+                Invite an admin to{" "}
+                <span className="font-black text-slate-700">
+                  {selectedGroupDetails.name}
+                </span>
+                . They'll receive a personalized email with a secure link to
+                join.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Email address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  type="email"
+                  placeholder="admin@company.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleInviteAdmin();
+                  }}
+                  className="pl-12 h-14 rounded-2xl border-slate-200 focus:border-[#A079FF] focus:ring-[#A079FF]/20 font-bold text-sm"
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-[10px] font-bold">
+              <Info size={14} className="shrink-0 mt-0.5" />
+              <span>
+                The invitation link will expire in 7 days. The invited admin
+                will need to sign up or log in to accept the invitation.
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setInviteModalGroup(null);
+                  setInviteEmail("");
+                }}
+                className="text-xs font-bold uppercase tracking-widest text-slate-400"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleInviteAdmin}
+                disabled={isInviting || !inviteEmail.trim()}
+                className="bg-[#1A1C21] hover:bg-black text-white h-12 px-8 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2"
+              >
+                {isInviting ? (
+                  "Sending..."
+                ) : (
+                  <>
+                    <Send size={14} /> Send invite
+                  </>
+                )}
+              </Button>
+            </div>
+
+            <button
+              onClick={() => {
+                setInviteModalGroup(null);
+                setInviteEmail("");
+              }}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
+            >
+              <X size={20} />
+            </button>
+          </DialogContent>
+        </Dialog>
+
+        {/* ── Detail View Invite Link Modal ───────────────────────────────────── */}
+        <Dialog
+          open={showInviteLinkModal}
+          onOpenChange={(open) => {
+            if (!open) {
+              setShowInviteLinkModal(false);
+              setCopied(false);
+            }
+          }}
+        >
+          <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[500px] rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
+            <div className="space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-2">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-black tracking-tight">
+                Invitation Created!
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                Share this link with the person you want to invite. The link
+                will expire in 7 days.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Invitation Link
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <p className="text-xs text-slate-600 break-all font-mono">
+                    {inviteLink}
                   </p>
                 </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    Company Bio
-                  </label>
-                  <textarea
-                    value={editGroupBio}
-                    onChange={(e) => setEditGroupBio(e.target.value)}
-                    className="w-full min-h-[100px] rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20 font-medium text-sm p-4 resize-none outline-none border"
-                    placeholder="Enter a brief description of the organization..."
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4">
-                <Button
-                  variant="ghost"
-                  onClick={() => setEditingGroup(null)}
-                  className="text-xs font-bold uppercase tracking-widest text-slate-400"
-                >
-                  Cancel
-                </Button>
                 <Button
                   onClick={async () => {
-                    if (editingGroup && editGroupName.trim()) {
-                      try {
-                        await updateGroup(editingGroup.id, {
-                          name: editGroupName,
-                          avatar_url: editGroupAvatar || null,
-                          bio: editGroupBio || undefined,
-                        });
-                        toast.success("Group details updated successfully");
-                        setEditingGroup(null);
-                      } catch {
-                        toast.error("Failed to update group");
-                      }
-                    }
+                    await navigator.clipboard.writeText(inviteLink);
+                    setCopied(true);
+                    toast.success("Link copied to clipboard!");
+                    setTimeout(() => setCopied(false), 2000);
                   }}
-                  className="bg-[#1A1C21] hover:bg-black text-white h-12 px-8 rounded-xl font-bold text-xs uppercase tracking-widest"
+                  className="h-12 px-4 bg-[#1A1C21] hover:bg-black text-white rounded-xl"
                 >
-                  Save changes
+                  {copied ? <Check size={18} /> : <Copy size={18} />}
                 </Button>
               </div>
+            </div>
 
-              <button
-                onClick={() => setEditingGroup(null)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 p-4 rounded-xl text-amber-700 text-[10px] font-bold">
+              <Info size={14} className="shrink-0 mt-0.5" />
+              <span>
+                You can also send this link via email. The invited person will
+                need to create an account or log in to accept the invitation.
+              </span>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <Button
+                onClick={() => {
+                  setShowInviteLinkModal(false);
+                  setCopied(false);
+                }}
+                className="bg-[#1A1C21] hover:bg-black text-white h-10 px-6 rounded-xl font-bold text-xs uppercase tracking-widest"
               >
-                <X size={20} />
-              </button>
-            </DialogContent>
-          </Dialog>
-        </div>
+                Close
+              </Button>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowInviteLinkModal(false);
+                setCopied(false);
+              }}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
+            >
+              <X size={20} />
+            </button>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -815,31 +1291,49 @@ const handleInviteAdmin = async () => {
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${
-                        group.status === "archived"
-                          ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                    {group.is_pending_invite ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border bg-amber-500/10 text-amber-600 border-amber-500/20">
+                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        Pending Invite
+                      </span>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${
+                          group.status === "archived"
+                            ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                            : group.status === "deleted"
+                              ? "bg-red-500/10 text-red-600 border-red-500/20"
+                              : group.is_locked
+                                ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/20"
+                                : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                        }`}
+                      >
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            group.status === "archived"
+                              ? "bg-amber-500"
+                              : group.status === "deleted"
+                                ? "bg-red-500"
+                                : group.is_locked
+                                  ? "bg-indigo-500"
+                                  : "bg-emerald-500"
+                          }`}
+                        />
+                        {group.status === "archived"
+                          ? "Archived"
                           : group.status === "deleted"
-                            ? "bg-red-500/10 text-red-600 border-red-500/20"
+                            ? "Deleted"
                             : group.is_locked
-                              ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/20"
-                              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                      }`}
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      {group.status === "archived"
-                        ? "Archived"
-                        : group.status === "deleted"
-                          ? "Deleted"
-                          : group.is_locked
-                            ? "Locked"
-                            : "Active"}
-                    </span>
+                              ? "Locked"
+                              : "Active"}
+                      </span>
+                    )}
                   </td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2 text-slate-600 text-xs font-bold">
                       <UsersIcon size={14} className="text-slate-400" />
-                      {group.admin_count ?? 1} admin
+                      {group.admin_count ?? 1}{" "}
+                      {(group.admin_count ?? 1) === 1 ? "admin" : "admins"}
                     </div>
                   </td>
                   <td className="px-8 py-6">
@@ -859,98 +1353,115 @@ const handleInviteAdmin = async () => {
                         align="end"
                         className="w-52 p-2 rounded-2xl shadow-2xl border-[var(--border-color)] bg-white"
                       >
-                        {/* Invite admin — always available for active groups */}
-                        {group.status === "active" && !group.is_locked && (
+                        {group.is_pending_invite ? (
                           <DropdownMenuItem
                             onClick={() => {
-                              setInviteModalGroup(group);
-                              setInviteEmail("");
+                              toast.info(
+                                "Please use the dashboard banner to accept this invite, or switch to it first.",
+                              );
                             }}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#A079FF]/5 hover:text-[#A079FF] transition-all text-xs font-bold"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-amber-600 hover:bg-amber-500/5 transition-all text-xs font-bold"
                           >
-                            <Mail size={14} /> Invite admin
+                            <Mail size={14} /> Pending invitation
                           </DropdownMenuItem>
-                        )}
+                        ) : (
+                          <>
+                            {/* Invite admin — always available for active groups */}
+                            {group.status === "active" && !group.is_locked && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setInviteModalGroup(group);
+                                  setInviteEmail("");
+                                }}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#A079FF]/5 hover:text-[#A079FF] transition-all text-xs font-bold"
+                              >
+                                <Mail size={14} /> Invite admin
+                              </DropdownMenuItem>
+                            )}
 
-                        {!group.is_primary &&
-                          group.status !== "archived" &&
-                          group.status !== "deleted" && (
-                            <DropdownMenuItem
-                              onClick={() => setPrimaryGroup(group.id)}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
-                            >
-                              <CheckCircle2 size={14} /> Make primary
-                            </DropdownMenuItem>
-                          )}
-                        <DropdownMenuItem
-                          onClick={() => setSelectedGroupDetails(group)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
-                        >
-                          <ExternalLink size={14} /> View details
-                        </DropdownMenuItem>
-                        {group.status !== "archived" &&
-                          group.status !== "deleted" &&
-                          !group.is_locked && (
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setEditingGroup(group);
-                                setEditGroupName(group.name);
-                                setEditGroupAvatar(group.avatar_url || "");
-                                setEditGroupBio(group.bio || "");
-                              }}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
-                            >
-                              <Edit size={14} /> Edit group
-                            </DropdownMenuItem>
-                          )}
-                        {group.status !== "archived" &&
-                          group.status !== "deleted" && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                updateGroup(group.id, {
-                                  is_locked: !group.is_locked,
-                                })
-                              }
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
-                            >
-                              {group.is_locked ? (
-                                <Unlock size={14} />
-                              ) : (
-                                <Lock size={14} />
+                            {!group.is_primary &&
+                              group.status !== "archived" &&
+                              group.status !== "deleted" && (
+                                <DropdownMenuItem
+                                  onClick={() => setPrimaryGroup(group.id)}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
+                                >
+                                  <CheckCircle2 size={14} /> Make primary
+                                </DropdownMenuItem>
                               )}
-                              {group.is_locked ? "Unlock group" : "Lock group"}
-                            </DropdownMenuItem>
-                          )}
-                        {!group.is_locked && group.status === "active" && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              updateGroup(group.id, { status: "archived" })
-                            }
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-amber-500/5 hover:text-amber-600 transition-all text-xs font-bold"
-                          >
-                            <Archive size={14} /> Archive group
-                          </DropdownMenuItem>
-                        )}
-                        {group.status === "archived" && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              updateGroup(group.id, { status: "active" })
-                            }
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
-                          >
-                            <RefreshCw size={14} /> Restore group
-                          </DropdownMenuItem>
-                        )}
-                        {!group.is_primary &&
-                          !group.is_locked &&
-                          group.status !== "deleted" && (
                             <DropdownMenuItem
-                              onClick={() => setGroupToDelete(group)}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-600 hover:bg-red-500/5 transition-all text-xs font-bold"
+                              onClick={() => setSelectedGroupDetails(group)}
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
                             >
-                              <Trash2 size={14} /> Delete group
+                              <ExternalLink size={14} /> View details
                             </DropdownMenuItem>
-                          )}
+                            {group.status !== "archived" &&
+                              group.status !== "deleted" &&
+                              !group.is_locked && (
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setEditingGroup(group);
+                                    setEditGroupName(group.name);
+                                    setEditGroupAvatar(group.avatar_url || "");
+                                    setEditGroupBio(group.bio || "");
+                                  }}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
+                                >
+                                  <Edit size={14} /> Edit group
+                                </DropdownMenuItem>
+                              )}
+                            {group.status !== "archived" &&
+                              group.status !== "deleted" && (
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateGroup(group.id, {
+                                      is_locked: !group.is_locked,
+                                    })
+                                  }
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
+                                >
+                                  {group.is_locked ? (
+                                    <Unlock size={14} />
+                                  ) : (
+                                    <Lock size={14} />
+                                  )}
+                                  {group.is_locked
+                                    ? "Unlock group"
+                                    : "Lock group"}
+                                </DropdownMenuItem>
+                              )}
+                            {!group.is_locked && group.status === "active" && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateGroup(group.id, { status: "archived" })
+                                }
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-amber-500/5 hover:text-amber-600 transition-all text-xs font-bold"
+                              >
+                                <Archive size={14} /> Archive group
+                              </DropdownMenuItem>
+                            )}
+                            {group.status === "archived" && (
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateGroup(group.id, { status: "active" })
+                                }
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
+                              >
+                                <RefreshCw size={14} /> Restore group
+                              </DropdownMenuItem>
+                            )}
+                            {!group.is_primary &&
+                              !group.is_locked &&
+                              group.status !== "deleted" && (
+                                <DropdownMenuItem
+                                  onClick={() => setGroupToDelete(group)}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-red-600 hover:bg-red-500/5 transition-all text-xs font-bold"
+                                >
+                                  <Trash2 size={14} /> Delete group
+                                </DropdownMenuItem>
+                              )}
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -1140,6 +1651,8 @@ const handleInviteAdmin = async () => {
                       <Input
                         type="email"
                         placeholder="admin@company.com"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
                         className="pl-12 h-12 border-slate-200 rounded-xl text-xs font-bold"
                       />
                     </div>
@@ -1166,13 +1679,25 @@ const handleInviteAdmin = async () => {
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
-                      onClick={() => setCreateStep(3)}
+                      onClick={() => {
+                        setInviteEmail("");
+                        setCreateStep(3);
+                      }}
                       className="text-xs font-bold text-slate-400 uppercase tracking-widest"
                     >
                       Skip for now
                     </Button>
                     <Button
-                      onClick={() => setCreateStep(3)}
+                      onClick={() => {
+                        if (inviteEmail.trim()) {
+                          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                          if (!emailRegex.test(inviteEmail.trim())) {
+                            toast.error("Please enter a valid email address");
+                            return;
+                          }
+                        }
+                        setCreateStep(3);
+                      }}
                       className="bg-[#1A1C21] hover:bg-black text-white h-12 px-8 rounded-xl font-bold text-xs uppercase tracking-widest"
                     >
                       Continue
@@ -1526,68 +2051,84 @@ const handleInviteAdmin = async () => {
         </DialogContent>
       </Dialog>
       {/* ── Invite Link Modal ───────────────────────────────────────────────── */}
-<Dialog open={showInviteLinkModal} onOpenChange={(open) => { if (!open) { setShowInviteLinkModal(false); setCopied(false); } }}>
-  <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[500px] rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
-    <div className="space-y-2">
-      <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-2">
-        <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-      </div>
-      <h3 className="text-xl font-black tracking-tight">Invitation Created!</h3>
-      <p className="text-xs text-slate-500 font-medium">
-        Share this link with the person you want to invite. The link will expire in 7 days.
-      </p>
-    </div>
-
-    <div className="space-y-2">
-      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Invitation Link</label>
-      <div className="flex items-center gap-2">
-        <div className="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          <p className="text-xs text-slate-600 break-all font-mono">{inviteLink}</p>
-        </div>
-        <Button
-          onClick={async () => {
-            await navigator.clipboard.writeText(inviteLink);
-            setCopied(true);
-            toast.success("Link copied to clipboard!");
-            setTimeout(() => setCopied(false), 2000);
-          }}
-          className="h-12 px-4 bg-[#1A1C21] hover:bg-black text-white rounded-xl"
-        >
-          {copied ? <Check size={18} /> : <Copy size={18} />}
-        </Button>
-      </div>
-    </div>
-
-    <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 p-4 rounded-xl text-amber-700 text-[10px] font-bold">
-      <Info size={14} className="shrink-0 mt-0.5" />
-      <span>
-        You can also send this link via email. The invited person will need to create an account or log in to accept the invitation.
-      </span>
-    </div>
-
-    <div className="flex items-center justify-end gap-3 pt-2">
-      <Button
-        onClick={() => {
-          setShowInviteLinkModal(false);
-          setCopied(false);
+      <Dialog
+        open={showInviteLinkModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowInviteLinkModal(false);
+            setCopied(false);
+          }
         }}
-        className="bg-[#1A1C21] hover:bg-black text-white h-10 px-6 rounded-xl font-bold text-xs uppercase tracking-widest"
       >
-        Close
-      </Button>
-    </div>
+        <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[500px] rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
+          <div className="space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-2">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            </div>
+            <h3 className="text-xl font-black tracking-tight">
+              Invitation Created!
+            </h3>
+            <p className="text-xs text-slate-500 font-medium">
+              Share this link with the person you want to invite. The link will
+              expire in 7 days.
+            </p>
+          </div>
 
-    <button
-      onClick={() => {
-        setShowInviteLinkModal(false);
-        setCopied(false);
-      }}
-      className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
-    >
-      <X size={20} />
-    </button>
-  </DialogContent>
-</Dialog>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              Invitation Link
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <p className="text-xs text-slate-600 break-all font-mono">
+                  {inviteLink}
+                </p>
+              </div>
+              <Button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(inviteLink);
+                  setCopied(true);
+                  toast.success("Link copied to clipboard!");
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                className="h-12 px-4 bg-[#1A1C21] hover:bg-black text-white rounded-xl"
+              >
+                {copied ? <Check size={18} /> : <Copy size={18} />}
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 p-4 rounded-xl text-amber-700 text-[10px] font-bold">
+            <Info size={14} className="shrink-0 mt-0.5" />
+            <span>
+              You can also send this link via email. The invited person will
+              need to create an account or log in to accept the invitation.
+            </span>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              onClick={() => {
+                setShowInviteLinkModal(false);
+                setCopied(false);
+              }}
+              className="bg-[#1A1C21] hover:bg-black text-white h-10 px-6 rounded-xl font-bold text-xs uppercase tracking-widest"
+            >
+              Close
+            </Button>
+          </div>
+
+          <button
+            onClick={() => {
+              setShowInviteLinkModal(false);
+              setCopied(false);
+            }}
+            className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
+          >
+            <X size={20} />
+          </button>
+        </DialogContent>
+      </Dialog>
       {/* ── Delete Group Confirmation Modal ────────────────────────────────────────*/}
       <Dialog
         open={!!groupToDelete}

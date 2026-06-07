@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import Sidebar from "@/components/client/Sidebar";
 import DashboardHeader from "@/components/client/DashboardHeader";
@@ -9,6 +9,7 @@ import { GroupProvider } from "@/contexts/GroupContext";
 export default function DashboardLayout() {
   const [theme, setTheme] = useState("light");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Sync with Database
   useEffect(() => {
@@ -72,10 +73,16 @@ useEffect(() => {
         }
       }
     }
+
+    const intendedRedirect = localStorage.getItem("intended_redirect");
+    if (intendedRedirect) {
+      localStorage.removeItem("intended_redirect");
+      navigate(intendedRedirect, { replace: true });
+    }
   };
 
   syncProfile();
-}, []);
+}, [navigate]);
 
   const themeStyles = theme === "light"
   ? {

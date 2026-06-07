@@ -63,14 +63,91 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+// ─── Transfer Role Modal ──────────────────────────────────────────────────────
+function TransferRoleModal({ role, groups, currentGroupId, onConfirm, onCancel }) {
+  const [selectedGroupId, setSelectedGroupId] = useState(
+    groups.find((g) => g.id !== currentGroupId)?.id || ""
+  );
+  const [transferring, setTransferring] = useState(false);
+
+  const handleTransfer = async () => {
+    if (!selectedGroupId) return;
+    setTransferring(true);
+    await onConfirm(role.id, selectedGroupId);
+    setTransferring(false);
+  };
+
+  const targetGroups = groups.filter((g) => g.id !== currentGroupId);
+
+  return (
+    <AnimatePresence>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+        <motion.div initial={{ opacity: 0, scale: 0.95, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 16 }}
+          onClick={e => e.stopPropagation()}
+          className="w-full max-w-md bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-6 shadow-2xl">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
+            <RefreshCw className="w-5 h-5 text-blue-500" />
+          </div>
+          <h3 className="text-base font-black dark:text-white tracking-tight mb-2">Transfer Role Workplace</h3>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
+            Select the destination workplace/organization for <span className="font-bold dark:text-white">{role.title}</span>.
+          </p>
+
+          {targetGroups.length > 0 ? (
+            <div className="space-y-4 mb-6">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Destination Workplace</label>
+              <select
+                value={selectedGroupId}
+                onChange={e => setSelectedGroupId(e.target.value)}
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
+              >
+                {targetGroups.map(g => (
+                  <option key={g.id} value={g.id}>{g.name}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl mb-6">
+              <p className="text-xs font-bold text-amber-600 leading-relaxed">
+                You don't have any other active workplaces in your account to transfer this role to.
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button onClick={onCancel} disabled={transferring}
+              className="flex-1 py-3 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">
+              Cancel
+            </button>
+            <button onClick={handleTransfer} disabled={transferring || targetGroups.length === 0}
+              className="flex-1 py-3 bg-blue-600 hover:bg-blue-50 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 disabled:opacity-50">
+              {transferring ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />} Transfer Role
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 // ─── Role Card ────────────────────────────────────────────────────────────────
-function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) {
+function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange, onTransfer }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const { toast } = useToast();
   const status = STATUS_CONFIG[role.status] ?? STATUS_CONFIG.draft;
 
   const copyShareLink = () => {
+    if (role.status !== "open") {
+      toast({
+        variant: "destructive",
+        title: "Role is not active",
+        description: "You cannot share a draft or closed role's public application link.",
+      });
+      setMenuOpen(false);
+      return;
+    }
     const url = `${window.location.origin}/jobs/${role.id}`;
     navigator.clipboard.writeText(url);
     toast({
@@ -119,6 +196,9 @@ function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) 
                 <button onClick={() => { onEdit(role); setMenuOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-bold hover:bg-slate-500/5 transition-colors">
                   <Pencil className="w-3.5 h-3.5" /> Edit role
                 </button>
+                <button onClick={() => { onTransfer(role); setMenuOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-bold text-blue-500 hover:bg-blue-500/5 transition-colors">
+                  <RefreshCw className="w-3.5 h-3.5" /> Transfer workplace
+                </button>
                 {role.status === "draft" && (
                   <button onClick={() => { onStatusChange(role.id, "open"); setMenuOpen(false); }} className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-bold text-[#A079FF] hover:bg-[#A079FF]/5 transition-colors">
                     <CircleDot className="w-3.5 h-3.5" /> Publish
@@ -153,7 +233,7 @@ function RoleCard({ role, navigate, onView, onEdit, onDelete, onStatusChange }) 
       {/* Meta */}
       <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4">
         <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><BriefcaseBusiness className="w-3 h-3" /> {role.type}</span>
-        <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><MapPin className="w-3 h-3" /> {role.location}</span>
+        <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><MapPin className="w-3 h-3" /> {role.location}{role.location_details ? ` (${role.location_details})` : ""}</span>
         <span className="flex items-center gap-1 text-[11px] font-bold text-slate-400"><Users className="w-3 h-3" /> {role.applicants_count ?? 0} applicants</span>
       </div>
 
@@ -235,7 +315,7 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
 
           <div className="grid grid-cols-2 gap-3 mb-8">
             {[
-              { label: "Location",   value: role.location },
+              { label: "Location",   value: role.location_details ? `${role.location} (${role.location_details})` : role.location },
               { label: "Salary",     value: role.salary || "TBD" },
               { label: "Applicants", value: role.applicants_count ?? 0 },
               { label: "Posted",     value: fmtDate(role.created_at) },
@@ -282,12 +362,18 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
           )}
 
           <div className="flex gap-3">
-            <button
-              onClick={() => { navigate(`/client/roles/${role.id}/source`); onClose(); }}
-              className="flex-1 py-3.5 bg-transparent border border-[#1A1C21]/20 text-[#1A1C21] text-sm font-black rounded-md hover:bg-slate-50 transition-all shadow-sm"
-            >
-              Source talent
-            </button>
+            {role.status === "open" ? (
+              <button
+                onClick={() => { navigate(`/client/roles/${role.id}/source`); onClose(); }}
+                className="flex-1 py-3.5 bg-transparent border border-[#1A1C21]/20 text-[#1A1C21] text-sm font-black rounded-md hover:bg-slate-50 transition-all shadow-sm"
+              >
+                Source talent
+              </button>
+            ) : (
+              <div className="flex-1 py-3.5 bg-slate-500/5 rounded-md text-center text-xs font-bold text-slate-400 flex items-center justify-center border border-[var(--border-color)]">
+                {role.status === "closed" ? "Role is closed" : "Publish to source talent"}
+              </div>
+            )}
             <button
               onClick={() => { onEdit(role); onClose(); }}
               className="px-5 py-3.5 bg-slate-500/10 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-md hover:bg-slate-500/20 transition-all flex items-center gap-2"
@@ -304,7 +390,8 @@ function RoleDrawer({ role, navigate, onClose, onEdit }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function RolesJobsPage() {
   const navigate = useNavigate();
-  const { activeGroup } = useGroups();
+  const { activeGroup, groups } = useGroups();
+  const { toast } = useToast();
 
   const [roles, setRoles]             = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -316,29 +403,38 @@ export default function RolesJobsPage() {
   const [location, setLocation]       = useState("All locations");
   const [viewRole, setViewRole]       = useState(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [transferRole, setTransferRole] = useState(null);
 
-  // ── Fetch roles ONCE on mount — no useCallback, no dep array trap ─────────
-  // Using a ref to allow manual refetch (retry button) without recreating
-  // the function and triggering infinite loops.
+  // ── Fetch roles directly from Supabase DB ──────────────────────────────────
   const fetchRoles = async () => {
+    if (!activeGroup) {
+      setRoles([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const groupId = activeGroup?.id || "default-group";
-      const localKey = `flowboard_roles_${groupId}`;
-      const localRoles = localStorage.getItem(localKey);
-      
-      if (localRoles) {
-        setRoles(JSON.parse(localRoles));
-        setLoading(false);
-        return;
-      }
+      const { data, error } = await supabase
+        .from("roles")
+        .select("*")
+        .eq("group_id", activeGroup.id)
+        .order("created_at", { ascending: false });
 
-      // Start fresh
-      setRoles([]);
-    } catch (err) {
+      if (error) throw error;
+      setRoles(data || []);
+
+      // Cache locally for instant off-line/hybrid startup
+      localStorage.setItem(`flowboard_roles_${activeGroup.id}`, JSON.stringify(data || []));
+    } catch (err: any) {
       console.error("fetchRoles error:", err);
-      setError(err.message ?? "Could not load roles. Please try again.");
+      // Fallback cache read
+      const cached = localStorage.getItem(`flowboard_roles_${activeGroup.id}`);
+      if (cached) {
+        setRoles(JSON.parse(cached));
+      } else {
+        setError(err.message ?? "Could not load roles. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -349,46 +445,108 @@ export default function RolesJobsPage() {
     fetchRoles();
   }, [activeGroup?.id]);
 
-  const syncProfileRoles = async (userId) => {
+  // ── Database scoped delete with optimistic rollback ──────────────────────
+  const handleDelete = async (id) => {
+    const backupRoles = [...roles];
     try {
-      const { data: allRoles } = await supabase.from("roles").select("*").eq("organization_id", userId);
-      const { data: profile } = await supabase.from("profiles").select("system_prefs").eq("id", userId).single();
-      if (profile) {
-        const updatedPrefs = {
-          ...(profile.system_prefs || {}),
-          public_jobs: allRoles || []
-        };
-        await supabase.from("profiles").update({ system_prefs: updatedPrefs }).eq("id", userId);
+      const updated = roles.filter(r => r.id !== id);
+      setRoles(updated);
+      if (activeGroup) {
+        localStorage.setItem(`flowboard_roles_${activeGroup.id}`, JSON.stringify(updated));
       }
-    } catch (err) {
-      console.error("Sync jobs error:", err);
+
+      const { error } = await supabase
+        .from("roles")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      toast({
+        title: "Role deleted",
+        description: "The role has been successfully removed.",
+      });
+    } catch (err: any) {
+      console.error("Delete role error:", err);
+      setRoles(backupRoles);
+      if (activeGroup) {
+        localStorage.setItem(`flowboard_roles_${activeGroup.id}`, JSON.stringify(backupRoles));
+      }
+      toast({
+        variant: "destructive",
+        title: "Failed to delete role",
+        description: err.message || "An error occurred while deleting.",
+      });
     }
   };
 
-  // ── Optimistic delete ─────────────────────────────────────────────────────
-  const handleDelete = async (id) => {
-    const groupId = activeGroup?.id || "default-group";
-    const localKey = `flowboard_roles_${groupId}`;
-    
-    const updated = roles.filter(r => r.id !== id);
-    setRoles(updated);
-    localStorage.setItem(localKey, JSON.stringify(updated));
-    
-    // Fire DB update defensively
-    supabase.from("roles").delete().eq("id", id);
+  // ── Database scoped status update with optimistic rollback ───────────────
+  const handleStatusChange = async (id, newStatus) => {
+    const backupRoles = [...roles];
+    try {
+      const updated = roles.map(r => r.id === id ? { ...r, status: newStatus } : r);
+      setRoles(updated);
+      if (activeGroup) {
+        localStorage.setItem(`flowboard_roles_${activeGroup.id}`, JSON.stringify(updated));
+      }
+
+      const { error } = await supabase
+        .from("roles")
+        .update({ status: newStatus })
+        .eq("id", id);
+
+      if (error) throw error;
+      toast({
+        title: "Status updated",
+        description: `Role status is now set to ${newStatus}.`,
+      });
+    } catch (err: any) {
+      console.error("Update status error:", err);
+      setRoles(backupRoles);
+      if (activeGroup) {
+        localStorage.setItem(`flowboard_roles_${activeGroup.id}`, JSON.stringify(backupRoles));
+      }
+      toast({
+        variant: "destructive",
+        title: "Failed to update status",
+        description: err.message || "An error occurred while updating status.",
+      });
+    }
   };
 
-  // ── Optimistic status change ──────────────────────────────────────────────
-  const handleStatusChange = async (id, newStatus) => {
-    const groupId = activeGroup?.id || "default-group";
-    const localKey = `flowboard_roles_${groupId}`;
+  const handleTransferRole = async (roleId, newGroupId) => {
+    try {
+      const targetGroup = groups.find((g) => g.id === newGroupId);
+      if (!targetGroup) throw new Error("Destination workplace not found.");
 
-    const updated = roles.map(r => r.id === id ? { ...r, status: newStatus } : r);
-    setRoles(updated);
-    localStorage.setItem(localKey, JSON.stringify(updated));
+      const { error } = await supabase
+        .from("roles")
+        .update({
+          group_id: newGroupId,
+          organization_id: targetGroup.organization_id,
+        })
+        .eq("id", roleId);
 
-    // Fire DB update defensively
-    supabase.from("roles").update({ status: newStatus }).eq("id", id);
+      if (error) throw error;
+
+      toast({
+        title: "Role transferred!",
+        description: "The role has been moved to the selected workplace.",
+      });
+
+      const updated = roles.filter((r) => r.id !== roleId);
+      setRoles(updated);
+      if (activeGroup) {
+        localStorage.setItem(`flowboard_roles_${activeGroup.id}`, JSON.stringify(updated));
+      }
+      setTransferRole(null);
+    } catch (err: any) {
+      console.error("Transfer role error:", err);
+      toast({
+        variant: "destructive",
+        title: "Failed to transfer role",
+        description: err.message || "An error occurred during transfer.",
+      });
+    }
   };
 
   // ── Client-side filtering ─────────────────────────────────────────────────
@@ -544,6 +702,7 @@ export default function RolesJobsPage() {
                   onEdit={r => navigate(`/client/roles/create?edit=${r.id}`)}
                   onDelete={handleDelete}
                   onStatusChange={handleStatusChange}
+                  onTransfer={setTransferRole}
                 />
               ))}
             </AnimatePresence>
@@ -573,7 +732,7 @@ export default function RolesJobsPage() {
         )}
       </AnimatePresence>
 
-      {/* ── Drawer ── */}
+      {/* ── Drawer & Modals ── */}
       <AnimatePresence>
         {viewRole && (
           <RoleDrawer
@@ -581,6 +740,15 @@ export default function RolesJobsPage() {
             navigate={navigate}
             onClose={() => setViewRole(null)}
             onEdit={r => navigate(`/client/roles/create?edit=${r.id}`)}
+          />
+        )}
+        {transferRole && (
+          <TransferRoleModal
+            role={transferRole}
+            groups={groups}
+            currentGroupId={activeGroup?.id}
+            onConfirm={handleTransferRole}
+            onCancel={() => setTransferRole(null)}
           />
         )}
       </AnimatePresence>

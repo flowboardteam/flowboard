@@ -14,7 +14,7 @@ export function PreparedFooter() {
           
           {/* Brand Col */}
           <div className="lg:col-span-4 flex flex-col items-start pr-8 border-r border-white/5">
-            <Link to="/" className="text-3xl font-bold tracking-tight text-white mb-6">Flowboard Team</Link>
+            <a href="https://flowboard.team" className="text-3xl font-bold tracking-tight text-white mb-6">Flowboard Team</a>
             <p className="text-lg font-light leading-snug text-white/90">
               Everything you need to get hire and manage your workforce
             </p>
