@@ -6,8 +6,8 @@ export function PreparedHowItWorks() {
   const tabs = [
     {
       num: "01",
-      title: "AI Recruiter, Dynamic Talent Sourcing Experience",
-      desc: "Our conversational voice assistant seamlessly triages and processes calls based on custom SOPs."
+      title: "HarakaO1 Model, AI-Powered Recruitment",
+      desc: "Automate candidate sourcing, screening, and evaluation with an AI recruiter designed to accelerate hiring."
     },
     {
       num: "02",
