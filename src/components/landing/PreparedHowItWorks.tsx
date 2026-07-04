@@ -6,7 +6,7 @@ export function PreparedHowItWorks() {
   const tabs = [
     {
       num: "01",
-      title: "AI Voice Assistant, Dynamic Caller Experience",
+      title: "AI Recruiter, Dynamic Talent Sourcing Experience",
       desc: "Our conversational voice assistant seamlessly triages and processes calls based on custom SOPs."
     },
     {
