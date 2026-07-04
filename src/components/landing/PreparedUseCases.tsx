@@ -3,12 +3,12 @@ import { ArrowRight } from "lucide-react";
 export function PreparedUseCases() {
   const cases = [
     {
-      type: "RPO",
-      title: "Outsource all or part of your recruitment process so your internal team can focus on growth",
+      type: "AI-Powered Recruitment",
+      title: "Automate candidate sourcing, screening, and evaluation with an AI recruiter designed to accelerate hiring",
       tags: ["Recruiting"],
       image: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&q=80",
-      topSub: "Prepared",
-      topTitle: "NPSTW Telecommunicator Spotlight"
+      topSub: "RPO",
+      topTitle: "Automate candidate sourcing, screening, and evaluation with an AI recruiter designed to accelerate hiring"
     },
     {
       type: "Case Study",
