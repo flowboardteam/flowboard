@@ -60,20 +60,20 @@ export default function ContractsPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input 
             placeholder="FILTER MISSIONS..."
-            className="w-full bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest outline-none focus:border-blue-500 transition-all uppercase text-[var(--foreground)]"
+            className="w-full bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl py-4 pl-12 pr-4 text-[10px] font-black tracking-widest outline-none focus:border-[#1A1C21] transition-all uppercase text-[var(--foreground)]"
           />
         </div>
         
         <div className="hidden sm:flex items-center gap-1 bg-[var(--card-bg)] border border-[var(--border-color)] p-1 rounded-xl">
            <button 
              onClick={() => setViewMode('list')}
-             className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200'}`}
+             className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#1A1C21] text-white shadow-lg shadow-slate-900/10' : 'text-slate-400 hover:text-slate-200'}`}
            >
              <List className="w-4 h-4" />
            </button>
            <button 
              onClick={() => setViewMode('grid')}
-             className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-400 hover:text-slate-200'}`}
+             className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[#1A1C21] text-white shadow-lg shadow-slate-900/10' : 'text-slate-400 hover:text-slate-200'}`}
            >
              <LayoutGrid className="w-4 h-4" />
            </button>

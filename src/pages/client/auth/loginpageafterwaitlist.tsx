@@ -199,7 +199,7 @@ export default function ClientLogin() {
         <div className="flex flex-col justify-center px-6 py-12 lg:px-24 bg-white relative">
           <div className="absolute top-8 right-8 text-sm font-medium text-slate-500">
             Need an account?{" "}
-            <Link to="/client/signup" className="text-indigo-600 font-bold hover:text-indigo-700 ml-1">
+            <Link to="/client/signup" className="text-slate-900 font-bold hover:text-indigo-700 ml-1">
               Join as Business
             </Link>
           </div>
@@ -228,7 +228,7 @@ export default function ClientLogin() {
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="email">Corporate Email</Label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                   <Input
                     id="email"
                     type="email"
@@ -244,10 +244,10 @@ export default function ClientLogin() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="password">Password</Label>
-                  <Link to="/client/forgot-password" size="sm" className="text-xs font-bold text-indigo-600 hover:underline">Forgot Password?</Link>
+                  <Link to="/client/forgot-password" size="sm" className="text-xs font-bold text-slate-900 hover:underline">Forgot Password?</Link>
                 </div>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -257,7 +257,7 @@ export default function ClientLogin() {
                     className="h-12 pl-11 pr-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-600 transition-colors">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>

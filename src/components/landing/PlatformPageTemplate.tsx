@@ -17,7 +17,7 @@ interface PlatformTemplateProps {
 
 export function PlatformPageTemplate({ metaTitle, heroTitle, heroDescription, heroImage, features, lifecycleTitle, lifecycleCards }: PlatformTemplateProps) {
     return (
-        <main className="min-h-screen bg-[#FCFBF9] font-sans selection:bg-[#fce000] selection:text-[#111] overflow-hidden" 
+        <main className="min-h-screen bg-white font-sans selection:bg-[#fce000] selection:text-[#111] overflow-hidden" 
               style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23noise)\' opacity=\'0.03\'/%3E%3C/svg%3E")' }}>
           <PreparedNavbar />
           
@@ -168,7 +168,7 @@ function LifecycleGrid({ title, cards }: { title?: string; cards?: {title: strin
   ];
 
   return (
-    <div className="w-full border-b border-gray-300 py-24 px-10 relative bg-[#FCFBF9]">
+    <div className="w-full border-b border-gray-300 py-24 px-10 relative bg-white">
       <h2 className="text-4xl lg:text-[54px] font-medium tracking-tight text-center mb-20 max-w-2xl mx-auto leading-tight text-[#111]">
         {displayTitle}
       </h2>
@@ -503,7 +503,7 @@ function CustomerCarousel() {
   ];
 
   return (
-    <div className="w-full border-b border-gray-300 py-32 px-10 overflow-hidden relative bg-[#FCFBF9]">
+    <div className="w-full border-b border-gray-300 py-32 px-10 overflow-hidden relative bg-white">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-20 max-w-[1440px] mx-auto gap-8">
         <h2 className="text-4xl lg:text-[54px] font-medium tracking-tight text-[#111]">
           See what customers are saying
@@ -557,7 +557,7 @@ function CustomerCarousel() {
 /* ----------------------------------------------------- */
 function FeatureCol({ num, title, desc, borderNone = false }: { num: string; title: string; desc: string; borderNone?: boolean }) {
     return (
-        <div className={`col-span-1 p-12 pr-10 flex flex-col bg-[#FCFBF9] ${borderNone ? '' : 'border-b lg:border-b-0 lg:border-r border-gray-300'}`}>
+        <div className={`col-span-1 p-12 pr-10 flex flex-col bg-white ${borderNone ? '' : 'border-b lg:border-b-0 lg:border-r border-gray-300'}`}>
             <span className="text-[13px] font-mono tracking-widest text-[#555] mb-4 font-semibold">{num}</span>
             <h3 className="text-3xl lg:text-[34px] font-medium tracking-tight text-[#111] mb-12">{title}</h3>
             

@@ -379,8 +379,8 @@ export default function GroupsPage() {
                 {selectedGroupDetails.name}
               </h1>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold border border-emerald-500/20">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-900 text-[10px] font-bold border border-slate-200">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#1A1C21]" />
                   {selectedGroupDetails.status === "archived"
                     ? "Archived"
                     : selectedGroupDetails.is_locked
@@ -388,7 +388,7 @@ export default function GroupsPage() {
                       : "Active"}
                 </span>
                 {selectedGroupDetails.is_primary && (
-                  <span className="px-2 py-0.5 rounded-md bg-indigo-500 text-white text-[9px] font-bold">
+                  <span className="px-2 py-0.5 rounded-md bg-[#1A1C21] text-white text-[9px] font-bold">
                     Primary
                   </span>
                 )}
@@ -492,7 +492,7 @@ export default function GroupsPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-indigo-500 text-white flex items-center justify-center text-[10px] font-black">
+                          <div className="w-full h-full bg-[#1A1C21] text-white flex items-center justify-center text-[10px] font-black">
                             {groupCreator.full_name?.charAt(0).toUpperCase() ||
                               "O"}
                           </div>
@@ -599,7 +599,7 @@ export default function GroupsPage() {
                 This expense approval policy affects your employees and
                 contractors.
               </div>
-              <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-xs font-bold">
+              <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-slate-900 text-xs font-bold">
                 <Info size={16} />
                 The approvals policies settings were moved to Expenses &
                 adjustments page.
@@ -749,7 +749,7 @@ export default function GroupsPage() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-indigo-500 text-white flex items-center justify-center text-xs font-black">
+                                <div className="w-full h-full bg-[#1A1C21] text-white flex items-center justify-center text-xs font-black">
                                   {admin.full_name?.charAt(0).toUpperCase() ||
                                     admin.email?.charAt(0).toUpperCase()}
                                 </div>
@@ -769,7 +769,7 @@ export default function GroupsPage() {
                           <span
                             className={`px-2 py-1 rounded-md text-[9px] font-bold ${
                               admin.role === "Owner"
-                                ? "bg-indigo-50 text-indigo-600"
+                                ? "bg-indigo-50 text-slate-900"
                                 : "bg-slate-50 text-slate-600"
                             }`}
                           >
@@ -780,15 +780,15 @@ export default function GroupsPage() {
                           <span
                             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold ${
                               admin.status === "active"
-                                ? "bg-emerald-50 text-emerald-600"
-                                : "bg-amber-50 text-amber-600 animate-pulse"
+                                ? "bg-emerald-50 text-slate-900"
+                                : "bg-amber-50 text-slate-900 animate-pulse"
                             }`}
                           >
                             <span
                               className={`w-1.5 h-1.5 rounded-full ${
                                 admin.status === "active"
-                                  ? "bg-emerald-500"
-                                  : "bg-amber-500"
+                                  ? "bg-[#1A1C21]"
+                                  : "bg-[#1A1C21]"
                               }`}
                             />
                             {admin.status === "active"
@@ -1015,7 +1015,7 @@ export default function GroupsPage() {
               </div>
             </div>
 
-            <div className="flex items-start gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-[10px] font-bold">
+            <div className="flex items-start gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-slate-900 text-[10px] font-bold">
               <Info size={14} className="shrink-0 mt-0.5" />
               <span>
                 The invitation link will expire in 7 days. The invited admin
@@ -1074,7 +1074,7 @@ export default function GroupsPage() {
           <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[500px] rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
             <div className="space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-2">
-                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                <CheckCircle2 className="w-6 h-6 text-slate-900" />
               </div>
               <h3 className="text-xl font-black tracking-tight">
                 Invitation Created!
@@ -1159,7 +1159,7 @@ export default function GroupsPage() {
       {/* Suggestion Banner */}
       <section className="relative overflow-hidden rounded-[2rem] bg-[#E0E7FF] p-10 flex flex-col md:flex-row items-center justify-between gap-8 border border-indigo-200 group">
         <div className="relative z-10 max-w-xl space-y-4">
-          <span className="text-[10px] font-bold text-indigo-600">
+          <span className="text-[10px] font-bold text-slate-900">
             Suggested for you
           </span>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -1189,7 +1189,7 @@ export default function GroupsPage() {
             </div>
             <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 w-64 translate-x-20">
               <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <CheckCircle2 size={16} className="text-emerald-600" />
+                <CheckCircle2 size={16} className="text-slate-900" />
               </div>
               <div className="space-y-1">
                 <div className="w-24 h-2 bg-slate-100 rounded" />
@@ -1282,7 +1282,7 @@ export default function GroupsPage() {
                             {group.name}
                           </p>
                           {group.is_primary && (
-                            <span className="px-1.5 py-0.5 rounded-md bg-indigo-500 text-white text-[8px] font-bold">
+                            <span className="px-1.5 py-0.5 rounded-md bg-[#1A1C21] text-white text-[8px] font-bold">
                               Primary
                             </span>
                           )}
@@ -1292,31 +1292,31 @@ export default function GroupsPage() {
                   </td>
                   <td className="px-8 py-6">
                     {group.is_pending_invite ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border bg-amber-500/10 text-amber-600 border-amber-500/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border bg-slate-100 text-slate-900 border-slate-200">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#1A1C21] animate-pulse" />
                         Pending Invite
                       </span>
                     ) : (
                       <span
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${
                           group.status === "archived"
-                            ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                            ? "bg-slate-100 text-slate-900 border-slate-200"
                             : group.status === "deleted"
                               ? "bg-red-500/10 text-red-600 border-red-500/20"
                               : group.is_locked
-                                ? "bg-indigo-500/10 text-indigo-600 border-indigo-500/20"
-                                : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                ? "bg-slate-100 text-slate-900 border-indigo-500/20"
+                                : "bg-slate-100 text-slate-900 border-slate-200"
                         }`}
                       >
                         <div
                           className={`w-1.5 h-1.5 rounded-full ${
                             group.status === "archived"
-                              ? "bg-amber-500"
+                              ? "bg-[#1A1C21]"
                               : group.status === "deleted"
                                 ? "bg-red-500"
                                 : group.is_locked
-                                  ? "bg-indigo-500"
-                                  : "bg-emerald-500"
+                                  ? "bg-[#1A1C21]"
+                                  : "bg-[#1A1C21]"
                           }`}
                         />
                         {group.status === "archived"
@@ -1360,7 +1360,7 @@ export default function GroupsPage() {
                                 "Please use the dashboard banner to accept this invite, or switch to it first.",
                               );
                             }}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-amber-600 hover:bg-amber-500/5 transition-all text-xs font-bold"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-900 hover:bg-[#1A1C21]/5 transition-all text-xs font-bold"
                           >
                             <Mail size={14} /> Pending invitation
                           </DropdownMenuItem>
@@ -1384,14 +1384,14 @@ export default function GroupsPage() {
                               group.status !== "deleted" && (
                                 <DropdownMenuItem
                                   onClick={() => setPrimaryGroup(group.id)}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all text-xs font-bold"
                                 >
                                   <CheckCircle2 size={14} /> Make primary
                                 </DropdownMenuItem>
                               )}
                             <DropdownMenuItem
                               onClick={() => setSelectedGroupDetails(group)}
-                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
+                              className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#1A1C21]/5 hover:text-slate-900 transition-all text-xs font-bold"
                             >
                               <ExternalLink size={14} /> View details
                             </DropdownMenuItem>
@@ -1405,7 +1405,7 @@ export default function GroupsPage() {
                                     setEditGroupAvatar(group.avatar_url || "");
                                     setEditGroupBio(group.bio || "");
                                   }}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#1A1C21]/5 hover:text-slate-900 transition-all text-xs font-bold"
                                 >
                                   <Edit size={14} /> Edit group
                                 </DropdownMenuItem>
@@ -1418,7 +1418,7 @@ export default function GroupsPage() {
                                       is_locked: !group.is_locked,
                                     })
                                   }
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-indigo-500/5 hover:text-indigo-600 transition-all text-xs font-bold"
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#1A1C21]/5 hover:text-slate-900 transition-all text-xs font-bold"
                                 >
                                   {group.is_locked ? (
                                     <Unlock size={14} />
@@ -1435,7 +1435,7 @@ export default function GroupsPage() {
                                 onClick={() =>
                                   updateGroup(group.id, { status: "archived" })
                                 }
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-amber-500/5 hover:text-amber-600 transition-all text-xs font-bold"
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#1A1C21]/5 hover:text-slate-900 transition-all text-xs font-bold"
                               >
                                 <Archive size={14} /> Archive group
                               </DropdownMenuItem>
@@ -1445,7 +1445,7 @@ export default function GroupsPage() {
                                 onClick={() =>
                                   updateGroup(group.id, { status: "active" })
                                 }
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all text-xs font-bold"
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all text-xs font-bold"
                               >
                                 <RefreshCw size={14} /> Restore group
                               </DropdownMenuItem>
@@ -1589,7 +1589,7 @@ export default function GroupsPage() {
                     <label className="text-[10px] font-bold text-slate-400 ml-1">
                       Select a group to replicate its settings
                     </label>
-                    <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-[10px] font-bold">
+                    <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-slate-900 text-[10px] font-bold">
                       <Info size={14} className="shrink-0 mt-0.5" />
                       <span>
                         For the moment, the group's settings can only be
@@ -1659,7 +1659,7 @@ export default function GroupsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-[10px] font-bold">
+                <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-slate-900 text-[10px] font-bold">
                   <Info size={14} className="shrink-0" />
                   <span>
                     All organization admins are already part of this group by
@@ -1724,14 +1724,14 @@ export default function GroupsPage() {
                       </p>
                     </div>
                   </div>
-                  <span className="text-xs font-black text-emerald-600 uppercase tracking-widest">
+                  <span className="text-xs font-black text-slate-900 uppercase tracking-widest">
                     {settingsType === "replicate"
                       ? "Replicated settings"
                       : "Manual setup"}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-[10px] font-bold">
+                <div className="flex items-center gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-slate-900 text-[10px] font-bold">
                   <Info size={14} className="shrink-0" />
                   <span>
                     Organization admins are automatically assigned to this
@@ -1771,7 +1771,7 @@ export default function GroupsPage() {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${
                     createStep > step
-                      ? "bg-emerald-500 text-white"
+                      ? "bg-[#1A1C21] text-white"
                       : createStep === step
                         ? "bg-slate-900 text-white"
                         : "bg-slate-100 text-slate-400"
@@ -1783,7 +1783,7 @@ export default function GroupsPage() {
                   <span
                     className={`text-[8px] font-black uppercase tracking-widest ${
                       createStep > step
-                        ? "text-emerald-600"
+                        ? "text-slate-900"
                         : createStep === step
                           ? "text-slate-900"
                           : "text-slate-400"
@@ -1857,7 +1857,7 @@ export default function GroupsPage() {
             </div>
           </div>
 
-          <div className="flex items-start gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-indigo-600 text-[10px] font-bold">
+          <div className="flex items-start gap-3 bg-indigo-50/30 border border-indigo-100 p-4 rounded-xl text-slate-900 text-[10px] font-bold">
             <Info size={14} className="shrink-0 mt-0.5" />
             <span>
               The invitation link will expire in 7 days. The invited admin will
@@ -2063,7 +2063,7 @@ export default function GroupsPage() {
         <DialogContent className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:max-w-[500px] rounded-[2rem] p-10 border-slate-200 flex flex-col gap-6 font-sans text-[#1A1C21] bg-white">
           <div className="space-y-2">
             <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center mb-2">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+              <CheckCircle2 className="w-6 h-6 text-slate-900" />
             </div>
             <h3 className="text-xl font-black tracking-tight">
               Invitation Created!

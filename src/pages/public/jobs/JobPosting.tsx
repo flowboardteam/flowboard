@@ -98,14 +98,38 @@ export default function JobPosting() {
               job = foundJob;
               op = {
                 id: client.id,
-                full_name: client.full_name,
-                avatar_url: client.avatar_url,
-                company_name: client.company_name || "Enterprise",
+                full_name: client.company_name || client.full_name,
+                avatar_url: foundJob.organization_avatar || client.avatar_url,
+                company_name: foundJob.organization_name || client.company_name || client.full_name || "Enterprise Partner",
                 bio: client.bio,
                 location: client.location
               };
             }
           });
+
+          if (!job) {
+            // Check group workplace caches (flowboard_roles_*) and global public cache
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && (key.startsWith("flowboard_roles_") || key === "flowboard_public_roles")) {
+                try {
+                  const cachedRoles = JSON.parse(localStorage.getItem(key) || "[]");
+                  const foundInCache = cachedRoles.find((j: any) => j.id === roleId);
+                  if (foundInCache) {
+                    job = foundInCache;
+                    op = {
+                      company_name: foundInCache.organization_name || "Enterprise Partner",
+                      avatar_url: foundInCache.organization_avatar || null,
+                      bio: "Flowboard Enterprise Hiring Partner"
+                    };
+                    break;
+                  }
+                } catch (e) {
+                  console.warn("Failed to parse role cache:", e);
+                }
+              }
+            }
+          }
         }
 
         if (!job) throw new Error("Job not found");
@@ -193,7 +217,11 @@ export default function JobPosting() {
     );
   }
 
-  const companyName = (role as any)?.organization_name || org?.company_name || org?.full_name || "Enterprise Partner";
+  const companyName = 
+    (role as any)?.organization_name || 
+    org?.company_name || 
+    (org?.full_name && org.full_name !== org.id ? org.full_name : null) || 
+    "Enterprise Partner";
 
   return (
     <div className="min-h-screen bg-slate-50 font-jakarta selection:bg-[#A079FF]/20 selection:text-[#1A1C21] overflow-x-hidden">
@@ -438,8 +466,8 @@ export default function JobPosting() {
                 </div>
               </div>
 
-              <p className="text-sm font-medium text-[#1A1C21]/80 leading-relaxed">
-                {org?.bio || "Join a high-performance team building the next generation of global workforce infrastructure."}
+              <p className="text-sm font-medium text-[#1A1C21]/80 leading-relaxed whitespace-pre-line">
+                {(role as any)?.company_description || (role as any)?.organization_bio || (role as any)?.company_bio || org?.bio || org?.company_description || `${companyName} is hiring top talent for ${role.title || "open roles"} on Flowboard.`}
               </p>
             </div>
 

@@ -323,12 +323,8 @@ export default function TalentPool() {
       <div className="p-4 sm:p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
         {/* Header */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-            <Users className="w-3.5 h-3.5" />
-            <span>Talent & AI / Talent Pool</span>
-          </div>
-          <h1 className="text-2xl font-black text-[#1A1C21] uppercase tracking-tighter">
-            Global Talent Pool
+          <h1 className="text-2xl font-black text-[#1A1C21] tracking-tight">
+            Talent Pool
           </h1>
         </div>
 
@@ -355,7 +351,7 @@ export default function TalentPool() {
         {/* Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
+            <Loader2 className="w-10 h-10 text-slate-900 animate-spin" />
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Scanning Database...</p>
           </div>
         ) : (
@@ -379,7 +375,7 @@ export default function TalentPool() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]" onClick={() => setSelectedTalent(null)} />
           <div className="fixed right-0 top-0 h-full w-full max-w-xl bg-[var(--sidebar-bg)] border-l border-[var(--border-color)] z-[101] shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-500">
             <div className="sticky top-0 bg-[var(--sidebar-bg)]/90 backdrop-blur-md p-6 flex justify-between items-center border-b border-[var(--border-color)] z-10">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">Talent Dossier</span>
+              <span className="text-xs font-bold tracking-tight text-slate-900">Talent Profile</span>
               <button onClick={() => setSelectedTalent(null)} className="p-2 hover:bg-rose-500/10 rounded-xl group transition-all">
                 <X className="w-5 h-5 text-slate-400 group-hover:text-rose-500" />
               </button>
@@ -387,17 +383,17 @@ export default function TalentPool() {
             <div className="p-8 space-y-8">
               {/* Profile */}
               <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start text-center sm:text-left">
-                <div className="w-28 h-28 rounded-2xl bg-slate-800 border-2 border-emerald-500/20 p-1 shrink-0 overflow-hidden shadow-xl">
+                <div className="w-28 h-28 rounded-2xl bg-slate-800 border-2 border-slate-200 p-1 shrink-0 overflow-hidden shadow-xl">
                   {selectedTalent.avatar_url
                     ? <img src={selectedTalent.avatar_url} className="w-full h-full object-cover rounded-xl" alt="" />
                     : <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-600 bg-slate-900 rounded-xl">{selectedTalent.full_name?.charAt(0)}</div>
                   }
                 </div>
                 <div className="space-y-1">
-                  <h2 className="text-3xl font-black text-[var(--text-main)] uppercase tracking-tighter">{selectedTalent.full_name}</h2>
-                  <p className="text-emerald-500 font-black uppercase text-xs tracking-widest">{selectedTalent.primary_role}</p>
-                  <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 mt-3 text-slate-400 text-[10px] font-black uppercase">
-                    <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-emerald-500" /> {selectedTalent.location || "Remote"}</span>
+                  <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tight">{selectedTalent.full_name}</h2>
+                  <p className="text-slate-900 font-bold text-xs tracking-tight">{selectedTalent.primary_role}</p>
+                  <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 mt-3 text-slate-400 text-[11px] font-bold">
+                    <span className="flex items-center gap-1.5"><MapPin className="w-3 h-3 text-slate-900" /> {selectedTalent.location || "Remote"}</span>
                     <span className="w-1 h-1 bg-slate-700 rounded-full" />
                     <span>{selectedTalent.experience_level || "Expert"} Level</span>
                   </div>
@@ -405,29 +401,29 @@ export default function TalentPool() {
               </div>
               {/* Bio */}
               <div className="bg-[var(--bg-main)] p-6 rounded-2xl border border-[var(--border-color)] relative">
-                <div className="absolute -top-3 left-6 px-3 py-1 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-500">Biography</div>
+                <div className="absolute -top-3 left-6 px-3 py-1 bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-lg text-[10px] font-bold text-slate-500">Biography</div>
                 <p className="text-sm text-slate-400 leading-relaxed font-medium">"{selectedTalent.bio || "Candidate has not provided a bio yet."}"</p>
               </div>
               {/* Actions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button onClick={() => openOfferModal(selectedTalent)}
-                  className="flex items-center justify-center gap-3 bg-emerald-500 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all hover:bg-emerald-400 hover:scale-[1.02] shadow-lg shadow-emerald-500/20">
+                  className="flex items-center justify-center gap-3 bg-[#1A1C21] text-white py-4 rounded-xl font-bold text-[11px] tracking-tight transition-all hover:bg-black hover:scale-[1.02] shadow-lg shadow-slate-900/10">
                   <Zap className="w-4 h-4 fill-white" /> Send offer
                 </button>
                 <Link to={`/@${selectedTalent.username || selectedTalent.id}`}
-                  className="flex items-center justify-center gap-3 bg-[var(--text-main)] text-[var(--sidebar-bg)] py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:opacity-90">
+                  className="flex items-center justify-center gap-3 bg-[var(--text-main)] text-[var(--sidebar-bg)] py-4 rounded-xl font-bold text-[11px] tracking-tight hover:opacity-90">
                   <ExternalLink className="w-4 h-4" /> Full Profile
                 </Link>
                 <button onClick={() => navigate(`/interview-scheduler/${selectedTalent.id}`)}
-                  className="flex items-center justify-center gap-3 bg-transparent text-[var(--text-main)] py-4 rounded-xl font-black text-[10px] uppercase tracking-widest border border-[var(--border-color)] hover:bg-slate-500/5 transition-all">
+                  className="flex items-center justify-center gap-3 bg-transparent text-[var(--text-main)] py-4 rounded-xl font-bold text-[11px] tracking-tight border border-[var(--border-color)] hover:bg-slate-500/5 transition-all">
                   <Calendar className="w-4 h-4" /> Schedule Interview
                 </button>
                 {selectedTalent.resume_url
                   ? <a href={selectedTalent.resume_url} target="_blank" rel="noreferrer"
-                      className="flex items-center justify-center gap-3 bg-blue-500/10 text-blue-500 py-4 rounded-xl font-black text-[10px] uppercase border border-blue-500/20 hover:bg-blue-500/20 transition-all">
+                      className="flex items-center justify-center gap-3 bg-slate-100 text-[#1A1C21] py-4 rounded-xl font-bold text-[11px] border border-slate-200 hover:bg-slate-200 transition-all">
                       <FileText className="w-4 h-4" /> View Resume
                     </a>
-                  : <div className="flex items-center justify-center gap-3 opacity-30 bg-slate-500/5 py-4 rounded-xl font-black text-[10px] uppercase border border-dashed border-[var(--border-color)] cursor-not-allowed">
+                  : <div className="flex items-center justify-center gap-3 opacity-30 bg-slate-500/5 py-4 rounded-xl font-bold text-[11px] border border-dashed border-[var(--border-color)] cursor-not-allowed">
                       <X className="w-4 h-4" /> No Resume
                     </div>
                 }
@@ -446,20 +442,20 @@ export default function TalentPool() {
             {/* Header */}
             <div className="p-8 pb-0">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-slate-800 border border-emerald-500/20 overflow-hidden shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-200 overflow-hidden shrink-0">
                   {selectedTalent.avatar_url
                     ? <img src={selectedTalent.avatar_url} className="w-full h-full object-cover" alt="" />
                     : <div className="w-full h-full flex items-center justify-center text-lg font-black text-slate-500">{selectedTalent.full_name?.charAt(0)}</div>
                   }
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-0.5">Sending hire offer to</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-0.5">Sending hire offer to</p>
                   <h2 className="text-lg font-black text-[var(--text-main)] tracking-tight">{selectedTalent.full_name}</h2>
                   <p className="text-xs font-bold text-slate-400">{selectedTalent.primary_role}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10 mb-6">
-                <AlertCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-emerald-500/10 mb-6">
+                <AlertCircle className="w-4 h-4 text-slate-900 flex-shrink-0 mt-0.5" />
                 <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
                   This sends a <strong className="text-slate-600 dark:text-slate-300">formal job offer</strong>. {selectedTalent.full_name.split(" ")[0]} will receive a notification and can accept or decline from their Flowboard dashboard.
                 </p>
@@ -595,7 +591,7 @@ export default function TalentPool() {
               {/* Footer */}
               <div className="pt-5 flex flex-col gap-3">
                 <button type="submit" disabled={isSending || !offerForm.role_title.trim() || !offerForm.offer_message.trim()}
-                  className="w-full bg-emerald-50 text-emerald-600 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-500 hover:text-white transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/5">
+                  className="w-full bg-emerald-50 text-slate-900 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:bg-[#1A1C21] hover:text-white transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/5">
                   {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Send formal offer</>}
                 </button>
                 <button type="button" onClick={() => setShowOfferModal(false)}

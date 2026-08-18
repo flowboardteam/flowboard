@@ -50,12 +50,12 @@ export default function ContractBriefing({ contract, isOpen, onClose, onDeploy }
               {/* Quick Stats Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 rounded-none border border-purple-100 bg-purple-50/50">
-                   <ShieldCheck className="w-4 h-4 text-purple-600 mb-2" />
+                   <ShieldCheck className="w-4 h-4 text-slate-900 mb-2" />
                    <p className="text-[9px] font-black text-slate-500 tracking-widest">Compliance</p>
                    <p className="text-sm font-bold text-slate-900">{contract.complianceLevel} Access</p>
                 </div>
                 <div className="p-4 rounded-none border border-purple-100 bg-purple-50/50">
-                   <CreditCard className="w-4 h-4 text-purple-600 mb-2" />
+                   <CreditCard className="w-4 h-4 text-slate-900 mb-2" />
                    <p className="text-[9px] font-black text-slate-500 tracking-widest">Monthly rate</p>
                    <p className="text-sm font-bold text-slate-900">${contract.rate}</p>
                 </div>
@@ -83,9 +83,9 @@ export default function ContractBriefing({ contract, isOpen, onClose, onDeploy }
 
               {/* Action Section */}
               <div className="pt-6 border-t border-[var(--border-color)] mt-auto">
-                 <div className="flex items-start gap-3 p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl mb-6">
-                    <AlertCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                    <p className="text-[10px] font-bold text-blue-400/80 leading-tight">
+                 <div className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl mb-6">
+                    <AlertCircle className="w-4 h-4 text-[#1A1C21] shrink-0 mt-0.5" />
+                    <p className="text-[10px] font-bold text-[#1A1C21]/80 leading-tight">
                       Profile deployment will initiate a secure handshake with the organization's node.
                     </p>
                  </div>

@@ -33,16 +33,36 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
 
       // 2. Fetch Profile for Role and Onboarding status
-      let { data: profile } = await supabase
+      let { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("role_type, onboarding_completed")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      // --- SOCIAL LOGIN ROLE CORRECTION ---
-      // If user just signed in via OAuth, we might need to fix their role
+      if (profileErr) {
+        console.warn("[ProtectedRoutes] Profile query warning:", profileErr.message);
+      }
+
+      // --- SOCIAL LOGIN ROLE CORRECTION & METADATA FALLBACK ---
       const intendedRole = localStorage.getItem("intended_role");
-      if (profile && !profile.onboarding_completed && intendedRole && profile.role_type !== intendedRole) {
+      const userMetaRole = user.user_metadata?.role_type || intendedRole || "talent";
+
+      if (!profile) {
+        // If profile row doesn't exist yet, attempt to create basic profile row
+        const metaOnboarding = user.user_metadata?.onboarding_completed || false;
+        profile = {
+          role_type: userMetaRole,
+          onboarding_completed: metaOnboarding
+        };
+        
+        await supabase.from("profiles").upsert({
+          id: user.id,
+          role_type: userMetaRole,
+          onboarding_completed: metaOnboarding,
+          full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
+          updated_at: new Date().toISOString()
+        }, { onConflict: "id" });
+      } else if (!profile.onboarding_completed && intendedRole && profile.role_type !== intendedRole) {
         const { error: updateError } = await supabase
           .from("profiles")
           .update({ role_type: intendedRole })
@@ -54,13 +74,12 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         localStorage.removeItem("intended_role");
       }
 
-      if (!profile) {
-        navigate("/talent/login", { replace: true });
-        return;
-      }
-
-      const role = profile.role_type; // 'talent' | 'client'
-      const hasCompleted = profile.onboarding_completed;
+      const role = profile.role_type || userMetaRole; // 'talent' | 'client'
+      const hasCompleted = Boolean(
+        profile.onboarding_completed || 
+        user.user_metadata?.onboarding_completed || 
+        localStorage.getItem(`onboarding_completed_${user.id}`) === "true"
+      );
       const path = location.pathname;
 
       // 3. Define the "Guardrails" based on role

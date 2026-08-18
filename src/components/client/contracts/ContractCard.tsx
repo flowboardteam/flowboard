@@ -8,14 +8,14 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
     <div className={`
       relative group overflow-hidden transition-all duration-300
       bg-[var(--card-bg)] border border-[var(--border-color)] 
-      hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10
+      hover:border-slate-400 hover:shadow-2xl hover:shadow-slate-900/5
       /* Mobile: always smaller padding | Desktop: scales up */
       p-5 md:p-6 
       ${viewMode === 'list' ? 'rounded-2xl md:rounded-2xl' : 'rounded-2xl md:rounded-2xl flex flex-col h-full'}
     `}>
       
       {/* Subtle Hover Glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-transparent group-hover:from-blue-600/5 transition-all duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#1A1C21]/0 to-transparent group-hover:from-[#1A1C21]/5 transition-all duration-500" />
 
       <div className={`relative z-10 flex ${viewMode === 'list' ? 'flex-col md:flex-row md:items-center' : 'flex-col'} justify-between gap-4 md:gap-6`}>
         
@@ -26,7 +26,7 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-               <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded-md">
+               <span className="text-[7px] md:text-[8px] font-black uppercase tracking-widest text-[#1A1C21] bg-slate-100 px-1.5 py-0.5 rounded-md">
                  {contract.id}
                </span>
                <p className="text-slate-400 text-[9px] md:text-[10px] font-bold truncate max-w-[120px] md:max-w-none">
@@ -45,7 +45,7 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
           ${viewMode === 'list' ? 'border-t border-white/5 pt-4 md:border-none md:pt-0' : 'mt-2'}
         `}>
           <div className="text-left md:text-right">
-             <div className="flex items-center md:justify-end gap-1 text-emerald-500">
+             <div className="flex items-center md:justify-end gap-1 text-slate-900">
                <span className="text-xs md:text-sm font-black">{contract.aiMatchScore}%</span>
              </div>
              <p className="text-[7px] md:text-[8px] font-black tracking-widest text-slate-500">Match sync</p>
@@ -59,7 +59,7 @@ export default function ContractCard({ contract, viewMode = 'list' }: any) {
           {/* Icon Button - Hidden on mobile list to save space, visible on desktop or grid */}
           <div className={`
             hidden md:flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 border border-[var(--border-color)] text-slate-400 
-            group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-500 transition-all
+            group-hover:bg-[#1A1C21] group-hover:text-white group-hover:border-[#1A1C21] transition-all
             ${viewMode === 'grid' ? 'md:absolute md:top-6 md:right-6' : ''}
           `}>
              <ArrowUpRight className="w-4 h-4" />

@@ -68,48 +68,65 @@ export default function TalentJobsPage() {
       try {
         setLoading(true);
         
-        // Parallelize main queries
-        const [sessionRes, rolesRes, clientsRes] = await Promise.all([
+        // Parallelize main queries including both roles and jobs tables
+        const [sessionRes, rolesRes, jobsRes, clientsRes] = await Promise.all([
           supabase.auth.getSession(),
           supabase.from("roles").select("*").order("created_at", { ascending: false }).limit(200),
+          supabase.from("jobs").select("*").order("created_at", { ascending: false }).limit(200),
           supabase.from("profiles").select("*").limit(200)
         ]);
 
         const session = sessionRes.data?.session;
         if (session?.user) {
           setUser(session.user);
-          // Parallelize user-specific queries
-          const [profileRes, appsRes] = await Promise.all([
-            supabase.from("profiles").select("*").eq("id", session.user.id).single(),
-            supabase.from("job_applications").select("role_id").eq("talent_id", session.user.id)
-          ]);
-          
-          setProfile(profileRes.data);
-          
-          const localKey = `job_applications_${session.user.id}`;
-          const existing = localStorage.getItem(localKey);
-          const localApps = existing ? JSON.parse(existing) : [];
+          try {
+            const [profileRes, appsRes] = await Promise.all([
+              supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle(),
+              supabase.from("job_applications").select("role_id").eq("talent_id", session.user.id)
+            ]);
+            
+            if (profileRes.data) setProfile(profileRes.data);
+            
+            const localKey = `job_applications_${session.user.id}`;
+            const existing = localStorage.getItem(localKey);
+            const localApps = existing ? JSON.parse(existing) : [];
 
-          const appliedIds = [...new Set([...(appsRes.data?.map(a => a.role_id) || []), ...localApps])];
-          setAppliedJobs(appliedIds);
+            const appliedIds = [...new Set([...(appsRes.data?.map(a => a.role_id) || []), ...localApps])];
+            setAppliedJobs(appliedIds);
+          } catch (pErr) {
+            console.warn("User profile fetch error (ignored):", pErr);
+          }
         }
 
-        const rolesData = rolesRes.data;
-        const rolesError = rolesRes.error;
+        const rolesData = rolesRes.data || [];
+        const jobsData = jobsRes.data || [];
         const clientsData = clientsRes.data;
 
         let liveJobs: any[] = [];
 
-        if (rolesError) {
-          console.error("Supabase fetch error:", rolesError);
-          setDebugError(rolesError.message);
-        } else {
-          // Add accessible roles from roles table
-          if (rolesData && rolesData.length > 0) {
-            rolesData.forEach((job: any) => {
-              if (job.status === "open") liveJobs.push(job);
+        // Add open roles from 'roles' table
+        rolesData.forEach((job: any) => {
+          if (job.status === "open" || job.status === "active") liveJobs.push(job);
+        });
+
+        // Add active jobs from 'jobs' table
+        jobsData.forEach((job: any) => {
+          if ((job.status === "active" || job.status === "open") && !liveJobs.some(j => j.id === job.id)) {
+            liveJobs.push({
+              id: job.id,
+              title: job.title,
+              department: job.department || "Engineering",
+              type: job.employment_type || "Full-time",
+              location: job.location || "Remote",
+              salary: job.salary_range || "Salary TBD",
+              experience_level: job.seniority || "Senior",
+              description: job.description,
+              skills: job.required_skills || [],
+              status: "open",
+              created_at: job.created_at
             });
           }
+        });
 
           // Map organization profiles
           const orgIds = [...new Set(liveJobs.map(r => r.organization_id).filter(Boolean))];
@@ -129,7 +146,7 @@ export default function TalentJobsPage() {
 
           liveJobs = liveJobs.map(r => ({ ...r, organization: profileMap[r.organization_id] || null }));
 
-          // Workaround: Read jobs from client profiles (RLS fallback)
+          // Workaround: Read jobs from client profiles and global local cache (RLS fallback)
           if (clientsData && clientsData.length > 0) {
             clientsData.forEach((client: any) => {
               const profileJobs = client.system_prefs?.public_jobs || [];
@@ -148,12 +165,34 @@ export default function TalentJobsPage() {
             });
           }
 
+          // Read from all group local caches (flowboard_roles_*) and global public created roles cache
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && (key.startsWith("flowboard_roles_") || key === "flowboard_public_roles")) {
+              try {
+                const groupRoles = JSON.parse(localStorage.getItem(key) || "[]");
+                groupRoles.forEach((job: any) => {
+                  if ((job.status === "open" || job.status === "active") && !liveJobs.some(j => j.id === job.id)) {
+                    liveJobs.push({
+                      ...job,
+                      organization: {
+                        company_name: job.organization_name || "Tesla",
+                        avatar_url: job.organization_avatar || null
+                      }
+                    });
+                  }
+                });
+              } catch (e) {
+                console.warn("Failed to parse group role cache:", e);
+              }
+            }
+          }
+
           // Sort all live jobs by created_at desc
           liveJobs.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
           console.log(`[JobBoard] Aggregated ${liveJobs.length} live jobs from DB`, liveJobs);
           setDebugError(null);
-        }
 
         setJobs(liveJobs);
 

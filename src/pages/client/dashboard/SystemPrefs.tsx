@@ -91,8 +91,8 @@ export default function SystemPrefs() {
             Optimize your workspace interface and communication protocols.
           </p>
         </div>
-        <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500/5 border border-[var(--border-color)]">
-          <div className="w-2 h-2 rounded-full bg-[#00A86B] animate-pulse" />
+        <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-[var(--border-color)]">
+          <div className="w-2 h-2 rounded-full bg-[#1A1C21] animate-pulse" />
           <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sync Active</span>
         </div>
       </header>
@@ -101,12 +101,12 @@ export default function SystemPrefs() {
         <div className="lg:col-span-2 space-y-6">
           <section className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 shadow-sm">
             <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 mb-8">
-              <Monitor className="w-3 h-3 text-blue-500" /> Interface Aesthetics
+              <Monitor className="w-3 h-3 text-[#1A1C21]" /> Interface Aesthetics
             </h4>
 
             <div className="space-y-2">
               {/* DARK MODE PROTOCOL */}
-              <div className="flex items-center justify-between py-4 border-b border-[var(--border-color)] group hover:border-blue-500/50 transition-all">
+              <div className="flex items-center justify-between py-4 border-b border-[var(--border-color)] group hover:border-slate-400 transition-all">
                 <div className="flex gap-4 items-start">
                   <div className="mt-1 p-2 rounded-xl bg-slate-500/5 text-slate-400 group-hover:text-[#00A86B] transition-colors">
                     {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -130,7 +130,7 @@ export default function SystemPrefs() {
               </div>
 
               {/* DATA DENSITY */}
-              <div className="flex items-center justify-between py-4 border-b border-[var(--border-color)] group hover:border-blue-500/50 transition-all">
+              <div className="flex items-center justify-between py-4 border-b border-[var(--border-color)] group hover:border-slate-400 transition-all">
                 <div>
                    {/* FIXED: text-slate-900 changed to text-[var(--text-main)] */}
                   <span className="text-xs font-black uppercase tracking-tighter block text-[var(--text-main)]">Data Density</span>
@@ -151,7 +151,7 @@ export default function SystemPrefs() {
                 <select
                   value={prefs.language}
                   onChange={(e) => setPrefs({ ...prefs, language: e.target.value })}
-                  className="bg-transparent text-right text-xs font-black outline-none text-blue-500 cursor-pointer appearance-none uppercase"
+                  className="bg-transparent text-right text-xs font-black outline-none text-[#1A1C21] cursor-pointer appearance-none uppercase"
                 >
                   <option className="text-black" value="EN-US">English (US)</option>
                   <option className="text-black" value="EN-UK">English (UK)</option>
@@ -167,7 +167,7 @@ export default function SystemPrefs() {
         {/* RIGHT COLUMN */}
         <div className="space-y-6">
           <section className="bg-[#050B1E] text-white rounded-2xl p-8 shadow-xl relative overflow-hidden group border border-white/5">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent pointer-events-none" />
             <div className="relative z-10">
               <h4 className="text-[10px] font-black uppercase text-slate-100 tracking-widest flex items-center gap-2 mb-8">
                 <Bell className="w-3 h-3" /> Communication
@@ -176,7 +176,7 @@ export default function SystemPrefs() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-tighter">Email Briefings</span>
                   <Switch
-                    className="data-[state=checked]:bg-blue-500"
+                    className="data-[state=checked]:bg-[#1A1C21]"
                     checked={prefs.emailAlerts}
                     onCheckedChange={(val) => setPrefs({ ...prefs, emailAlerts: val })}
                   />
@@ -184,7 +184,7 @@ export default function SystemPrefs() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black uppercase tracking-tighter">Push Alerts</span>
                   <Switch
-                    className="data-[state=checked]:bg-blue-500"
+                    className="data-[state=checked]:bg-[#1A1C21]"
                     checked={prefs.pushNotifications}
                     onCheckedChange={(val) => setPrefs({ ...prefs, pushNotifications: val })}
                   />

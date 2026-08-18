@@ -189,7 +189,7 @@ export default function DashboardIndex() {
         <div className="bg-white border border-[#EEEEF0] rounded-2xl p-8 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="flex items-center gap-2 text-sm font-black text-[#1A1C21] uppercase tracking-widest">
-              <Layers className="w-4 h-4 text-[#A079FF]" /> Workforce & Activity
+              <Layers className="w-4 h-4 text-[#A079FF]" /> Work
             </h3>
           </div>
 
@@ -205,20 +205,9 @@ export default function DashboardIndex() {
               </div>
             </Link>
 
-            <Link to="/talent/tracker" className="p-6 bg-slate-50 hover:bg-[#A079FF]/5 border border-[#EEEEF0] hover:border-[#A079FF]/30 rounded-2xl space-y-4 transition-all group cursor-pointer block">
-              <div className="flex justify-between items-start">
-                <span className="text-[10px] font-black text-slate-500 group-hover:text-[#A079FF] uppercase tracking-widest">Time Tracker</span>
-                <Clock className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#A079FF]" />
-              </div>
-              <div>
-                <span className="text-2xl font-black text-[#1A1C21]">0h</span>
-                <p className="text-[10px] font-bold text-slate-400 mt-1">Logged this week</p>
-              </div>
-            </Link>
-
             <Link to="/talent/project" className="p-6 bg-slate-50 hover:bg-[#A079FF]/5 border border-[#EEEEF0] hover:border-[#A079FF]/30 rounded-2xl space-y-4 transition-all group cursor-pointer block">
               <div className="flex justify-between items-start">
-                <span className="text-[10px] font-black text-slate-500 group-hover:text-[#A079FF] uppercase tracking-widest">My Project</span>
+                <span className="text-[10px] font-black text-slate-500 group-hover:text-[#A079FF] uppercase tracking-widest">Projects</span>
                 <FolderKanban className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#A079FF]" />
               </div>
               <div>

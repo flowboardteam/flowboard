@@ -30,8 +30,7 @@ const NAV_GROUPS = [
   {
     label: "Workforce",
     items: [
-      { name: "Active Workforce", path: "/client/workforce",     icon: Zap           },
-      { name: "Team",             path: "/client/teams",         icon: Users         },
+      { name: "Team",             path: "/client/workforce",     icon: Users         },
       { name: "Projects",         path: "/client/projects",      icon: FolderKanban  },
       { name: "Time Tracker",     path: "/client/tracker",       icon: Clock         },
     ],

@@ -167,7 +167,7 @@ export default function HarakaAgent() {
           {sourceRole && (
             <button
               onClick={() => window.history.back()}
-              className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-emerald-600 transition-colors mb-2"
+              className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors mb-2"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to sourcing
             </button>
@@ -183,7 +183,7 @@ export default function HarakaAgent() {
           {sourceRole && (
             <div className="flex items-center gap-2 mt-1">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Searching deeper for</span>
-              <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+              <span className="text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-900 border border-slate-200 px-2.5 py-1 rounded-lg">
                 {sourceRole.title}
               </span>
             </div>
@@ -197,7 +197,7 @@ export default function HarakaAgent() {
         {sourceRole && phase === "idle" && (
           <div className="flex items-center gap-2 mb-4 px-1">
             <img src="/flowboardlogo.png" alt="" className="w-5 h-5 object-contain" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">
               Prompt auto-generated from role — edit if needed
             </span>
           </div>
@@ -207,7 +207,7 @@ export default function HarakaAgent() {
           value={prompt}
           onChange={e => setPrompt(e.target.value)}
           placeholder="Describe the role (e.g. Senior Backend Engineer in United States)..."
-          className="w-full h-32 bg-slate-500/5 rounded-xl p-6 text-lg font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all border border-[var(--border-color)] resize-none"
+          className="w-full h-32 bg-slate-500/5 rounded-xl p-6 text-lg font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all border border-[var(--border-color)] resize-none"
         />
 
         <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
@@ -218,7 +218,7 @@ export default function HarakaAgent() {
           <button
             disabled={!prompt || loading}
             onClick={() => handleDiscovery()}
-            className="w-full sm:w-auto px-10 py-4 bg-blue-600 text-white font-black text-xs tracking-widest rounded-xl hover:bg-blue-500 transition-all hover:scale-105 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full sm:w-auto px-10 py-4 bg-[#1A1C21] text-white font-black text-xs tracking-widest rounded-xl hover:bg-[#1A1C21] transition-all hover:scale-105 shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {loading
               ? <><Loader2 className="w-4 h-4 animate-spin" /> ANALYZING...</>
@@ -235,14 +235,14 @@ export default function HarakaAgent() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="py-20 flex flex-col items-center justify-center space-y-4"
           >
-            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            <Loader2 className="w-10 h-10 text-[#1A1C21] animate-spin" />
             <p className="font-black text-slate-400 text-[10px] tracking-[0.2em]">{statusMessage}</p>
           </motion.div>
         )}
 
         {phase === "result" && spec && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-            <div className="px-6 py-4 rounded-xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between">
+            <div className="px-6 py-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img src="/flowboardlogo.png" alt="" className="w-6 h-6 object-contain" />
                 <span className="text-sm font-bold tracking-tight">
@@ -251,7 +251,7 @@ export default function HarakaAgent() {
               </div>
               <button
                 onClick={() => { setPhase("idle"); setPrompt(incomingPrompt); }}
-                className="text-[10px] font-black text-slate-400 hover:text-blue-500 transition-colors"
+                className="text-[10px] font-black text-slate-400 hover:text-[#1A1C21] transition-colors"
               >
                 Reset agent
               </button>
@@ -267,14 +267,14 @@ export default function HarakaAgent() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       key={person.login}
-                      className="p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between group hover:border-blue-500/50 transition-all relative"
+                      className="p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm flex flex-col justify-between group hover:border-slate-400 transition-all relative"
                     >
                       <button
                         onClick={() => handleSave(person)}
                         className={`absolute top-6 right-6 p-2 rounded-xl transition-all z-20 ${
                           savedIds.has(person.login)
-                            ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-110"
-                            : "bg-slate-500/10 text-slate-400 hover:bg-blue-500 hover:text-white"
+                            ? "bg-[#1A1C21] text-white shadow-lg shadow-emerald-500/20 scale-110"
+                            : "bg-slate-500/10 text-slate-400 hover:bg-[#1A1C21] hover:text-white"
                         }`}
                       >
                         {savedIds.has(person.login)
@@ -286,7 +286,7 @@ export default function HarakaAgent() {
                       <div>
                         <div className="flex justify-between items-start mb-6">
                           <img src={person.avatar_url} className="w-16 h-16 rounded-xl border border-[var(--border-color)] object-cover shadow-sm" alt="" />
-                          <div className="bg-blue-500/10 text-blue-500 px-3 py-1 rounded-xl text-center mr-10">
+                          <div className="bg-slate-100 text-[#1A1C21] px-3 py-1 rounded-xl text-center mr-10">
                             <div className="text-lg font-black leading-none">{person.matchScore}%</div>
                             <div className="text-[7px] font-black tracking-tighter">Match</div>
                           </div>
@@ -297,7 +297,7 @@ export default function HarakaAgent() {
                         </h3>
 
                         <div className="flex items-center gap-2 mb-4">
-                          <span className="text-[10px] font-black bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-lg">{person.seniorityLabel}</span>
+                          <span className="text-[10px] font-black bg-slate-100 text-[#1A1C21] px-2 py-0.5 rounded-lg">{person.seniorityLabel}</span>
                           <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                             <Target className="w-3 h-3" /> {person.location || "Global"}
                           </span>
@@ -331,7 +331,7 @@ export default function HarakaAgent() {
                           href={person.html_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-md"
+                          className="flex items-center justify-center gap-2 w-full bg-slate-900 dark:bg-white dark:text-black text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#1A1C21] hover:text-white transition-all shadow-md"
                         >
                           CHECK PROFILE <ExternalLink className="w-3 h-3" />
                         </a>
@@ -346,7 +346,7 @@ export default function HarakaAgent() {
                 <h3 className="text-xl font-black tracking-tighter dark:text-white">No matches found</h3>
                 <button
                   onClick={() => setPhase("idle")}
-                  className="text-xs font-black text-emerald-600 tracking-widest hover:underline"
+                  className="text-xs font-black text-slate-900 tracking-widest hover:underline"
                 >
                   Adjust parameters
                 </button>

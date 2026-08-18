@@ -61,7 +61,7 @@ export default function ClientSignUp() {
     "bg-rose-500",
     "bg-orange-400",
     "bg-amber-400",
-    "bg-indigo-500",
+    "bg-[#1A1C21]",
   ];
 
   // Check for pending invitation after signup
@@ -102,30 +102,7 @@ export default function ClientSignUp() {
     setIsLoading(true);
 
     try {
-      // 1. CHECK IF EMAIL EXISTS IN PROFILES
-      const { data: existingUser, error: fetchError } = await supabase
-        .from("profiles")
-        .select("id, role_type")
-        .eq("email", email.trim())
-        .maybeSingle();
-
-      if (existingUser) {
-        setNotification({
-          open: true,
-          type: "error",
-          title: "Account Already Exists",
-          description:
-            existingUser.role_type === "talent"
-              ? "This email is registered as a Talent. Please use a different email for your Client account."
-              : "You already have a Partner account. Log in to access your dashboard.",
-          primaryAction: "Login Now",
-          onPrimaryClick: handleDuplicateRedirect,
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // 2. IF CLEAR, PROCEED WITH SIGNUP
+      // 1. PROCEED DIRECTLY WITH SUPABASE AUTH SIGNUP
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
@@ -140,6 +117,19 @@ export default function ClientSignUp() {
       });
 
       if (authError) throw authError;
+
+      if (authData?.user && authData.user.identities?.length === 0) {
+        setNotification({
+          open: true,
+          type: "error",
+          title: "Account Already Registered",
+          description: "This email address is already registered. Please log in or reset your password.",
+          primaryAction: "Login Now",
+          onPrimaryClick: handleDuplicateRedirect,
+        });
+        setIsLoading(false);
+        return;
+      }
 
       // 3. CHECK FOR PENDING INVITATION
       const pendingToken = localStorage.getItem("pendingInviteToken");
@@ -169,11 +159,15 @@ export default function ClientSignUp() {
         });
       }
     } catch (error: any) {
+      console.error("Signup error:", error);
+      const isLoadFailed = error?.message?.toLowerCase().includes("load failed") || error?.name === "TypeError";
       setNotification({
         open: true,
         type: "error",
         title: "Registration Failed",
-        description: error.message,
+        description: isLoadFailed
+          ? "Unable to connect to the authentication service. Please check your internet connection or try again shortly."
+          : error.message || "An unexpected error occurred during signup.",
       });
     } finally {
       setIsLoading(false);
@@ -214,11 +208,11 @@ export default function ClientSignUp() {
               transition={{ duration: 0.6 }}
             >
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
-                <Users size={12} /> Elite Talent Cloud
+                <Users size={12} /> Talent Cloud
               </div>
               <h2 className="text-6xl font-black leading-[1.05] mb-10 tracking-tighter text-white">
                 Hire top <br />
-                <span className="font-serif font-medium">AI Engineer.</span>
+                <span className="font-serif font-medium">AI Engineers.</span>
               </h2>
 
               <div className="space-y-6">
@@ -283,7 +277,7 @@ export default function ClientSignUp() {
             Need to hire?{" "}
             <Link
               to="/client/login"
-              className="text-indigo-600 font-bold hover:text-indigo-700 ml-1"
+              className="text-slate-900 font-bold hover:text-indigo-700 ml-1"
             >
               Log in
             </Link>
@@ -291,7 +285,7 @@ export default function ClientSignUp() {
 
           <div className="max-w-[420px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-indigo-50 text-slate-900 text-[10px] font-black uppercase tracking-widest mb-4">
                 <Building2 size={12} /> Business Signup
               </div>
               <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">
@@ -408,13 +402,13 @@ export default function ClientSignUp() {
                         className="flex items-center gap-2 text-[10px] font-bold uppercase"
                       >
                         {req.test ? (
-                          <Check className="w-3 h-3 text-emerald-500" />
+                          <Check className="w-3 h-3 text-slate-900" />
                         ) : (
                           <X className="w-3 h-3 text-slate-300" />
                         )}
                         <span
                           className={
-                            req.test ? "text-emerald-600" : "text-slate-400"
+                            req.test ? "text-slate-900" : "text-slate-400"
                           }
                         >
                           {req.label}
@@ -439,7 +433,7 @@ export default function ClientSignUp() {
                   By signing up, I agree to the{" "}
                   <a
                     href="/terms"
-                    className="text-indigo-600 font-bold hover:underline"
+                    className="text-slate-900 font-bold hover:underline"
                   >
                     Terms of Service
                   </a>

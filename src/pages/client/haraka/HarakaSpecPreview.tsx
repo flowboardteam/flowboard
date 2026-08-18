@@ -33,7 +33,7 @@ export default function HarakaSpecPreview({ spec, onSearchResults }: Props) {
 
       <button
         onClick={handleSearch}
-        className="bg-emerald-500 px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20"
+        className="bg-[#1A1C21] px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-emerald-500/20"
       >
         Search Global Talent
       </button>

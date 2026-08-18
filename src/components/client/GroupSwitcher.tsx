@@ -77,7 +77,7 @@ export default function GroupSwitcher() {
                   <div className="flex flex-col min-w-0">
                     <span className="truncate text-xs">{group.name}</span>
                     {group.is_primary && (
-                      <span className="text-[8px] font-black uppercase text-indigo-500 tracking-tighter">Primary</span>
+                      <span className="text-[8px] font-black uppercase text-slate-900 tracking-tighter">Primary</span>
                     )}
                   </div>
                 </div>

@@ -102,7 +102,7 @@ export default function ClientDashboardIndex() {
       {activeGroup?.is_pending_invite && (
         <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl animate-fade-in">
           <div className="flex items-center gap-4 text-left">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-emerald-400 shrink-0">
               <Zap size={22} className="animate-pulse" />
             </div>
             <div>
@@ -126,7 +126,7 @@ export default function ClientDashboardIndex() {
                   alert("Failed to accept invitation. Please try again.");
                 }
               }}
-              className="flex-1 md:flex-none px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-600/15 flex items-center justify-center gap-2"
+              className="flex-1 md:flex-none px-6 py-3.5 bg-emerald-600 hover:bg-[#1A1C21] disabled:opacity-50 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-emerald-600/15 flex items-center justify-center gap-2"
             >
               {isAccepting ? <Loader2 size={14} className="animate-spin" /> : "Accept Invite"}
             </button>

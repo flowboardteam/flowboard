@@ -223,7 +223,7 @@ export default function ClientProfileSettings() {
   if (loading)
     return (
       <div className="min-h-[60vh] flex items-center bg-[var(--background)] justify-center">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-xl animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-[#1A1C21] border-t-transparent rounded-xl animate-spin"></div>
       </div>
     );
 
@@ -241,7 +241,7 @@ export default function ClientProfileSettings() {
                     ? "#f87171"
                     : calculateCompletion() < 70
                       ? "#fbbf24"
-                      : "#3b82f6",
+                      : "#5046E5",
               }}
             >
               {calculateCompletion()}%
@@ -263,7 +263,7 @@ export default function ClientProfileSettings() {
                       ? "#f87171"
                       : calculateCompletion() < 70
                         ? "#fbbf24"
-                        : "#3b82f6",
+                        : "#5046E5",
                 }}
               />
             </div>
@@ -273,7 +273,7 @@ export default function ClientProfileSettings() {
         <button
           onClick={handleUpdate}
           disabled={updating}
-          className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white dark:hover:text-white font-black text-[10px] uppercase tracking-[0.2em] px-8 py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+          className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-[#1A1C21] dark:hover:bg-[#1A1C21] hover:text-white dark:hover:text-white font-black text-[10px] uppercase tracking-[0.2em] px-8 py-3.5 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
         >
           {updating ? (
             <span className="flex items-center gap-2">
@@ -292,7 +292,7 @@ export default function ClientProfileSettings() {
       {calculateCompletion() < 70 && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="h-10 w-10 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center flex-shrink-0">
-            <Target className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <Target className="w-5 h-5 text-slate-900 dark:text-amber-400" />
           </div>
           <div className="flex-1">
             <h4 className="text-sm font-black text-amber-900 dark:text-amber-100 leading-tight">
@@ -336,7 +336,7 @@ export default function ClientProfileSettings() {
             onClick={() => fileInputRef.current?.click()}
             className="absolute -bottom-1 -right-1 p-3 md:p-4 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 transition-all group z-10"
           >
-            <Camera className="w-4 h-4 md:w-5 h-5 text-slate-400 group-hover:text-blue-600" />
+            <Camera className="w-4 h-4 md:w-5 h-5 text-slate-400 group-hover:text-[#1A1C21]" />
           </button>
 
           <input
@@ -386,7 +386,7 @@ export default function ClientProfileSettings() {
               </span>
             </div>
 
-            <span className="inline-flex items-center px-4 py-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest whitespace-nowrap">
+            <span className="inline-flex items-center px-4 py-2 bg-slate-100 text-[#1A1C21] dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest whitespace-nowrap">
               {profile.role_type || "CLIENT"}
             </span>
           </div>
@@ -408,7 +408,7 @@ export default function ClientProfileSettings() {
                   setProfile({ ...profile, bio: e.target.value })
                 }
                 placeholder="Describe your company, mission, and what you're looking for..."
-                className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl p-5 text-base outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-500/5 transition-all text-[var(--foreground)]"
+                className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl p-5 text-base outline-none focus:border-[#1A1C21] focus:ring-4 focus:ring-[#1A1C21]/5 transition-all text-[var(--foreground)]"
               />
             </div>
 
@@ -425,7 +425,7 @@ export default function ClientProfileSettings() {
                       setProfile({ ...profile, company_name: e.target.value })
                     }
                     placeholder="e.g. Acme Corporation"
-                    className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-blue-600 transition-all text-[var(--foreground)]"
+                    className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#1A1C21] transition-all text-[var(--foreground)]"
                   />
                 </div>
               </div>
@@ -441,7 +441,7 @@ export default function ClientProfileSettings() {
                     onChange={(e) =>
                       setProfile({ ...profile, industry: e.target.value })
                     }
-                    className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-blue-600 transition-all text-[var(--foreground)] cursor-pointer appearance-none"
+                    className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-12 pr-4 py-3.5 text-sm font-medium outline-none focus:border-[#1A1C21] transition-all text-[var(--foreground)] cursor-pointer appearance-none"
                   >
                     <option value="">Select Industry</option>
                     {INDUSTRIES.map((industry) => (
@@ -460,7 +460,7 @@ export default function ClientProfileSettings() {
             {/* Left: Location & Timezone */}
             <div className="space-y-6">
               <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                <MapPin className="w-3 h-3 text-blue-600" /> Location Info
+                <MapPin className="w-3 h-3 text-[#1A1C21]" /> Location Info
               </h4>
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3 group transition-colors hover:border-slate-400 dark:hover:border-slate-600">
@@ -511,7 +511,7 @@ export default function ClientProfileSettings() {
             {/* Right: Company Size */}
             <div className="space-y-6">
               <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                <Users className="w-3 h-3 text-blue-600" /> Company Size
+                <Users className="w-3 h-3 text-[#1A1C21]" /> Company Size
               </h4>
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-500 uppercase ml-1">
@@ -522,7 +522,7 @@ export default function ClientProfileSettings() {
                   onChange={(e) =>
                     setProfile({ ...profile, team_size: e.target.value })
                   }
-                  className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-tight outline-none focus:border-blue-600 text-[var(--foreground)] transition-all cursor-pointer appearance-none"
+                  className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-tight outline-none focus:border-[#1A1C21] text-[var(--foreground)] transition-all cursor-pointer appearance-none"
                 >
                   <option value="">Select Team Size</option>
                   {TEAM_SIZES.map((size) => (
@@ -543,7 +543,7 @@ export default function ClientProfileSettings() {
               <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                 External Links
               </h3>
-              <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-[#1A1C21] animate-pulse" />
             </div>
 
             {[
@@ -559,25 +559,25 @@ export default function ClientProfileSettings() {
               },
             ].map((item) => (
               <div key={item.key} className="relative group">
-                <item.icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors duration-300" />
+                <item.icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#1A1C21] transition-colors duration-300" />
                 <input
                   value={profile[item.key] || ""}
                   onChange={(e) =>
                     setProfile({ ...profile, [item.key]: e.target.value })
                   }
                   placeholder={item.label}
-                  className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-11 pr-4 py-3.5 text-[11px] font-bold outline-none transition-all focus:border-blue-600 focus:ring-4 focus:ring-blue-500/5 text-[var(--foreground)] placeholder:text-slate-500 placeholder:font-medium"
+                  className="w-full bg-slate-500/5 dark:bg-slate-900/50 border border-[var(--border-color)] rounded-xl pl-11 pr-4 py-3.5 text-[11px] font-bold outline-none transition-all focus:border-[#1A1C21] focus:ring-4 focus:ring-[#1A1C21]/5 text-[var(--foreground)] placeholder:text-slate-500 placeholder:font-medium"
                 />
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-0 group-focus-within:h-1/2 bg-blue-600 transition-all duration-300 rounded-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-0 group-focus-within:h-1/2 bg-[#1A1C21] transition-all duration-300 rounded-full" />
               </div>
             ))}
           </section>
 
           {/* HIRING STATUS */}
-          <section className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200 dark:border-blue-800 rounded-2xl p-8 space-y-4 shadow-sm">
+          <section className="bg-gradient-to-br from-slate-100 to-slate-50 dark:from-indigo-950/30 dark:to-slate-900/30 border border-indigo-200/50 dark:border-indigo-800 rounded-2xl p-8 space-y-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Briefcase className="w-5 h-5 text-blue-600" />
-              <h3 className="text-[11px] font-black uppercase tracking-widest text-blue-600">
+              <Briefcase className="w-5 h-5 text-[#1A1C21]" />
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-[#1A1C21]">
                 Hiring Status
               </h3>
             </div>
@@ -593,9 +593,9 @@ export default function ClientProfileSettings() {
                   onChange={(e) =>
                     setProfile({ ...profile, is_visible: e.target.checked })
                   }
-                  className="w-5 h-5 rounded-md border-2 border-blue-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-all cursor-pointer"
+                  className="w-5 h-5 rounded-md border-2 border-indigo-300 text-[#1A1C21] focus:ring-2 focus:ring-[#1A1C21] focus:ring-offset-0 transition-all cursor-pointer"
                 />
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-blue-600 transition-colors">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-[#1A1C21] transition-colors">
                   Make my profile visible to talent
                 </span>
               </label>

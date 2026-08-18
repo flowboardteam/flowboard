@@ -32,11 +32,11 @@ export function PreparedNavbar() {
 
   return (
     <header 
-      className={`w-full relative z-[100] font-sans border-b transition-colors duration-300 ${isLightMode ? "border-gray-300 bg-[#FCFBF9]" : "border-white/10 bg-transparent"}`} 
+      className={`w-full relative z-[100] font-sans border-b transition-colors duration-300 ${isLightMode ? "border-gray-200 bg-white" : "border-white/10 bg-transparent"}`} 
       onMouseLeave={() => setActiveMegaMenu(null)}
     >
       {/* Top Banner */}
-      <div className="w-full bg-[#fce000] text-center text-xs font-semibold py-2 px-4 shadow-sm z-[110] text-[#111]">
+      <div className="w-full bg-[#A079FF] text-center text-xs font-semibold py-2 px-4 shadow-sm z-[110] text-white">
           <span className="text-[10px] sm:text-xs font-medium tracking-wide">
             Haraka01 is now part of Flowboard HR Suite. Click to <span className="font-bold underline underline-offset-2">learn more.</span>
           </span>
@@ -103,7 +103,7 @@ export function PreparedNavbar() {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-[0px] top-[calc(100%+0.5rem)] w-72 bg-[#FCFBF9] rounded-none shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-[#E5E5E5] p-6 overflow-hidden z-[100]"
+                className="absolute right-[0px] top-[calc(100%+0.5rem)] w-72 bg-white rounded-none shadow-[0_20px_40px_rgba(0,0,0,0.1)] border border-[#E5E5E5] p-6 overflow-hidden z-[100]"
               >
                 <div className="space-y-8">
                   <div>
@@ -140,7 +140,7 @@ export function PreparedNavbar() {
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5, transition: { duration: 0.15 } }}
-            className="absolute left-0 top-full w-full bg-[#FCFBF9] shadow-[0_30px_60px_rgba(0,0,0,0.08)] z-[90] overflow-hidden border-t border-b border-gray-300"
+            className="absolute left-0 top-full w-full bg-white shadow-[0_30px_60px_rgba(0,0,0,0.08)] z-[90] overflow-hidden border-t border-b border-gray-300"
             style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100\' height=\'100\' filter=\'url(%23noise)\' opacity=\'0.03\'/%3E%3C/svg%3E")' }}
           >
             <div className="max-w-[1440px] mx-auto grid grid-cols-12 min-h-[480px]">

@@ -5,7 +5,6 @@ import {
   Search,
   Briefcase,
   Wallet,
-  ShieldCheck,
   Clock,
   Users,
   Layers,
@@ -13,6 +12,11 @@ import {
   Inbox,
   ArrowRightLeft,
   FolderKanban,
+  ClipboardList,
+  ArrowDownLeft,
+  CircleDollarSign,
+  ScrollText,
+  FileText,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -27,20 +31,20 @@ const MENU_GROUPS = [
     ],
   },
   {
-    group: "Workforce & AI",
+    group: "Work",
     items: [
       { name: "Active Contracts", path: "/talent/contracts",        icon: Layers                          },
-      { name: "Time Tracker",     path: "/talent/tracker",          icon: Clock                           },
-{ name: "My Project", path: "/talent/project", icon: FolderKanban } ,     
-{ name: "Contract Changes", path: "/talent/contract-changes", icon: ArrowRightLeft, badge: "contracts" },
+      { name: "Projects",         path: "/talent/project",          icon: FolderKanban                    },
+      { name: "Contract Changes", path: "/talent/contract-changes", icon: ArrowRightLeft, badge: "contracts" },
     ],
   },
   {
     group: "Finance & Admin",
     items: [
-      { name: "Invoice & Payments", path: "/talent/payroll",    icon: Wallet      },
-      { name: "Compliance",         path: "/talent/compliance", icon: ShieldCheck },
-      { name: "Apps & Tools",       path: "/talent/apps",       icon: Grid        },
+      { name: "Action Items",     path: "/talent/action-items",     icon: ClipboardList },
+      { name: "Withdraw",         path: "/talent/withdraw",         icon: ArrowDownLeft },
+      { name: "Documents",        path: "/talent/documents",        icon: FileText      },
+      { name: "Invoice & Payments", path: "/talent/invoices",      icon: Wallet      },
     ],
   },
 ];

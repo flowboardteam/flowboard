@@ -48,7 +48,7 @@ export default function OpenPositions() {
         (clients || []).forEach((client: any) => {
           const profileJobs = client.system_prefs?.public_jobs || [];
           profileJobs.forEach((job: any) => {
-            if (job.status === "open") {
+            if ((job.status === "open" || job.status === "active") && !aggregated.some(j => j.id === job.id)) {
               aggregated.push({
                 ...job,
                 organization_name: job.organization_name || client.company_name || client.full_name || "Enterprise Partner",
@@ -58,8 +58,27 @@ export default function OpenPositions() {
           });
         });
 
+        // 3. Read from global public created roles cache
+        const globalPublicKey = "flowboard_public_roles";
+        const cachedPublic = localStorage.getItem(globalPublicKey);
+        if (cachedPublic) {
+          try {
+            const publicRoles = JSON.parse(cachedPublic);
+            publicRoles.forEach((job: any) => {
+              if ((job.status === "open" || job.status === "active") && !aggregated.some(j => j.id === job.id)) {
+                aggregated.push({
+                  ...job,
+                  organization_name: job.organization_name || "Enterprise Partner"
+                });
+              }
+            });
+          } catch (e) {
+            console.warn("Failed to parse public roles cache:", e);
+          }
+        }
+
         // Sort by created_at desc
-        aggregated.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        aggregated.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
         setJobs(aggregated);
       } catch (err) {
         console.error("Fetch all jobs error:", err);

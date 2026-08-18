@@ -31,10 +31,9 @@ const BASE_MENU = [
       { name: "Offers Sent",   path: "/client/offers",      icon: Send,          badge: "offersPending"},
     ],
   },
-  { name: "Active Workforce",     path: "/client/workforce",            icon: Zap       },
+  { name: "Team",                 path: "/client/workforce",            icon: Users     },
+  { name: "Projects",             path: "/client/projects",             icon: FolderKanban },
   { name: "Time Tracker",         path: "/client/tracker",              icon: Clock     },
-  { name: "Team",                 path: "/client/teams",                icon: Users     },
-  { name: "Projects",              path: "/client/projects",             icon: FolderKanban },
   { name: "Apps",                 path: "/client/apps",                 icon: Grid      },
   {
     group: "Analytics",
@@ -152,15 +151,15 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
 
   // Badge colour by type
   const getBadgeColor = (badge?: string | null): string => {
-    if (badge === "offersPending") return "bg-amber-500 text-white";
-    return "bg-blue-600 text-white";
+    if (badge === "offersPending") return "bg-[#1A1C21] text-white";
+    return "bg-[#1A1C21] text-white";
   };
 
   return (
     <aside className="w-full h-full bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col p-6 overflow-y-auto no-scrollbar relative">
       {/* Brand */}
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm overflow-hidden">
+        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm overflow-hidden">
           <img src="/flowboardlogo.png" alt="Logo" className="w-6 h-6 object-contain rounded-full" />
         </div>
         <span className="text-lg font-black tracking-tight text-[var(--text-main)]">Flowboard</span>
@@ -176,7 +175,7 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
               <div key={item.group} className="space-y-1">
                 <button
                   onClick={() => toggleGroup(item.group!)}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-500 hover:bg-emerald-500/5 hover:text-emerald-600 transition-all font-bold text-sm group"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all font-bold text-sm group"
                 >
                   <div className="flex items-center gap-4">
                     <GroupIcon className="w-4 h-4 opacity-70 group-hover:opacity-100" />
@@ -199,8 +198,8 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
                           className={({ isActive }) =>
                             `flex items-center justify-between px-4 py-2.5 rounded-lg transition-all font-semibold text-[13px] ${
                               isActive
-                                ? "text-emerald-500 bg-emerald-500/5"
-                                : "text-slate-400 hover:text-emerald-500"
+                                ? "text-slate-900 bg-slate-50"
+                                : "text-slate-400 hover:text-slate-900"
                             }`
                           }
                         >
@@ -232,8 +231,8 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
               className={({ isActive }) =>
                 `flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-bold text-sm ${
                   isActive
-                    ? "bg-emerald-500/10 text-emerald-500 shadow-sm"
-                    : "text-slate-500 hover:bg-emerald-500/5 hover:text-emerald-600"
+                    ? "bg-slate-100 text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                 }`
               }
             >
@@ -249,15 +248,15 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
         {showMiniMenu && (
           <div className="absolute bottom-full left-0 mb-4 w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 z-50 ring-1 ring-black/5">
             <button onClick={() => { navigate("/client/profile"); setShowMiniMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-emerald-500/5 hover:text-emerald-600 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
               <User className="w-3.5 h-3.5" /> Profile Settings
             </button>
             <button onClick={() => { navigate("/client/settings"); setShowMiniMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-emerald-500/5 hover:text-emerald-600 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
               <Settings className="w-3.5 h-3.5" /> System Preferences
             </button>
             <button onClick={() => { navigate("/client/settings/groups"); setShowMiniMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-emerald-500/5 hover:text-emerald-600 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
               <Building2 className="w-3.5 h-3.5" /> Organization Groups
             </button>
             <div className="h-px bg-[var(--border-color)] my-1" />
@@ -282,7 +281,7 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
               <span className="text-xs font-black text-[var(--text-main)] tracking-tight truncate max-w-[100px]">
                 {profile?.full_name || "Loading..."}
               </span>
-              <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.2em] mt-0.5 opacity-80">
+              <span className="text-[9px] font-black text-slate-900 uppercase tracking-[0.2em] mt-0.5 opacity-80">
                 {profile?.role_type || "MANAGER"}
               </span>
             </div>

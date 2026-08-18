@@ -46,19 +46,19 @@ export default function ForgotPassword() {
     <div className="min-h-screen grid lg:grid-cols-2 font-jakarta bg-white overflow-x-hidden">
       {/* LEFT SIDE: Brand Experience */}
       <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-slate-200 blur-[120px] rounded-full -mr-48 -mt-48" />
         <div className="relative z-10">
           <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
             <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
             <span className="text-2xl font-black tracking-tighter uppercase">FLOWBOARD</span>
           </a>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[#1A1C21] text-xs font-bold mb-6">
               <ShieldCheck size={14} /> Secure Access Recovery
             </div>
             <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
               Don't lose your <br />
-              <span className="text-blue-400 text-6xl text-glow">Connection.</span>
+              <span className="text-[#1A1C21] text-6xl text-glow">Connection.</span>
             </h2>
             <p className="text-slate-400 text-lg max-w-md font-medium">
               Our encrypted recovery system ensures you get back to the Client Cloud safely.
@@ -79,7 +79,7 @@ export default function ForgotPassword() {
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold text-xs uppercase tracking-widest" htmlFor="email">Work Email</Label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#1A1C21] transition-colors" />
                 <Input
                   id="email"
                   type="email"
@@ -93,13 +93,13 @@ export default function ForgotPassword() {
               </div>
             </div>
 
-            <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl shadow-blue-900/10 gap-2 transition-all" disabled={isLoading || countdown > 0}>
+            <Button className="w-full h-14 bg-[#050B1E] hover:bg-[#1A1C21] text-white font-black rounded-xl shadow-xl shadow-indigo-900/10 gap-2 transition-all" disabled={isLoading || countdown > 0}>
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : countdown > 0 ? (
                 <><Timer className="w-5 h-5" /> Retry in {countdown}s</>
               ) : "Send Recovery Link"}
             </Button>
 
-            <Link to="/client/login" className="flex items-center justify-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors pt-2">
+            <Link to="/client/login" className="flex items-center justify-center gap-2 text-sm font-bold text-slate-500 hover:text-[#1A1C21] transition-colors pt-2">
               <ArrowLeft className="w-4 h-4" /> Back to Login
             </Link>
           </form>

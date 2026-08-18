@@ -30,11 +30,11 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
           </div>
           
           <div className="truncate">
-            <h3 className="font-black text-[var(--text-main)] dark:text-slate-100 text-sm sm:text-base uppercase tracking-tight truncate">
+            <h3 className="font-black text-[var(--text-main)] dark:text-slate-100 text-sm sm:text-base tracking-tight truncate">
               {talent.full_name}
             </h3>
-            <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-[8px] sm:text-[9px] font-black uppercase tracking-wider">
-              <Briefcase className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-500/80" />
+            <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-[8px] sm:text-[9px] font-black tracking-wider">
+              <Briefcase className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-900/80" />
               <span className="truncate">{talent.primary_role || "Professional"}</span>
             </div>
           </div>
@@ -46,18 +46,18 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
               onClick={(e) => { e.stopPropagation(); onShortlist(talent); }}
               className={`p-2 rounded-xl transition-all ${
                 isShortlisted
-                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-105"
-                  : "bg-slate-500/10 text-slate-400 hover:bg-emerald-500 hover:text-white"
+                  ? "bg-[#1A1C21] text-white shadow-lg shadow-emerald-500/20 scale-105"
+                  : "bg-slate-500/10 text-slate-400 hover:bg-[#1A1C21] hover:text-white"
               }`}
             >
               {isShortlisted ? <Check className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
             </button>
           )}
           <div className="flex flex-col items-center">
-            <div className="text-[9px] sm:text-[10px] font-black text-emerald-500 mb-1 leading-none">{displayScore}%</div>
+            <div className="text-[9px] sm:text-[10px] font-black text-slate-900 mb-1 leading-none">{displayScore}%</div>
             <div className="w-8 sm:w-10 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-emerald-500 transition-all duration-1000 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
+                className="h-full bg-[#1A1C21] transition-all duration-1000 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
                 style={{ width: `${displayScore}%` }} 
               />
             </div>
@@ -67,10 +67,10 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
 
       <div className="space-y-4 sm:space-y-5 flex-1 flex flex-col justify-between">
         <div>
-          <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] sm:tracking-[0.15em] text-slate-400 dark:text-slate-500 mb-2">Capabilities</p>
+          <p className="text-[8px] sm:text-[9px] font-black tracking-[0.1em] sm:tracking-[0.15em] text-slate-400 dark:text-slate-500 mb-2">Capabilities</p>
           <div className="flex flex-wrap gap-1.5">
             {talent.skills?.slice(0, 3).map((skill: string) => (
-              <span key={skill} className="px-2 sm:px-2.5 py-1 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-lg text-[9px] sm:text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 border border-emerald-500/10 dark:border-emerald-500/20">
+              <span key={skill} className="px-2 sm:px-2.5 py-1 bg-slate-50 dark:bg-slate-100 rounded-lg text-[9px] sm:text-[10px] font-black text-slate-900 dark:text-emerald-400 border border-emerald-500/10 dark:border-slate-200">
                 {skill}
               </span>
             ))}
@@ -80,15 +80,15 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
 
         <div className="grid grid-cols-2 gap-2 sm:gap-4 border-t border-[var(--border-color)] pt-4">
           <div>
-            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Seniority</p>
-            <p className="text-[10px] sm:text-[11px] font-black text-[var(--text-main)] dark:text-slate-200 uppercase truncate">
+            <p className="text-[8px] sm:text-[9px] font-black tracking-widest text-slate-400 dark:text-slate-500">Seniority</p>
+            <p className="text-[10px] sm:text-[11px] font-black text-[var(--text-main)] dark:text-slate-200 truncate">
               {talent.experience_level || "Junior"}
             </p>
           </div>
           <div>
-            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Location</p>
-            <p className="text-[10px] sm:text-[11px] font-black uppercase text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
-              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-500/50" /> 
+            <p className="text-[8px] sm:text-[9px] font-black tracking-widest text-slate-400 dark:text-slate-500">Location</p>
+            <p className="text-[10px] sm:text-[11px] font-black text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
+              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-900/50" /> 
               {talent.location?.split(',')[0] || "Global"}
             </p>
           </div>
@@ -96,7 +96,7 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
 
         <button 
           onClick={() => onReview(talent)}
-          className="w-full mt-2 py-3 sm:py-3.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-[9px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
+          className="w-full mt-2 py-3 sm:py-3.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
         >
           Review Profile
         </button>

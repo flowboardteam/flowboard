@@ -76,9 +76,9 @@ function computeAIScore(role, talent) {
 }
 
 function scoreLabel(score) {
-  if (score >= 80) return { text: "Excellent",  color: "text-emerald-600", bg: "bg-emerald-500/10 border-emerald-500/20" };
-  if (score >= 60) return { text: "Good match", color: "text-blue-600",    bg: "bg-blue-500/10 border-blue-500/20"       };
-  if (score >= 40) return { text: "Partial",    color: "text-amber-600",   bg: "bg-amber-500/10 border-amber-500/20"     };
+  if (score >= 80) return { text: "Excellent",  color: "text-slate-900", bg: "bg-slate-100 border-slate-200" };
+  if (score >= 60) return { text: "Good match", color: "text-[#1A1C21]",    bg: "bg-slate-100 border-slate-200"       };
+  if (score >= 40) return { text: "Partial",    color: "text-slate-900",   bg: "bg-slate-100 border-slate-200"     };
   return               { text: "Low match",  color: "text-slate-500",   bg: "bg-slate-500/10 border-slate-500/20"     };
 }
 
@@ -132,7 +132,7 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
       className={`p-6 rounded-md bg-[var(--card-bg)] border transition-all flex flex-col relative ${
         score >= 80
           ? "border-emerald-500/30 hover:border-emerald-500/60"
-          : "border-[var(--border-color)] hover:border-blue-500/40"
+          : "border-[var(--border-color)] hover:border-slate-400"
       }`}
     >
       <div className={`absolute top-5 right-5 flex flex-col items-center px-2.5 py-1.5 rounded-md border text-center ${label.bg}`}>
@@ -166,7 +166,7 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
           <p className="text-[10px] font-black tracking-widest text-slate-500 mb-1.5">Skills</p>
           <div className="flex flex-wrap gap-1.5">
             {matchedSkills.map(s => (
-              <span key={s} className="inline-flex items-center gap-1 text-[10px] font-black tracking-wider bg-emerald-500/5 text-slate-900 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+              <span key={s} className="inline-flex items-center gap-1 text-[10px] font-black tracking-wider bg-slate-50 text-slate-900 border border-slate-200 px-2 py-0.5 rounded-md">
                 <CheckCircle2 className="w-2.5 h-2.5" /> {s}
               </span>
             ))}
@@ -179,18 +179,18 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
 
       <div className="mb-4">
         <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden">
-          <div className="bg-emerald-500" style={{ width: `${breakdown.skills}%`   }} />
-          <div className="bg-blue-500"    style={{ width: `${breakdown.level}%`    }} />
-          <div className="bg-amber-500"   style={{ width: `${breakdown.location}%` }} />
-          <div className="bg-purple-500"  style={{ width: `${breakdown.rate}%`     }} />
+          <div className="bg-[#1A1C21]" style={{ width: `${breakdown.skills}%`   }} />
+          <div className="bg-[#1A1C21]"    style={{ width: `${breakdown.level}%`    }} />
+          <div className="bg-[#1A1C21]"   style={{ width: `${breakdown.location}%` }} />
+          <div className="bg-[#1A1C21]"  style={{ width: `${breakdown.rate}%`     }} />
           <div className="bg-slate-200 dark:bg-slate-700 flex-1" />
         </div>
         <div className="flex gap-3 mt-1">
           {[
-            { label: "Skills",   color: "bg-emerald-500" },
-            { label: "Level",    color: "bg-blue-500"    },
-            { label: "Location", color: "bg-amber-500"   },
-            { label: "Rate",     color: "bg-purple-500"  },
+            { label: "Skills",   color: "bg-[#1A1C21]" },
+            { label: "Level",    color: "bg-[#1A1C21]"    },
+            { label: "Location", color: "bg-[#1A1C21]"   },
+            { label: "Rate",     color: "bg-[#1A1C21]"  },
           ].map(b => (
             <span key={b.label} className="flex items-center gap-1 text-[8px] font-black text-slate-400 uppercase tracking-wider">
               <span className={`w-1.5 h-1.5 rounded-full ${b.color}`} />{b.label}
@@ -214,8 +214,8 @@ function SourcingTalentCard({ talent, role, isShortlisted, onShortlist, onReview
           onClick={() => onShortlist(talent, score, breakdown)}
           className={`flex items-center gap-1.5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-md transition-all ${
             isShortlisted
-              ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/20"
-              : "bg-blue-600 text-white hover:bg-blue-500 shadow-md shadow-blue-600/20"
+              ? "bg-[#1A1C21] text-white shadow-md shadow-emerald-500/20"
+              : "bg-[#1A1C21] text-white hover:bg-[#1A1C21] shadow-md shadow-slate-900/10"
           }`}
         >
           {isShortlisted
@@ -277,18 +277,18 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
               <span className={`text-2xl font-black ${label.color}`}>{score}%</span>
             </div>
             <div className="flex gap-0.5 h-2 rounded-full overflow-hidden mb-3">
-              <div className="bg-emerald-500" style={{ width: `${breakdown.skills}%`   }} />
-              <div className="bg-blue-500"    style={{ width: `${breakdown.level}%`    }} />
-              <div className="bg-amber-500"   style={{ width: `${breakdown.location}%` }} />
-              <div className="bg-purple-500"  style={{ width: `${breakdown.rate}%`     }} />
+              <div className="bg-[#1A1C21]" style={{ width: `${breakdown.skills}%`   }} />
+              <div className="bg-[#1A1C21]"    style={{ width: `${breakdown.level}%`    }} />
+              <div className="bg-[#1A1C21]"   style={{ width: `${breakdown.location}%` }} />
+              <div className="bg-[#1A1C21]"  style={{ width: `${breakdown.rate}%`     }} />
               <div className="bg-slate-200 dark:bg-slate-700 flex-1" />
             </div>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { label: "Skills",   val: breakdown.skills,   max: 45, color: "text-emerald-600" },
-                { label: "Level",    val: breakdown.level,    max: 20, color: "text-blue-600"    },
-                { label: "Location", val: breakdown.location, max: 20, color: "text-amber-600"   },
-                { label: "Rate",     val: breakdown.rate,     max: 15, color: "text-purple-600"  },
+                { label: "Skills",   val: breakdown.skills,   max: 45, color: "text-slate-900" },
+                { label: "Level",    val: breakdown.level,    max: 20, color: "text-[#1A1C21]"    },
+                { label: "Location", val: breakdown.location, max: 20, color: "text-slate-900"   },
+                { label: "Rate",     val: breakdown.rate,     max: 15, color: "text-slate-900"  },
               ].map(b => (
                 <div key={b.label} className="text-center">
                   <p className={`text-sm font-black ${b.color}`}>{b.val}<span className="text-[9px] opacity-60">/{b.max}</span></p>
@@ -312,7 +312,7 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
                 {talent.skills.map(s => {
                   const matched = (role?.skills ?? []).map(x => x.toLowerCase()).includes(s.toLowerCase());
                   return (
-                    <span key={s} className={`text-[10px] font-black tracking-wider px-2.5 py-1 rounded-md border ${matched ? "bg-emerald-500/5 text-slate-900 border-emerald-500/20" : "bg-slate-500/5 text-slate-500 border-slate-500/10"}`}>
+                    <span key={s} className={`text-[10px] font-black tracking-wider px-2.5 py-1 rounded-md border ${matched ? "bg-slate-50 text-slate-900 border-slate-200" : "bg-slate-500/5 text-slate-500 border-slate-500/10"}`}>
                       {matched && <CheckCircle2 className="inline w-2.5 h-2.5 mr-1" />}{s}
                     </span>
                   );
@@ -339,8 +339,8 @@ function TalentDrawer({ talent, role, isShortlisted, onShortlist, onClose }) {
             onClick={() => onShortlist(talent, score, breakdown)}
             className={`w-full py-3.5 text-[10px] font-black uppercase tracking-widest rounded-md flex items-center justify-center gap-2 transition-all ${
               isShortlisted
-                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                : "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20"
+                ? "bg-[#1A1C21] text-white shadow-lg shadow-emerald-500/20"
+                : "bg-[#1A1C21] text-white hover:bg-[#1A1C21] shadow-lg shadow-slate-900/10"
             }`}
           >
             {isShortlisted
@@ -558,7 +558,7 @@ export default function TalentSourcingPage() {
     return (
       <div className="max-w-7xl mx-auto pb-20 flex flex-col items-center justify-center py-32 gap-4">
         <p className="text-sm font-bold text-red-500">{roleError}</p>
-        <button onClick={() => navigate("/client/roles")} className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-md hover:bg-blue-500 transition-all">
+        <button onClick={() => navigate("/client/roles")} className="flex items-center gap-2 px-5 py-3 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-md hover:bg-[#1A1C21] transition-all">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
         </button>
       </div>
@@ -570,7 +570,7 @@ export default function TalentSourcingPage() {
     return (
       <div className="max-w-7xl mx-auto pb-20 flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#1A1C21] animate-spin" />
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading sourcing page...</p>
         </div>
       </div>
@@ -583,10 +583,10 @@ export default function TalentSourcingPage() {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div className="space-y-3">
           <button onClick={() => navigate("/client/roles")}
-            className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">
+            className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-[#1A1C21] transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
           </button>
-          <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-[#1A1C21] text-[11px] font-bold uppercase tracking-widest">
             <Users className="w-3.5 h-3.5" /> Talent sourcing
           </div>
 
@@ -605,7 +605,7 @@ export default function TalentSourcingPage() {
                 <span key={tag} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 px-2.5 py-1 rounded-md">{tag}</span>
               ))}
               {role.skills?.slice(0, 4).map(s => (
-                <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-md">{s}</span>
+                <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-[#1A1C21] px-2.5 py-1 rounded-md">{s}</span>
               ))}
               {(role.skills?.length ?? 0) > 4 && (
                 <span className="text-[10px] font-black text-slate-400">+{role.skills.length - 4} skills</span>
@@ -617,7 +617,7 @@ export default function TalentSourcingPage() {
         {/* Top-right actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
           {aiLoading && (
-            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-500">
+            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1A1C21]">
               <Sparkles className="w-3.5 h-3.5 animate-pulse" /> AI scoring...
             </span>
           )}
@@ -637,11 +637,11 @@ export default function TalentSourcingPage() {
 
           <Link
             to={`/client/roles/${roleId}/shortlist`}
-            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md text-[11px] font-black tracking-widest text-slate-600 hover:border-blue-500/40 transition-all"
+            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-md text-[11px] font-black tracking-widest text-slate-600 hover:border-slate-400 transition-all"
           >
             View shortlist
             {shortlisted.size > 0 && (
-              <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{shortlisted.size}</span>
+              <span className="bg-[#1A1C21] text-white text-[10px] font-black px-2 py-0.5 rounded-full">{shortlisted.size}</span>
             )}
           </Link>
         </div>
@@ -680,7 +680,7 @@ export default function TalentSourcingPage() {
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search by name, role, or skill..."
-              className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-md text-sm font-medium outline-none focus:ring-2 ring-blue-500/20 transition-all"
+              className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-md text-sm font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
             />
           </div>
           <div className="flex gap-2">
@@ -692,7 +692,7 @@ export default function TalentSourcingPage() {
               <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
             </div>
             <button onClick={() => setFiltersOpen(v => !v)}
-              className={`flex items-center gap-2 px-4 py-3 border rounded-md text-xs font-black uppercase tracking-widest transition-all ${filtersOpen ? "bg-blue-600 text-white border-blue-600" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
+              className={`flex items-center gap-2 px-4 py-3 border rounded-md text-xs font-black uppercase tracking-widest transition-all ${filtersOpen ? "bg-[#1A1C21] text-white border-[#1A1C21]" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
               <SlidersHorizontal className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -722,10 +722,10 @@ export default function TalentSourcingPage() {
         <div className="flex flex-wrap gap-4 pt-1">
           <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Score:</span>
           {[
-            { color: "bg-emerald-500", label: "Skills (45pt)"   },
-            { color: "bg-blue-500",    label: "Level (20pt)"    },
-            { color: "bg-amber-500",   label: "Location (20pt)" },
-            { color: "bg-purple-500",  label: "Rate (15pt)"     },
+            { color: "bg-[#1A1C21]", label: "Skills (45pt)"   },
+            { color: "bg-[#1A1C21]",    label: "Level (20pt)"    },
+            { color: "bg-[#1A1C21]",   label: "Location (20pt)" },
+            { color: "bg-[#1A1C21]",  label: "Rate (15pt)"     },
           ].map(b => (
             <span key={b.label} className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
               <span className={`w-2 h-2 rounded-full ${b.color}`} />{b.label}
@@ -753,7 +753,7 @@ export default function TalentSourcingPage() {
       {talentsLoading ? (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
+            <Loader2 className="w-7 h-7 text-[#1A1C21] animate-spin" />
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading talent pool...</p>
           </div>
         </div>

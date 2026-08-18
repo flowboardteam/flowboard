@@ -1242,6 +1242,49 @@ export default function CreateRolePage() {
         localStorage.setItem(localKey, JSON.stringify(localRoles));
       }
 
+      // Also sync to global public roles cache for instant talent job board visibility
+      const globalPublicKey = "flowboard_public_roles";
+      const existingGlobal = localStorage.getItem(globalPublicKey);
+      const globalRoles = existingGlobal ? JSON.parse(existingGlobal) : [];
+      if (editId) {
+        const updatedGlobal = globalRoles.map((r: any) => r.id === editId ? { ...r, ...localRoleData } : r);
+        localStorage.setItem(globalPublicKey, JSON.stringify(updatedGlobal));
+      } else {
+        globalRoles.unshift(localRoleData);
+        localStorage.setItem(globalPublicKey, JSON.stringify(globalRoles));
+      }
+
+      // Persist directly to client profile system_prefs for cross-browser database visibility
+      try {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("system_prefs")
+          .eq("id", user.id)
+          .single();
+
+        const currentPrefs = profileData?.system_prefs || {};
+        const currentPublicJobs = currentPrefs.public_jobs || [];
+
+        let updatedPublicJobs;
+        if (editId) {
+          updatedPublicJobs = currentPublicJobs.map((j: any) => j.id === editId ? { ...j, ...localRoleData } : j);
+        } else {
+          updatedPublicJobs = [localRoleData, ...currentPublicJobs];
+        }
+
+        await supabase
+          .from("profiles")
+          .update({
+            system_prefs: {
+              ...currentPrefs,
+              public_jobs: updatedPublicJobs
+            }
+          })
+          .eq("id", user.id);
+      } catch (profileErr) {
+        console.warn("Failed to update profile public_jobs:", profileErr);
+      }
+
       navigate("/client/roles");
     } catch (err: any) {
       console.error("Save role error:", err);

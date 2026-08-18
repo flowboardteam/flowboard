@@ -120,11 +120,7 @@ export default function ClientApplicationsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-            <FileText className="w-4 h-4 text-blue-600" />
-            <span>Hiring Pipeline / Applications</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
             Applications
           </h1>
           <p className="text-sm font-medium text-slate-500 mt-1 max-w-xl">
@@ -146,7 +142,7 @@ export default function ClientApplicationsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search roles..."
-              className="w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:border-blue-500/50 transition-all"
+              className="w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-xl py-3 pl-12 pr-4 text-xs font-bold outline-none focus:border-slate-400 transition-all"
             />
           </div>
         </div>
@@ -156,9 +152,9 @@ export default function ClientApplicationsPage() {
       {!loading && (
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: "Open Roles", value: stats.totalRoles, icon: Briefcase, color: "text-blue-600", bg: "bg-blue-500/10" },
-            { label: "In Pipeline", value: stats.totalApplicants, icon: Users, color: "text-amber-600", bg: "bg-amber-500/10" },
-            { label: "Total Hires", value: stats.totalHired, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-500/10" },
+            { label: "Open Roles", value: stats.totalRoles, icon: Briefcase, color: "text-[#1A1C21]", bg: "bg-slate-100" },
+            { label: "In Pipeline", value: stats.totalApplicants, icon: Users, color: "text-slate-900", bg: "bg-slate-100" },
+            { label: "Total Hires", value: stats.totalHired, icon: CheckCircle2, color: "text-slate-900", bg: "bg-slate-100" },
           ].map(s => (
             <div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-5 flex items-center gap-4">
               <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center shrink-0`}>
@@ -175,7 +171,7 @@ export default function ClientApplicationsPage() {
 
       {loading ? (
         <div className="h-[40vh] flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+          <Loader2 className="w-10 h-10 text-[#1A1C21] animate-spin" />
           <p className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Loading pipeline...</p>
         </div>
       ) : filteredRoles.length > 0 ? (
@@ -189,21 +185,21 @@ export default function ClientApplicationsPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 onClick={() => navigate(`/client/roles/${role.id}/shortlist`)}
-                className="group relative bg-[var(--card-bg)] border border-[var(--border-color)] hover:border-blue-500/40 rounded-2xl p-6 cursor-pointer transition-all hover:shadow-xl hover:shadow-blue-500/10 overflow-hidden flex flex-col"
+                className="group relative bg-[var(--card-bg)] border border-[var(--border-color)] hover:border-slate-400 rounded-2xl p-6 cursor-pointer transition-all hover:shadow-xl hover:shadow-slate-900/5 overflow-hidden flex flex-col"
               >
                 {/* Decorative hover element */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-100 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-[#1A1C21] shrink-0">
                       <Briefcase className="w-6 h-6" />
                     </div>
                     
                     {/* Status badge */}
                     <span className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
                       role.status === "open"
-                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                        ? "bg-slate-100 text-slate-900 border-slate-200"
                         : role.status === "draft"
                         ? "bg-slate-500/10 text-slate-400 border-slate-500/20"
                         : "bg-red-500/10 text-red-500 border-red-500/20"
@@ -211,7 +207,7 @@ export default function ClientApplicationsPage() {
                   </div>
 
                   <div className="flex-1">
-                    <h3 className="text-lg font-black dark:text-white tracking-tight leading-tight mb-1 pr-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-black dark:text-white tracking-tight leading-tight mb-1 pr-2 group-hover:text-[#1A1C21] transition-colors">
                       {role.title}
                     </h3>
                     {role.department && (
@@ -232,7 +228,7 @@ export default function ClientApplicationsPage() {
                     <div className="flex items-center gap-2">
                       <div className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${
                         role.applicantCount > 0
-                          ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                          ? 'bg-slate-100 text-slate-900 border border-slate-200'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-[var(--border-color)]'
                       }`}>
                         <Users className="w-3 h-3" />
@@ -242,7 +238,7 @@ export default function ClientApplicationsPage() {
                     <div className="flex items-center gap-2">
                       <div className={`px-2.5 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${
                         role.hiredCount > 0
-                          ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                          ? 'bg-[#1A1C21] text-white shadow-md shadow-emerald-500/20'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-[var(--border-color)]'
                       }`}>
                         <CheckCircle2 className="w-3 h-3" />
@@ -252,7 +248,7 @@ export default function ClientApplicationsPage() {
                   </div>
 
                   <div className="mt-3 flex items-center justify-end">
-                    <span className="flex items-center text-[10px] font-black uppercase tracking-widest text-blue-600 group-hover:translate-x-1 transition-transform">
+                    <span className="flex items-center text-[10px] font-black uppercase tracking-widest text-[#1A1C21] group-hover:translate-x-1 transition-transform">
                       View Pipeline <ChevronRight className="w-4 h-4 ml-1" />
                     </span>
                   </div>
@@ -270,7 +266,7 @@ export default function ClientApplicationsPage() {
            <p className="font-medium text-slate-500 mb-8 max-w-md mx-auto">
              Create a role to start receiving applications and building your talent pipeline.
            </p>
-           <Link to="/client/roles/create" className="bg-blue-600 text-white px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all inline-flex items-center gap-2 shadow-md shadow-blue-600/20">
+           <Link to="/client/roles/create" className="bg-[#1A1C21] text-white px-8 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all inline-flex items-center gap-2 shadow-md shadow-slate-900/10">
              <TrendingUp className="w-4 h-4" /> Create Role
            </Link>
         </div>

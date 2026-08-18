@@ -15,6 +15,7 @@ import TalentSignup from "./pages/talent/auth/Signup";
 import TalentLogin from "./pages/talent/auth/Login";
 import ForgotPassword from "./pages/talent/auth/ForgotPassword";
 import ResetPassword from "./pages/talent/auth/ResetPassword";
+import AuthCallback from "./pages/auth/AuthCallback";
 
 // Client Auth
 import ClientSignup from "./pages/client/auth/Signup";
@@ -34,6 +35,8 @@ import TalentContractChangesPage from "./pages/talent/contract-changes/TalentCon
 import TalentJobsPage from "./pages/talent/jobs/TalentJobsPage";
 import TalentInvoicesPage from "./pages/talent/invoices/TalentInvoicesPage";
 import CreateInvoicePage from "./pages/talent/invoices/CreateInvoicePage";
+import DocumentsPage from "./pages/talent/DocumentsPage";
+import ActionItemsPage from "./pages/talent/action-items/ActionItemsPage";
 
 // --- 3. CLIENT PAGES ---
 import ClientOnboarding from "./pages/client/onboarding/index";
@@ -53,14 +56,25 @@ import GroupsPage from "./pages/client/settings/Groups";
 import ClientPayrollPage from "./pages/client/payroll/ClientPayrollPage";
 import InvitePage from "./pages/InvitePage";
 
+// --- AI INTERVIEW SYSTEM MVP ---
+import CandidateConsentPage from "./pages/interview/CandidateConsentPage";
+import AIInterviewRoom from "./pages/interview/AIInterviewRoom";
+import InterviewCompletePage from "./pages/interview/InterviewCompletePage";
+import ClientInterviewsPage from "./pages/client/interviews/ClientInterviewsPage";
+import InterviewReportPage from "./pages/client/interviews/InterviewReportPage";
+
 
 // Shared
 import ApplicationsPage from "./pages/dashboard/applications/ApplicationsPage";
 import ClientApplicationsPage from "./pages/client/applications/ClientApplicationsPage";
 import ComingSoon from "./pages/dashboard/ComingSoon";
+import WithdrawPage from "./pages/talent/withdraw/WithdrawPage";
+import TransactionsPage from "./pages/talent/transactions/TransactionsPage";
 import Shortlist from "./pages/client/shortlist";
 import ClientProjectsPage from "./pages/client/project/ClientProjectsPage";
 import TalentProjectPage from "./pages/talent/project/TalentProjectPage";
+import ProjectDetailPage from "./pages/talent/project/ProjectDetailPage";
+import BoardDetailPage from "./pages/talent/project/BoardDetailPage";
 
 import TermsPage   from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -123,6 +137,8 @@ const App = () => (
           <Route path="/talent/login"           element={<TalentLogin />} />
           <Route path="/talent/forgot-password" element={<ForgotPassword />} />
           <Route path="/talent/reset-password"  element={<ResetPassword />} />
+          <Route path="/login/callback"        element={<AuthCallback />} />
+          <Route path="/auth/callback"         element={<AuthCallback />} />
 
           <Route path="/terms"   element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
@@ -134,6 +150,12 @@ const App = () => (
           <Route path="/client/forgot-password" element={<ClientForgotPassword />} />
           <Route path="/client/reset-password"  element={<ClientResetPassword />} />
           <Route path="/invite/:token" element={<InvitePage />} />
+
+          {/* Candidate AI Interview Portal */}
+          <Route path="/interview/:token"           element={<CandidateConsentPage />} />
+          <Route path="/interview/:token/session"   element={<AIInterviewRoom />} />
+          <Route path="/interview/:token/complete font"  element={<InterviewCompletePage />} />
+          <Route path="/interview/:token/complete"  element={<InterviewCompletePage />} />
 
 
           {/* ── Onboarding ────────────────────────────────────────── */}
@@ -151,16 +173,19 @@ const App = () => (
             <Route path="offers"           element={<TalentOffersPage />} />
             <Route path="contract-changes" element={<TalentContractChangesPage />} />
             <Route path="project" element={<TalentProjectPage />} />
+            <Route path="project/:projectId" element={<ProjectDetailPage />} />
+            <Route path="project/:projectId/board/:boardId" element={<BoardDetailPage />} />
             <Route path="jobs" element={<TalentJobsPage />} />
             <Route path="invoices" element={<TalentInvoicesPage />} />
             <Route path="invoices/create" element={<CreateInvoicePage />} />
             
             {/* Placeholders */}
-            <Route path="tracker"          element={<ComingSoon />} />
+            <Route path="action-items"     element={<ActionItemsPage />} />
+            <Route path="withdraw"         element={<WithdrawPage />} />
+            <Route path="transactions"     element={<TransactionsPage />} />
+            <Route path="documents"        element={<DocumentsPage />} />
             <Route path="teams"            element={<ComingSoon />} />
             <Route path="payroll"          element={<ComingSoon />} />
-            <Route path="compliance"       element={<ComingSoon />} />
-            <Route path="apps"             element={<ComingSoon />} />
             <Route path="pay"              element={<ComingSoon />} />
             <Route path="coming-soon"      element={<ComingSoon />} />
           </Route>
@@ -189,6 +214,10 @@ const App = () => (
             <Route path="roles/create"            element={<CreateRolePage />} />
             <Route path="roles/:roleId/source"    element={<TalentSourcingPage />} />
             <Route path="roles/:roleId/shortlist" element={<RoleShortlistPage />} />
+
+            {/* AI Interview Dashboard & Reports */}
+            <Route path="interviews"              element={<ClientInterviewsPage />} />
+            <Route path="interviews/:sessionId"   element={<InterviewReportPage />} />
 
             {/* Active Workforce */}
             <Route path="workforce"    element={<ActiveWorkforcePage />} />

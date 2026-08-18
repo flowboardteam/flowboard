@@ -144,7 +144,7 @@ export function UseCaseTemplate({
   };
 
   return (
-    <main className="min-h-screen bg-[#FCFBF9] font-sans selection:bg-[#fce000] selection:text-[#111]">
+    <main className="min-h-screen bg-white font-sans selection:bg-[#fce000] selection:text-[#111]">
       <PreparedNavbar />
       
       {/* 1. GRADIENT HERO BLOCK (Prepared911 Style) */}

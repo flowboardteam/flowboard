@@ -124,8 +124,8 @@ export default function ResetPassword() {
           <div className="p-5 bg-slate-50 rounded-2xl space-y-3 border border-slate-100 shadow-inner">
             {requirements.map((req, i) => (
               <div key={i} className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-tight">
-                {req.test ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <X className="w-3.5 h-3.5 text-slate-300" />}
-                <span className={req.test ? "text-emerald-600" : "text-slate-400"}>{req.label}</span>
+                {req.test ? <Check className="w-3.5 h-3.5 text-slate-900" /> : <X className="w-3.5 h-3.5 text-slate-300" />}
+                <span className={req.test ? "text-slate-900" : "text-slate-400"}>{req.label}</span>
               </div>
             ))}
           </div>

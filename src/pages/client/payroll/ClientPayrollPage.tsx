@@ -531,8 +531,8 @@ const showDebug = true; // Set to false when done
                       <td className="px-6 py-4 text-xs text-[#1A1C21]/60">{rec.employeesPaid} Individuals</td>
                       <td className="px-6 py-4 text-xs">
                         <Badge className={`text-[9px] font-bold uppercase tracking-widest rounded-sm shadow-none ${
-                          rec.status === "Completed" ? "bg-emerald-500/10 text-emerald-600" : 
-                          rec.status === "Active" || rec.status === "pending" ? "bg-amber-500/10 text-amber-600" :
+                          rec.status === "Completed" ? "bg-slate-100 text-slate-900" : 
+                          rec.status === "Active" || rec.status === "pending" ? "bg-slate-100 text-slate-900" :
                           "bg-slate-500/10 text-slate-600"
                         }`}>
                           {rec.status === "Completed" ? "Completed" : "Active"}
@@ -703,9 +703,9 @@ const showDebug = true; // Set to false when done
                         <td className="px-6 py-4 text-xs font-bold">{inv.amount}</td>
                         <td className="px-6 py-4">
                           <Badge className={`text-[9px] font-bold uppercase ${
-                            inv.status === "Approved" ? "bg-emerald-500/10 text-emerald-600" : 
+                            inv.status === "Approved" ? "bg-slate-100 text-slate-900" : 
                             inv.status === "Denied" ? "bg-red-500/10 text-red-600" : 
-                            "bg-amber-500/10 text-amber-600"
+                            "bg-slate-100 text-slate-900"
                           }`}>{inv.status}</Badge>
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -716,7 +716,7 @@ const showDebug = true; // Set to false when done
                               setIsApprovalModalOpen(true);
                             }} 
                             variant="ghost" 
-                            className="h-8 px-3 text-emerald-600 hover:bg-emerald-50"
+                            className="h-8 px-3 text-slate-900 hover:bg-emerald-50"
                           >
                             <CheckCircle className="w-3.5 h-3.5 mr-1" /> Approve
                           </Button>

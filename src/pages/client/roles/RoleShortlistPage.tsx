@@ -15,10 +15,10 @@ import { useGroups } from "@/contexts/GroupContext";
 
 // ─── Pipeline config ──────────────────────────────────────────────────────────
 const PIPELINE_STAGES = [
-  { key: "shortlisted",  label: "Shortlisted",  color: "bg-blue-500",    text: "text-blue-600",    bg: "bg-blue-500/10 border-blue-500/20"    },
-  { key: "contacted",    label: "Contacted",    color: "bg-amber-500",   text: "text-amber-600",   bg: "bg-amber-500/10 border-amber-500/20"   },
-  { key: "interviewing", label: "Interviewing", color: "bg-purple-500",  text: "text-purple-600",  bg: "bg-purple-500/10 border-purple-500/20" },
-  { key: "hired",        label: "Hired",        color: "bg-emerald-500", text: "text-emerald-600", bg: "bg-emerald-500/10 border-emerald-500/20"},
+  { key: "shortlisted",  label: "Shortlisted",  color: "bg-[#1A1C21]",    text: "text-[#1A1C21]",    bg: "bg-slate-100 border-slate-200"    },
+  { key: "contacted",    label: "Contacted",    color: "bg-[#1A1C21]",   text: "text-slate-900",   bg: "bg-slate-100 border-slate-200"   },
+  { key: "interviewing", label: "Interviewing", color: "bg-[#1A1C21]",  text: "text-slate-900",  bg: "bg-slate-100 border-slate-200" },
+  { key: "hired",        label: "Hired",        color: "bg-[#1A1C21]", text: "text-slate-900", bg: "bg-slate-100 border-slate-200"},
   { key: "rejected",     label: "Rejected",     color: "bg-red-400",     text: "text-red-500",     bg: "bg-red-500/10 border-red-500/20"       },
 ];
 const stageConfig = Object.fromEntries(PIPELINE_STAGES.map(s => [s.key, s]));
@@ -52,9 +52,9 @@ function ConfirmDialog({title,message,confirmLabel="Delete",onConfirm,onCancel}:
 }
 
 function scoreLabel(score: number) {
-  if (score >= 80) return { color: "text-emerald-600", bg: "bg-emerald-500/10 border-emerald-500/20" };
-  if (score >= 60) return { color: "text-blue-600",    bg: "bg-blue-500/10 border-blue-500/20"       };
-  if (score >= 40) return { color: "text-amber-600",   bg: "bg-amber-500/10 border-amber-500/20"     };
+  if (score >= 80) return { color: "text-slate-900", bg: "bg-slate-100 border-slate-200" };
+  if (score >= 60) return { color: "text-[#1A1C21]",    bg: "bg-slate-100 border-slate-200"       };
+  if (score >= 40) return { color: "text-slate-900",   bg: "bg-slate-100 border-slate-200"     };
   return               { color: "text-slate-500",   bg: "bg-slate-500/10 border-slate-500/20"     };
 }
 
@@ -396,7 +396,7 @@ function HireOfferModal({ candidate, role, activeGroup, onClose, onOfferSent }) 
               </div>
 
               <div className="p-6 bg-emerald-50 rounded-3xl flex items-start gap-4">
-                <Mail className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-1" />
+                <Mail className="w-5 h-5 text-slate-900 flex-shrink-0 mt-1" />
                 <p className="text-xs font-bold text-emerald-700 leading-relaxed">
                   Your verified client identity will be shared with the talent to facilitate immediate communication.
                 </p>
@@ -444,7 +444,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
-      className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-4 hover:border-blue-500/30 transition-all relative"
+      className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-4 hover:border-[#1A1C21]/30 transition-all relative"
     >
       <div className="flex items-center justify-between">
         <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${stage.bg}`}>
@@ -519,7 +519,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
       {candidate.talent_skills?.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {candidate.talent_skills.slice(0, 4).map((s: string) => (
-            <span key={s} className="text-[9px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-lg">{s}</span>
+            <span key={s} className="text-[9px] font-black uppercase tracking-wider bg-slate-100 text-[#1A1C21] px-2 py-0.5 rounded-lg">{s}</span>
           ))}
           {candidate.talent_skills.length > 4 && (
             <span className="text-[9px] font-black text-slate-400">+{candidate.talent_skills.length - 4}</span>
@@ -529,7 +529,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
 
       <div className="h-1 w-full bg-slate-500/10 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all"
+          className="h-full bg-gradient-to-r from-slate-1000 to-emerald-500 rounded-full transition-all"
           style={{ width: `${candidate.overall_score ?? 0}%` }}
         />
       </div>
@@ -540,7 +540,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
           View Profile
         </button>
         {candidate.status === "hired" ? (
-          <span className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-500/20">
+          <span className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-200">
             <CheckCircle2 className="w-3 h-3" /> Hired
           </span>
         ) : candidate.status === "rejected" ? (
@@ -549,7 +549,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
           </span>
         ) : (
           <button onClick={() => onHire(candidate)}
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-50 transition-all shadow-md shadow-blue-600/20">
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-50/50 transition-all shadow-md shadow-slate-900/10">
             <Zap className="w-3 h-3 fill-current" /> Send offer
           </button>
         )}
@@ -655,7 +655,7 @@ export default function RoleShortlistPage() {
     return (
       <div className="max-w-7xl mx-auto pb-20 flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-[#1A1C21] animate-spin" />
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading shortlist...</p>
         </div>
       </div>
@@ -668,14 +668,14 @@ export default function RoleShortlistPage() {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div className="space-y-3">
           <button onClick={() => navigate("/client/roles")}
-            className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">
+            className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-[#1A1C21] transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
           </button>
-          <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-[#1A1C21] text-[11px] font-bold uppercase tracking-widest">
             <ListChecks className="w-3.5 h-3.5" /> Shortlist
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
-            {role?.title ?? "Role"} <span className="text-blue-600">candidates.</span>
+            {role?.title ?? "Role"} <span className="text-[#1A1C21]">candidates.</span>
           </h1>
           <p className="text-sm font-medium text-slate-400">
             {candidates.length} shortlisted · {stageCounts.hired ?? 0} hired · {stageCounts.interviewing ?? 0} interviewing
@@ -683,11 +683,11 @@ export default function RoleShortlistPage() {
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link to="/client/shortlist"
-            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-black tracking-widest text-slate-600 hover:border-blue-500/40 transition-all shadow-sm">
+            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-black tracking-widest text-slate-600 hover:border-slate-400 transition-all shadow-sm">
             Master Pipeline
           </Link>
           <Link to={`/client/roles/${roleId}/source`}
-            className="flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+            className="flex items-center gap-2 px-6 py-3.5 bg-[#1A1C21] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#1A1C21] transition-all shadow-md shadow-slate-900/10">
             <Users className="w-3.5 h-3.5" /> Source more talent
           </Link>
         </div>
@@ -696,7 +696,7 @@ export default function RoleShortlistPage() {
       {/* Stage tabs */}
       <div className="flex flex-wrap gap-2">
         <button onClick={() => setActiveStage("all")}
-          className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === "all" ? "bg-[var(--card-bg)] text-blue-600 border-blue-500/30 shadow-sm" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
+          className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === "all" ? "bg-[var(--card-bg)] text-[#1A1C21] border-[#1A1C21]/30 shadow-sm" : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
           All <span className="ml-1.5 text-[9px] opacity-60">{candidates.length}</span>
         </button>
         {PIPELINE_STAGES.map(s => (
@@ -750,7 +750,7 @@ export default function RoleShortlistPage() {
             </p>
             {activeStage === "all" && (
               <Link to={`/client/roles/${roleId}/source`}
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-500 transition-all shadow-md shadow-blue-600/20">
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1A1C21] transition-all shadow-md shadow-slate-900/10">
                 <Users className="w-3.5 h-3.5" /> Source talent
               </Link>
             )}
