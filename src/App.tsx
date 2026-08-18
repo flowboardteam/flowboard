@@ -11,7 +11,7 @@ import { TalentPublicProfile } from "./pages/TalentPublicProfile";
 import JobPosting from "./pages/public/jobs/JobPosting";
 
 // Talent Auth
-import TalentSignup from "./pages/talent/auth/Signup";
+import TalentSignup from "./pages/talent/auth/signupageafterwaitlist";
 import TalentLogin from "./pages/talent/auth/Login";
 import ForgotPassword from "./pages/talent/auth/ForgotPassword";
 import ResetPassword from "./pages/talent/auth/ResetPassword";
