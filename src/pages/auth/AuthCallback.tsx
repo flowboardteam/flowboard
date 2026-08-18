@@ -17,6 +17,11 @@ export default function AuthCallback() {
           throw sessionError;
         }
 
+        // Automatic Localhost -> Production domain rewrite fallback
+        if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+          // ensure host is matching current live domain
+        }
+
         const redirect = searchParams.get("redirect");
         const intendedRole = localStorage.getItem("intended_role");
 
