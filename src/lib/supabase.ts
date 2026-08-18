@@ -8,6 +8,19 @@ export const supabase = createClient(
     supabaseAnonKey
 );
 
+export const getSiteUrl = () => {
+  let url =
+    import.meta.env.VITE_SITE_URL ??
+    import.meta.env.VITE_VERCEL_URL ??
+    (typeof window !== "undefined" ? window.location.origin : "");
+
+  url = url.trim().replace(/\/+$/, "");
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = `https://${url}`;
+  }
+  return url;
+};
+
 export const isMissingTableError = (error: any) => {
     if (!error) return false;
 

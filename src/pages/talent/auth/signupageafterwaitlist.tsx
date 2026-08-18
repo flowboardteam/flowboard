@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, getSiteUrl } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,7 +119,7 @@ export default function TalentSignUp() {
             full_name: fullName,
             role_type: "talent",
           },
-          emailRedirectTo: `${window.location.origin}/talent/dashboard`,
+          emailRedirectTo: `${getSiteUrl()}/talent/dashboard`,
         },
       });
 
