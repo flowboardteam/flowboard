@@ -111,7 +111,7 @@ const App = () => (
         <Routes>
 
           {/* ── Public ────────────────────────────────────────────── */}
-          <Route path="/" element={<Navigate to="/client/login" replace />} />
+          <Route path="/" element={<Index />} />
 
           {/* Platform Options */}
           <Route path="/platform/applicant-tracking" element={<ApplicantTracking />} />
