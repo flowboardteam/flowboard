@@ -213,7 +213,7 @@ export default function ClientDashboardIndex() {
               Find your next <br /> big talent.
             </h2>
             <p className="max-w-md text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
-              Source top-tier talent filtered by our Haraka01 model. Create your next role today.
+              Source top-tier talent filtered by Haraka. Create your next role.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Link to="/client/roles" className="px-5 py-2.5 bg-white hover:bg-slate-50 text-[#A079FF] font-bold text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shadow-black/10 flex items-center gap-1.5 group/btn">
