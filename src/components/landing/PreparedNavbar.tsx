@@ -36,7 +36,7 @@ export function PreparedNavbar() {
       onMouseLeave={() => setActiveMegaMenu(null)}
     >
       {/* Top Banner */}
-      <div className="w-full bg-[#A079FF] text-center text-xs font-semibold py-2 px-4 shadow-sm z-[110] text-white">
+      <div className="w-full bg-[#3D4650] text-center text-xs font-semibold py-2 px-4 shadow-sm z-[110] text-white">
           <span className="text-[10px] sm:text-xs font-medium tracking-wide">
             Haraka01 is now part of Flowboard HR Suite. Click to <span className="font-bold underline underline-offset-2">learn more.</span>
           </span>

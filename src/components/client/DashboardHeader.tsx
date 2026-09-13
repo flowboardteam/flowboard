@@ -41,8 +41,6 @@ const NAV_GROUPS = [
       { name: "Groups",            path: "/client/settings/groups", icon: Building2    },
       { name: "Apps & Tools",      path: "/client/apps",          icon: Grid          },
       { name: "Payroll",           path: "/client/payroll",       icon: Wallet        },
-      { name: "Hiring Analytics",  path: "/client/analytics/hiring", icon: BarChart3    },
-      { name: "Performance AI",    path: "/client/analytics/performance", icon: Cpu      },
     ],
   },
 ];

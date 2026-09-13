@@ -10,7 +10,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import NotificationModal from "@/components/ui/NotificationModal";
 
 import {
-  Building2,
   CheckCircle2,
   ArrowRight,
   Loader2,
@@ -150,6 +149,8 @@ export default function ClientSignUp() {
         setTimeout(() => {
           navigate(`/invite/${pendingToken}`);
         }, 2000);
+      } else if (authData?.session) {
+        navigate("/client/onboarding", { replace: true });
       } else {
         setNotification({
           open: true,
@@ -191,14 +192,19 @@ export default function ClientSignUp() {
           </div>
 
           <div className="relative z-10">
-            <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
-              <img
-                src="/flowboardlogo.png"
-                alt="Logo"
-                className="w-10 h-10 object-contain"
-              />
-              <span className="text-2xl font-black tracking-tighter text-white">
-                Flowboard
+            <a href="https://flowboard.team" className="flex items-center gap-2.5 mb-20 group">
+              <div className="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0">
+                <img
+                  src="/flowboardlogo.png"
+                  alt="Flowboard Logo"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <span className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-baseline">
+                Flowboard{" "}
+                <span className="font-semibold text-sm md:text-base opacity-80 ml-1">
+                  Team
+                </span>
               </span>
             </a>
 
@@ -210,9 +216,9 @@ export default function ClientSignUp() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
                 <Users size={12} /> Talent Cloud
               </div>
-              <h2 className="text-6xl font-black leading-[1.05] mb-10 tracking-tighter text-white">
+              <h2 className="text-5xl lg:text-6xl font-light leading-[1.05] mb-10 tracking-tight text-white">
                 Hire top <br />
-                <span className="font-serif font-medium">AI Engineers.</span>
+                AI Engineers.
               </h2>
 
               <div className="space-y-6">
@@ -255,18 +261,13 @@ export default function ClientSignUp() {
               "Flowboard is the first platform that actually understands the
               specific technical needs of startups."
             </p>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-none bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg text-sm">
-                JD
-              </div>
-              <div>
-                <p className="font-bold text-white tracking-tight text-sm">
-                  James D.
-                </p>
-                <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest font-jakarta">
-                  CTO, NEURALSYNC
-                </p>
-              </div>
+            <div>
+              <p className="font-bold text-white tracking-tight text-sm">
+                James D.
+              </p>
+              <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-widest font-jakarta">
+                CTO, NEURALSYNC
+              </p>
             </div>
           </div>
         </div>
@@ -284,70 +285,31 @@ export default function ClientSignUp() {
           </div>
 
           <div className="max-w-[420px] mx-auto w-full">
-            <div className="mb-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-indigo-50 text-slate-900 text-[10px] font-black uppercase tracking-widest mb-4">
-                <Building2 size={12} /> Business Signup
-              </div>
-              <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">
+            <div className="mb-8 text-center lg:text-left">
+              <h1 className="text-3xl lg:text-4xl font-light text-slate-900 mb-2 tracking-tight">
                 Join as a Client
               </h1>
-              <p className="text-slate-500 font-medium">
-                Access the world's most elite AI talent pool.
+              <p className="text-slate-500 font-medium text-sm">
+                Find, screen, interview, and hire exceptional talent with Haraka, your AI-powered recruiter.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button
-                variant="outline"
-                onClick={() => handleSocialLogin("google")}
-                className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  className="w-4 h-4 mr-2"
-                  alt="G"
-                />{" "}
-                Google
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleSocialLogin("github")}
-                className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/512317/github-142.svg"
-                  className="w-4 h-4 mr-2"
-                  alt="GH"
-                />{" "}
-                GitHub
-              </Button>
-            </div>
-
-            <div className="relative mb-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-100"></span>
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase text-slate-400 font-black tracking-widest">
-                <span className="bg-white px-4">Corporate Email Signup</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-slate-700 font-medium text-xs tracking-wide ml-1">
                   Hiring Manager Name
                 </Label>
                 <Input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Enter your name"
-                  className="h-12 rounded-none border-slate-200 shadow-sm outline-none"
+                  className="h-11 rounded-lg border-slate-200 shadow-sm outline-none"
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">
+              <div className="space-y-1.5">
+                <Label className="text-slate-700 font-medium text-xs tracking-wide ml-1">
                   Work Email Address
                 </Label>
                 <Input
@@ -355,13 +317,13 @@ export default function ClientSignUp() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="h-12 rounded-none border-slate-200 shadow-sm outline-none"
+                  className="h-11 rounded-lg border-slate-200 shadow-sm outline-none"
                   required
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider">
+              <div className="space-y-1.5">
+                <Label className="text-slate-700 font-medium text-xs tracking-wide ml-1">
                   Create Password
                 </Label>
                 <div className="relative group">
@@ -370,13 +332,13 @@ export default function ClientSignUp() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-12 pr-12 rounded-none border-slate-200 shadow-sm outline-none"
+                    className="h-11 pr-11 rounded-lg border-slate-200 shadow-sm outline-none"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -386,13 +348,13 @@ export default function ClientSignUp() {
                   <motion.div
                     initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-slate-50 rounded-none border border-slate-100 mt-2"
+                    className="p-3 bg-slate-50 rounded-lg border border-slate-100 mt-2"
                   >
-                    <div className="flex gap-1 h-1 mb-3">
+                    <div className="flex gap-1 h-1 mb-2.5">
                       {[1, 2, 3, 4].map((step) => (
                         <div
                           key={step}
-                          className={`h-full flex-1 rounded-none transition-colors ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`}
+                          className={`h-full flex-1 rounded-sm transition-colors ${passwordScore >= step ? strengthColors[passwordScore] : "bg-slate-200"}`}
                         />
                       ))}
                     </div>
@@ -419,12 +381,12 @@ export default function ClientSignUp() {
                 )}
               </div>
 
-              <div className="flex items-start space-x-3 py-2">
+              <div className="flex items-start space-x-3 py-1">
                 <Checkbox
                   id="terms"
                   checked={agreed}
                   onCheckedChange={(checked) => setAgreed(checked as boolean)}
-                  className="data-[state=checked]:bg-indigo-600 border-slate-300"
+                  className="data-[state=checked]:bg-[#A079FF] border-slate-300 mt-0.5"
                 />
                 <Label
                   htmlFor="terms"
@@ -442,7 +404,8 @@ export default function ClientSignUp() {
               </div>
 
               <Button
-                className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-none shadow-xl shadow-indigo-900/10 gap-2 transition-all"
+                type="submit"
+                className="w-full h-12 bg-[#A079FF] hover:bg-[#9165f7] active:bg-[#8050ee] text-white font-medium rounded-lg shadow-md shadow-[#A079FF]/20 gap-2 transition-all transform active:scale-[0.98]"
                 disabled={isLoading || !agreed || !isPasswordValid}
               >
                 {isLoading ? (
@@ -454,6 +417,42 @@ export default function ClientSignUp() {
                 )}
               </Button>
             </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200"></span>
+              </div>
+              <div className="relative flex justify-center text-xs text-slate-400 font-normal">
+                <span className="bg-white px-3">or continue with</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                onClick={() => handleSocialLogin("google")}
+                className="h-11 border-slate-200 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-all flex items-center justify-center"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  className="w-4 h-4 mr-2"
+                  alt="G"
+                />{" "}
+                Google
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => handleSocialLogin("github")}
+                className="h-11 border-slate-200 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-all flex items-center justify-center"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/512317/github-142.svg"
+                  className="w-4 h-4 mr-2"
+                  alt="GH"
+                />{" "}
+                GitHub
+              </Button>
+            </div>
           </div>
         </div>
       </div>

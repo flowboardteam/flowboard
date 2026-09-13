@@ -35,14 +35,6 @@ const BASE_MENU = [
   { name: "Projects",             path: "/client/projects",             icon: FolderKanban },
   { name: "Time Tracker",         path: "/client/tracker",              icon: Clock     },
   { name: "Apps",                 path: "/client/apps",                 icon: Grid      },
-  {
-    group: "Analytics",
-    icon: BarChart3,
-    items: [
-      { name: "Hiring Pool", path: "/client/analytics/hiring",       icon: BarChart3 },
-      { name: "AI vs Human", path: "/client/analytics/performance",  icon: Cpu       },
-    ],
-  },
   { name: "Payroll & Compliance", path: "/client/payroll", icon: Wallet },
 ];
 

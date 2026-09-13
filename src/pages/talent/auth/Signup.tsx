@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Rocket, ArrowRight, Loader2, CheckCircle2, Users } from "lucide-react";
+import { ArrowRight, Loader2, CheckCircle2, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function TalentSignUp() {
@@ -58,22 +58,33 @@ export default function TalentSignUp() {
         </div>
 
         <div className="relative z-10">
-          <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
-            <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
-            <span className="text-2xl font-black tracking-tighter text-white">Flowboard</span>
+          <a href="https://flowboard.team" className="flex items-center gap-2.5 mb-20 group">
+            <div className="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0">
+              <img
+                src="/flowboardlogo.png"
+                alt="Flowboard Logo"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <span className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-baseline">
+              Flowboard{" "}
+              <span className="font-semibold text-sm md:text-base opacity-80 ml-1">
+                Team
+              </span>
+            </span>
           </a>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
-              <Users size={12} /> Global Talent Cloud
+              Flowboard Talent Cloud
             </div>
-            <h2 className="text-6xl font-black leading-[1.05] mb-10 tracking-tighter text-white">
+            <h2 className="text-5xl lg:text-6xl font-light leading-[1.05] mb-10 tracking-tight text-white">
               Join the global <br />
-              <span className="font-serif font-medium">Talent Cloud.</span>
+              <span className="text-white font-normal">Talent Cloud.</span>
             </h2>
             <div className="space-y-6">
               {[
-                "Access exclusive high-ticket AI roles",
+                "Access exclusive high-ticket roles",
                 "Automated profile matching with Top Orgs",
                 "Secure payments & contract compliance",
               ].map((text) => (
@@ -92,12 +103,9 @@ export default function TalentSignUp() {
           <p className="text-lg text-white font-medium leading-relaxed tracking-tight mb-8">
             "Flowboard isn't just a job board; it's a career accelerator for tech engineers and professionals."
           </p>
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-none bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-900/40">AK</div>
-            <div>
-              <p className="font-bold text-white tracking-tight">Amara K.</p>
-              <p className="text-xs text-blue-300 font-bold uppercase tracking-widest">SENIOR AI ENGINEER</p>
-            </div>
+          <div>
+            <p className="font-bold text-white tracking-tight">Amara K.</p>
+            <p className="text-xs text-blue-300 font-medium">Senior DevOps engineer</p>
           </div>
         </div>
       </div>
@@ -114,10 +122,7 @@ export default function TalentSignUp() {
             {!isSuccess ? (
               <motion.div key="form" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                 <div className="mb-10 text-center lg:text-left">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest mb-4">
-                    <Rocket size={12} /> Talent Signup
-                  </div>
-                  <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Join the Waitlist</h1>
+                  <h1 className="text-3xl lg:text-4xl font-light text-slate-900 mb-2 tracking-tight">Join the Waitlist</h1>
                   <p className="text-slate-500 font-medium">Be first in line when we launch. We'll reach out personally.</p>
                 </div>
 
@@ -150,7 +155,7 @@ export default function TalentSignUp() {
                   )}
 
                   <Button
-                    className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl gap-2 transition-all"
+                    className="w-full h-12 bg-[#A079FF] hover:bg-[#9165f7] active:bg-[#8050ee] text-white font-medium rounded-lg shadow-md shadow-[#A079FF]/20 gap-2 transition-all transform active:scale-[0.98]"
                     disabled={isLoading}
                   >
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Join Waitlist <ArrowRight size={18} /></>}

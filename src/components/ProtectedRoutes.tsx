@@ -116,12 +116,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       // 5. ONBOARDING LOGIC
       const isOnOnboardingPage = path === config.onboarding;
 
-      // If not completed -> Force them to their specific onboarding (except if they are visiting an invite link)
-      if (!hasCompleted && !isOnOnboardingPage && !path.startsWith("/invite/")) {
-        navigate(config.onboarding, { replace: true });
-        return;
-      }
-
       // If already completed but trying to access onboarding -> Go to dashboard
       if (hasCompleted && isOnOnboardingPage) {
         navigate(config.dashboard, { replace: true });

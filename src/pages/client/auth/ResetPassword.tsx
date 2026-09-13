@@ -78,11 +78,22 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center bg-white font-jakarta p-6">
       <div className="max-w-[400px] w-full space-y-10">
         <div className="text-center">
-          <a href="https://flowboard.team" className="inline-flex items-center gap-2 mb-8 group">
-            <img src="/flowboardlogo.png" alt="Logo" className="w-12 h-12 object-contain" />
-            <span className="text-2xl font-black tracking-tighter uppercase text-slate-900">FLOWBOARD</span>
+          <a href="https://flowboard.team" className="inline-flex items-center gap-2.5 mb-8 group">
+            <div className="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0">
+              <img
+                src="/flowboardlogo.png"
+                alt="Flowboard Logo"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <span className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 flex items-baseline">
+              Flowboard{" "}
+              <span className="font-semibold text-sm md:text-base opacity-80 ml-1">
+                Team
+              </span>
+            </span>
           </a>
-          <h1 className="text-4xl font-medium text-slate-900 mb-2 tracking-tighter">New password</h1>
+          <h1 className="text-3xl sm:text-4xl font-light text-slate-900 mb-2 tracking-tight">New password</h1>
           <p className="text-slate-500 font-medium">Reset your credentials to continue.</p>
         </div>
 
@@ -130,7 +141,7 @@ export default function ResetPassword() {
             ))}
           </div>
 
-          <Button className="w-full h-16 bg-slate-900 hover:bg-black text-white font-black rounded-xl shadow-xl transition-all active:scale-[0.98]" disabled={isLoading || !canSubmit}>
+          <Button className="w-full h-12 bg-[#A079FF] hover:bg-[#9165f7] active:bg-[#8050ee] text-white font-medium rounded-lg shadow-md shadow-[#A079FF]/20 transition-all active:scale-[0.98]" disabled={isLoading || !canSubmit}>
             {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Update Credentials"}
           </Button>
         </form>

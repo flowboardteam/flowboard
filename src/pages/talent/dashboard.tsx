@@ -29,11 +29,7 @@ export default function TalentDashboard() {
         return;
       }
 
-      // Redirect to onboarding if not completed
-      if (!data.onboarding_completed) {
-        router.push("/talent/onboarding");
-        return;
-      }
+
 
       setProfile(data);
       setLoading(false);

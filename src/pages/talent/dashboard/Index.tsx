@@ -16,7 +16,10 @@ import {
   Layers,
   Clock,
   FolderKanban,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Sparkles,
+  ArrowRight,
+  Zap
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,7 @@ import { Link } from "react-router-dom";
 
 export default function DashboardIndex() {
   const [profile, setProfile] = useState<any>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const [activeTab, setActiveTab] = useState("All");
 
   useEffect(() => {
@@ -32,7 +36,7 @@ export default function DashboardIndex() {
       if (user) {
         const { data } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, onboarding_completed")
           .eq("id", user.id)
           .single();
         if (data) setProfile(data);
@@ -45,6 +49,37 @@ export default function DashboardIndex() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-20">
+      {/* Incomplete Onboarding Notice (Styled like BMG CRM header banner) */}
+      {profile && !profile.onboarding_completed && !bannerDismissed && (
+        <div className="relative overflow-hidden rounded-xl bg-[#24346e] border border-blue-400/20 px-4 py-2.5 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-fade-in">
+          <div className="flex items-center gap-2.5 text-left min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <span className="font-bold text-white bg-white/15 px-2.5 py-0.5 rounded-full text-[11px] shrink-0">
+                Profile Incomplete
+              </span>
+              <span className="text-white/80 font-normal">
+                - Finish setting up your talent profile to get discovered by global companies and receive contracts.
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            <Link
+              to="/talent/onboarding"
+              className="text-xs font-semibold px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg transition-all flex items-center border border-white/20 shadow-sm"
+            >
+              Complete Setup
+            </Link>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="text-white/60 hover:text-white p-1 rounded transition-colors"
+              title="Dismiss notice"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Header */}
       <div className="text-center pt-8">
         <h1 className="text-4xl md:text-5xl font-black text-[#1A1C21] tracking-tight">

@@ -106,7 +106,7 @@ export default function Login() {
     <>
       <div className="min-h-screen grid lg:grid-cols-2 font-jakarta bg-white overflow-x-hidden">
         {/* --- LEFT SIDE: Talent Branding --- */}
-        <div className="hidden lg:flex flex-col p-16 text-white relative overflow-hidden">
+        <div className="hidden lg:flex flex-col justify-center p-16 text-white relative overflow-hidden">
           <div className="absolute inset-0 z-0">
             <img
               src="/talentlogin.jpg"
@@ -117,20 +117,25 @@ export default function Login() {
             <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply" />
           </div>
 
-          <div className="relative z-10">
-            <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
-              <img
-                src="/flowboardlogo.png"
-                alt="Logo"
-                className="w-10 h-10 object-contain"
-              />
-              <span className="text-2xl font-black tracking-tighter">
-                Flowboard
+          <div className="absolute top-12 lg:top-16 left-12 lg:left-16 z-10">
+            <a href="https://flowboard.team" className="flex items-center gap-2.5 group">
+              <div className="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0">
+                <img
+                  src="/flowboardlogo.png"
+                  alt="Flowboard Logo"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <span className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-baseline">
+                Flowboard{" "}
+                <span className="font-semibold text-sm md:text-base opacity-80 ml-1">
+                  Team
+                </span>
               </span>
             </a>
           </div>
 
-          <div className="relative z-10 flex-1 flex flex-col justify-center">
+          <div className="relative z-10 max-w-lg">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -139,9 +144,9 @@ export default function Login() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
                 Flowboard Talent Cloud
               </div>
-              <h2 className="text-6xl font-black leading-[1.05] mb-8 tracking-tighter text-white">
-                Your global corporate <br />
-                <span className="text-white">journey starts here.</span>
+              <h2 className="text-5xl lg:text-6xl font-light leading-[1.05] mb-8 tracking-tight text-white">
+                Get Discovered by <br />
+                <span className="text-white font-normal">Global Companies.</span>
               </h2>
               <div className="flex items-center gap-4 text-white/80">
                 <div className="w-10 h-10 rounded-none bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
@@ -169,102 +174,66 @@ export default function Login() {
 
           <div className="max-w-[400px] mx-auto w-full">
             <div className="mb-10 text-center lg:text-left">
-              <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">
+              <h1 className="text-3xl lg:text-4xl font-light text-slate-900 mb-2 tracking-tight">
                 Login
               </h1>
-              <p className="text-slate-500 font-medium">
-                Welcome back, Talent. Let's get to work.
+              <p className="text-slate-500 font-medium text-sm">
+                Welcome back. Sign in to your Flowboard account.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button
-                onClick={() => handleSocialLogin("google")}
-                variant="outline"
-                className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  className="w-4 h-4 mr-2"
-                  alt="G"
-                />{" "}
-                Google
-              </Button>
-              <Button
-                onClick={() => handleSocialLogin("github")}
-                variant="outline"
-                className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm transition-all"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/512317/github-142.svg"
-                  className="w-4 h-4 mr-2"
-                  alt="GH"
-                />{" "}
-                GitHub
-              </Button>
-            </div>
-
-            <div className="relative mb-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-100"></span>
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase text-slate-400 font-black tracking-widest">
-                <span className="bg-white px-4">Talent Credentials</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-1.5">
                 <Label
-                  className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1"
+                  className="text-slate-700 font-medium text-xs tracking-wide ml-1"
                   htmlFor="email"
                 >
                   Work Email
                 </Label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@email.com"
-                    className="h-12 pl-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                    className="h-12 pl-11 rounded-lg border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
                   <Label
-                    className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1"
+                    className="text-slate-700 font-medium text-xs tracking-wide ml-1"
                     htmlFor="password"
                   >
                     Password
                   </Label>
                   <Link
                     to="/talent/forgot-password"
-                    className="text-xs font-bold text-blue-600 hover:underline"
+                    className="text-xs font-medium text-slate-500 hover:text-slate-900 hover:underline"
                   >
                     Forgot Password?
                   </Link>
                 </div>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-12 pl-11 pr-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                    className="h-12 pl-11 pr-11 rounded-lg border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -276,18 +245,55 @@ export default function Login() {
               </div>
 
               <Button
-                className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-none shadow-xl shadow-blue-900/10 gap-2 transition-all transform active:scale-[0.98]"
+                type="submit"
+                className="w-full h-12 bg-[#A079FF] hover:bg-[#9165f7] active:bg-[#8050ee] text-white font-medium rounded-lg shadow-md shadow-[#A079FF]/20 gap-2 transition-all transform active:scale-[0.98]"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <>
-                    Enter Talent Dashboard <ArrowRight size={18} />
+                    Continue <ArrowRight size={18} />
                   </>
                 )}
               </Button>
             </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200"></span>
+              </div>
+              <div className="relative flex justify-center text-xs text-slate-400 font-normal">
+                <span className="bg-white px-3">or continue with</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={() => handleSocialLogin("google")}
+                variant="outline"
+                className="h-11 border-slate-200 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-all flex items-center justify-center"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  className="w-4 h-4 mr-2"
+                  alt="G"
+                />{" "}
+                Google
+              </Button>
+              <Button
+                onClick={() => handleSocialLogin("github")}
+                variant="outline"
+                className="h-11 border-slate-200 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-all flex items-center justify-center"
+              >
+                <img
+                  src="https://www.svgrepo.com/show/512317/github-142.svg"
+                  className="w-4 h-4 mr-2"
+                  alt="GH"
+                />{" "}
+                GitHub
+              </Button>
+            </div>
           </div>
         </div>
       </div>

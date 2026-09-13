@@ -48,17 +48,28 @@ export default function ForgotPassword() {
       <div className="hidden lg:flex flex-col justify-between bg-[#050B1E] p-16 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/20 blur-[120px] rounded-full -mr-48 -mt-48" />
         <div className="relative z-10">
-          <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
-            <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
-            <span className="text-2xl font-black tracking-tighter uppercase">FLOWBOARD</span>
+          <a href="https://flowboard.team" className="flex items-center gap-2.5 mb-20 group">
+            <div className="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0">
+              <img
+                src="/flowboardlogo.png"
+                alt="Flowboard Logo"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <span className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-baseline">
+              Flowboard{" "}
+              <span className="font-semibold text-sm md:text-base opacity-80 ml-1">
+                Team
+              </span>
+            </span>
           </a>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold mb-6">
               <ShieldCheck size={14} /> Secure Access Recovery
             </div>
-            <h2 className="text-5xl font-extrabold leading-[1.1] mb-8 tracking-tight">
+            <h2 className="text-4xl sm:text-5xl font-light leading-[1.1] mb-8 tracking-tight">
               Don't lose your <br />
-              <span className="text-blue-400 text-6xl text-glow">Connection.</span>
+              <span className="text-blue-400 text-6xl text-glow font-normal">Connection.</span>
             </h2>
             <p className="text-slate-400 text-lg max-w-md font-medium">
               Our encrypted recovery system ensures you get back to the Talent Cloud safely.
@@ -71,7 +82,7 @@ export default function ForgotPassword() {
       <div className="flex flex-col justify-center px-6 py-12 lg:px-24 bg-white relative">
         <div className="max-w-[400px] mx-auto w-full">
           <div className="mb-10 text-center lg:text-left">
-            <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Recover Access</h1>
+            <h1 className="text-3xl sm:text-4xl font-light text-slate-900 mb-2 tracking-tight">Recover Access</h1>
             <p className="text-slate-500 font-medium">"Lost credentials? We've got the backup."</p>
           </div>
 
@@ -93,7 +104,7 @@ export default function ForgotPassword() {
               </div>
             </div>
 
-            <Button className="w-full h-14 bg-[#050B1E] hover:bg-blue-700 text-white font-black rounded-xl shadow-xl shadow-blue-900/10 gap-2 transition-all" disabled={isLoading || countdown > 0}>
+            <Button className="w-full h-12 bg-[#A079FF] hover:bg-[#9165f7] active:bg-[#8050ee] text-white font-medium rounded-lg shadow-md shadow-[#A079FF]/20 gap-2 transition-all transform active:scale-[0.98]" disabled={isLoading || countdown > 0}>
               {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : countdown > 0 ? (
                 <><Timer className="w-5 h-5" /> Retry in {countdown}s</>
               ) : "Send Recovery Link"}

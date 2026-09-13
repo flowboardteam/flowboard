@@ -131,6 +131,7 @@ const App = () => (
           <Route path="/partners/apply" element={<PartnerApply />} />
           <Route path="/careers/open-positions" element={<OpenPositions />} />
           <Route path="/jobs/:roleId" element={<JobPosting />} />
+          <Route path="/login" element={<Index />} />
 
           {/* Talent Auth */}
           <Route path="/talent/signup"          element={<TalentSignup />} />
@@ -229,8 +230,6 @@ const App = () => (
             <Route path="tracker"      element={<ComingSoon />} />
             <Route path="teams"        element={<ComingSoon />} />
             <Route path="apps"         element={<ComingSoon />} />
-            <Route path="analytics/hiring"       element={<ComingSoon />} />
-            <Route path="analytics/performance"  element={<ComingSoon />} />
             <Route path="payroll"      element={<ClientPayrollPage />} />
             <Route path="coming-soon"  element={<ComingSoon />} />
           </Route>

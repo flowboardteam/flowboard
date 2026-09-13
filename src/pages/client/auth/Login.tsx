@@ -13,8 +13,7 @@ import {
   Lock,
   Loader2,
   Eye,
-  EyeOff,
-  Building2
+  EyeOff
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Link, useNavigate } from "react-router-dom";
@@ -151,9 +150,20 @@ export default function ClientLogin() {
           </div>
           
           <div className="relative z-10">
-            <a href="https://flowboard.team" className="flex items-center gap-2 mb-20 group">
-              <img src="/flowboardlogo.png" alt="Logo" className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-black tracking-tighter">Flowboard</span>
+            <a href="https://flowboard.team" className="flex items-center gap-2.5 mb-20 group">
+              <div className="relative flex items-center justify-center w-7 h-7 md:w-8 md:h-8 shrink-0">
+                <img
+                  src="/flowboardlogo.png"
+                  alt="Flowboard Logo"
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <span className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-baseline">
+                Flowboard{" "}
+                <span className="font-semibold text-sm md:text-base opacity-80 ml-1">
+                  Team
+                </span>
+              </span>
             </a>
  
             <motion.div
@@ -161,12 +171,9 @@ export default function ClientLogin() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold tracking-widest uppercase mb-6">
-                <Building2 size={12} /> Client Portal
-              </div>
-              <h2 className="text-6xl font-black leading-[1.05] mb-8 tracking-tighter">
+              <h2 className="text-5xl lg:text-6xl font-light leading-[1.05] mb-8 tracking-tight">
                 Manage your <br />
-                <span className="text-white">entire workforce.</span>
+                <span className="text-white font-normal">entire workforce.</span>
               </h2>
               <div className="flex items-center gap-4 text-white/80">
                 <div className="w-10 h-10 rounded-none bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
@@ -188,9 +195,8 @@ export default function ClientLogin() {
             <p className="text-lg text-white font-medium leading-relaxed tracking-tight mb-6">
               "Centralizing our hiring process through Flowboard saved us over 40 hours of technical screening per month."
             </p>
-            <div className="flex items-center gap-3">
-               <div className="w-8 h-px bg-white/30" />
-               <p className="text-xs font-bold text-white uppercase tracking-widest">— Head of Engineering, Nozolio Labs Inc.</p>
+            <div>
+               <p className="text-sm font-medium text-white/90">Head of engineering, Nozolio Labs Inc.</p>
             </div>
           </div>
         </div>
@@ -205,28 +211,14 @@ export default function ClientLogin() {
           </div>
 
           <div className="max-w-[400px] mx-auto w-full">
-            <div className="mb-10 text-center lg:text-left">
-              <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Client Login</h1>
-              <p className="text-slate-500 font-medium">Welcome back. Your talent pipeline is waiting.</p>
+            <div className="mb-8 text-center lg:text-left">
+              <h1 className="text-3xl lg:text-4xl font-light text-slate-900 mb-2 tracking-tight">Client Login</h1>
+              <p className="text-slate-500 font-medium text-sm">Welcome back. Sign in to your Flowboard workspace.</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <Button onClick={() => handleSocialLogin("google")} variant="outline" className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
-              </Button>
-              <Button onClick={() => handleSocialLogin("github")} variant="outline" className="h-12 border-slate-200 rounded-none font-bold hover:bg-slate-50 shadow-sm">
-                <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
-              </Button>
-            </div>
-
-            <div className="relative mb-8">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100"></span></div>
-              <div className="relative flex justify-center text-[10px] uppercase text-slate-400 font-black tracking-widest"><span className="bg-white px-4">Partner Credentials</span></div>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="email">Corporate Email</Label>
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div className="space-y-1.5">
+                <Label className="text-slate-700 font-medium text-xs tracking-wide ml-1" htmlFor="email">Corporate Email</Label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
                   <Input
@@ -235,16 +227,16 @@ export default function ClientLogin() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className="h-12 pl-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                    className="h-12 pl-11 rounded-lg border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider ml-1" htmlFor="password">Password</Label>
-                  <Link to="/client/forgot-password" size="sm" className="text-xs font-bold text-slate-900 hover:underline">Forgot Password?</Link>
+                  <Label className="text-slate-700 font-medium text-xs tracking-wide ml-1" htmlFor="password">Password</Label>
+                  <Link to="/client/forgot-password" size="sm" className="text-xs font-medium text-slate-500 hover:text-slate-900 hover:underline">Forgot Password?</Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-900 transition-colors" />
@@ -254,7 +246,7 @@ export default function ClientLogin() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="h-12 pl-11 pr-11 rounded-none border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
+                    className="h-12 pl-11 pr-11 rounded-lg border-slate-200 bg-slate-50/50 focus:bg-white transition-all shadow-sm outline-none"
                     required
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors">
@@ -263,10 +255,28 @@ export default function ClientLogin() {
                 </div>
               </div>
 
-              <Button className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-none shadow-xl shadow-indigo-900/10 gap-2 transition-all transform active:scale-[0.98]" disabled={isLoading}>
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Access Dashboard <ArrowRight size={18} /></>}
+              <Button 
+                type="submit"
+                className="w-full h-12 bg-[#A079FF] hover:bg-[#9165f7] active:bg-[#8050ee] text-white font-medium rounded-lg shadow-md shadow-[#A079FF]/20 gap-2 transition-all transform active:scale-[0.98]" 
+                disabled={isLoading}
+              >
+                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight size={18} /></>}
               </Button>
             </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-200"></span></div>
+              <div className="relative flex justify-center text-xs text-slate-400 font-normal"><span className="bg-white px-3">or continue with</span></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button onClick={() => handleSocialLogin("google")} variant="outline" className="h-11 border-slate-200 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-all flex items-center justify-center">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 mr-2" alt="G" /> Google
+              </Button>
+              <Button onClick={() => handleSocialLogin("github")} variant="outline" className="h-11 border-slate-200 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 shadow-sm transition-all flex items-center justify-center">
+                <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 mr-2" alt="GH" /> GitHub
+              </Button>
+            </div>
           </div>
         </div>
       </div>

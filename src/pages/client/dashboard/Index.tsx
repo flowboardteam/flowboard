@@ -10,7 +10,9 @@ import {
   Plus,
   Zap,
   Clock,
-  Briefcase
+  Briefcase,
+  Sparkles,
+  X
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useGroups } from "@/contexts/GroupContext";
@@ -19,6 +21,7 @@ import { Loader2 } from "lucide-react";
 
 export default function ClientDashboardIndex() {
   const [profile, setProfile] = useState<any>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const { activeGroup, acceptPendingInvite, declinePendingInvite } = useGroups();
   const [isAccepting, setIsAccepting] = useState(false);
@@ -30,7 +33,7 @@ export default function ClientDashboardIndex() {
       if (user) {
         const { data } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, onboarding_completed")
           .eq("id", user.id)
           .single();
         setProfile(data);
@@ -98,6 +101,37 @@ export default function ClientDashboardIndex() {
 
   return (
     <div className="space-y-10 pb-20">
+      {/* Incomplete Onboarding Notice (Styled like BMG CRM header banner) */}
+      {profile && !profile.onboarding_completed && !bannerDismissed && (
+        <div className="relative overflow-hidden rounded-xl bg-[#24346e] border border-blue-400/20 px-4 py-2.5 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-fade-in">
+          <div className="flex items-center gap-2.5 text-left min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              <span className="font-bold text-white bg-white/15 px-2.5 py-0.5 rounded-full text-[11px] shrink-0">
+                Setup Incomplete
+              </span>
+              <span className="text-white/80 font-normal">
+                - Finish setting up your organization profile to unlock all platform and AI capabilities.
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            <Link
+              to="/client/onboarding"
+              className="text-xs font-semibold px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg transition-all flex items-center border border-white/20 shadow-sm"
+            >
+              Complete Setup
+            </Link>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="text-white/60 hover:text-white p-1 rounded transition-colors"
+              title="Dismiss notice"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Pending invitation banner */}
       {activeGroup?.is_pending_invite && (
         <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl animate-fade-in">
