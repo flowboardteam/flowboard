@@ -9,11 +9,12 @@ import {
   MoreHorizontal, Loader2, RefreshCw, UserPlus, Briefcase,
   Clock, Building2, Zap, Trash2, AlertTriangle, History,
   FileText, Send, ArrowRightLeft, Pencil, TrendingUp, Info,
-  BookOpen, CheckCircle2,
+  BookOpen, CheckCircle2, LayoutList, Kanban, ShieldCheck
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { useGroups } from "@/contexts/GroupContext";
+import { COUNTRY_LIST, CURRENCY_LIST, addUnifiedMember } from "@/lib/workforceSync";
 
 type MemberType   = "employee"|"hired_full_time"|"hired_contract";
 type OnlineStatus = "online"|"away"|"offline";
@@ -437,9 +438,318 @@ function EditMemberModal({member,onClose,onSave,saving}:{member:WorkforceMember;
 }
 
 function AddMemberModal({onAdd,onClose,saving}:any){
-  const [form,setForm]=useState({full_name:"",email:"",role_title:"",location:"",department:"",member_type:"employee" as MemberType,start_date:new Date().toISOString().split("T")[0],payment_monthly:""});
-  const upd=(k:string,v:string)=>setForm(p=>({...p,[k]:v}));
-  return(<AnimatePresence><motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose} className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center p-4"><motion.div initial={{opacity:0,scale:0.95,y:16}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:0.95,y:16}} onClick={e=>e.stopPropagation()} className="w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto"><div className="flex items-start justify-between mb-6"><div><h2 className="text-lg font-black dark:text-white tracking-tight">Add workforce member</h2><p className="text-xs font-bold text-slate-400 mt-1">Add manually</p></div><button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 shrink-0"><X className="w-4 h-4"/></button></div><div className="space-y-4"><div><label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Member type *</label><div className="grid grid-cols-3 gap-2">{(["employee","hired_full_time","hired_contract"] as MemberType[]).map(t=>{const cfg=TYPE_CFG[t];return<button key={t} type="button" onClick={()=>upd("member_type",t)} className={`py-2.5 px-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border text-center leading-tight ${form.member_type===t?`${cfg.bg} ${cfg.color} border-current`:"border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>{cfg.label}</button>;})}</div></div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{[{k:"full_name",l:"Full name *",p:"Cameron Williamson"},{k:"email",l:"Email",p:"email@company.com"},{k:"role_title",l:"Role title",p:"Senior Engineer"},{k:"location",l:"Location",p:"Remote (Ghana)"}].map(f=>(<div key={f.k}><label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{f.l}</label><input value={(form as any)[f.k]} onChange={e=>upd(f.k,e.target.value)} placeholder={f.p} className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"/></div>))}</div><div className="grid grid-cols-1 sm:grid-cols-2 gap-4"><div><label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Start date</label><input type="date" value={form.start_date} onChange={e=>upd("start_date",e.target.value)} className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"/></div><div><label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Monthly payment</label><input value={form.payment_monthly} onChange={e=>upd("payment_monthly",e.target.value)} placeholder="e.g. 5000" type="number" className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-sm font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"/></div></div></div><div className="flex gap-3 mt-6"><button onClick={onClose} className="flex-1 py-3.5 border border-[var(--border-color)] text-[10px] font-black uppercase tracking-widest text-slate-500 rounded-xl hover:bg-slate-500/5 transition-all">Cancel</button><button onClick={()=>onAdd(form)} disabled={!form.full_name.trim()||saving} className="flex-1 py-3.5 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#1A1C21] transition-all flex items-center justify-center gap-2 shadow-md shadow-slate-900/10 disabled:opacity-40">{saving?<Loader2 className="w-3.5 h-3.5 animate-spin"/>:<UserPlus className="w-3.5 h-3.5"/>}Add member</button></div></motion.div></motion.div></AnimatePresence>);
+  const [classification, setClassification] = useState<"eor"|"contractor"|"employee">("eor");
+  const [form, setForm] = useState({
+    full_name: "",
+    email: "",
+    role_title: "",
+    department: "Engineering",
+    country: "Nigeria",
+    currency: "USD",
+    amount: "",
+    start_date: new Date().toISOString().split("T")[0],
+    // EOR settings
+    benefitsTier: "Standard Statutory + Pension",
+    // Contractor settings
+    agreementType: "Monthly Retainer",
+    paymentTerms: "Net 0",
+    sowDescription: ""
+  });
+
+  const upd = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+
+  const handleCountryChange = (cName: string) => {
+    const found = COUNTRY_LIST.find(c => c.name === cName);
+    setForm(p => ({
+      ...p,
+      country: cName,
+      currency: found ? found.currency : p.currency
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (!form.full_name.trim() || !form.role_title.trim() || !form.amount.trim()) {
+      return;
+    }
+
+    const member_type: MemberType = 
+      classification === "contractor" ? "hired_contract" : classification === "eor" ? "employee" : "hired_full_time";
+
+    const payload = {
+      ...form,
+      member_type,
+      location: form.country,
+      payment_monthly: form.amount,
+      payment_currency: form.currency,
+      classification,
+      eor_settings: classification === "eor" ? {
+        country: form.country,
+        countryCode: COUNTRY_LIST.find(c => c.name === form.country)?.code || "GL",
+        entity: COUNTRY_LIST.find(c => c.name === form.country)?.entity || `Flowboard Global EOR (${form.country})`,
+        benefitsTier: form.benefitsTier
+      } : undefined,
+      contractor_settings: classification === "contractor" ? {
+        agreementType: form.agreementType,
+        paymentTerms: form.paymentTerms,
+        rateUnit: form.agreementType === "Hourly" ? "/hr" : form.agreementType === "Monthly Retainer" ? "/month" : " milestone",
+        sowDescription: form.sowDescription,
+        complianceStatus: "Verified"
+      } : undefined
+    };
+
+    onAdd(payload);
+  };
+
+  const selectedCountryObj = COUNTRY_LIST.find(c => c.name === form.country);
+
+  return (
+    <AnimatePresence>
+      <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={onClose} className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm flex items-center justify-center p-4">
+        <motion.div initial={{opacity:0,scale:0.95,y:16}} animate={{opacity:1,scale:1,y:0}} exit={{opacity:0,scale:0.95,y:16}} onClick={e=>e.stopPropagation()} className="w-full max-w-lg bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+          
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h2 className="text-base font-semibold dark:text-white tracking-tight">Add Team Member</h2>
+              <p className="text-xs text-slate-400 mt-0.5 font-medium">Designate talent as EOR Employee or Independent Contractor</p>
+            </div>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-500/10 text-slate-400 shrink-0">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Classification Selector */}
+          <div className="mb-5">
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+              Employment Classification *
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setClassification("eor")}
+                className={`py-2.5 px-2 rounded-xl text-xs font-semibold transition-all border text-center flex flex-col items-center gap-1 ${
+                  classification === "eor" 
+                    ? "bg-[#1A1C21] text-white border-[#1A1C21] shadow-xs" 
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>EOR Talent</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setClassification("contractor")}
+                className={`py-2.5 px-2 rounded-xl text-xs font-semibold transition-all border text-center flex flex-col items-center gap-1 ${
+                  classification === "contractor" 
+                    ? "bg-[#1A1C21] text-white border-[#1A1C21] shadow-xs" 
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <Briefcase className="w-3.5 h-3.5 text-blue-400" />
+                <span>Contractor</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setClassification("employee")}
+                className={`py-2.5 px-2 rounded-xl text-xs font-semibold transition-all border text-center flex flex-col items-center gap-1 ${
+                  classification === "employee" 
+                    ? "bg-[#1A1C21] text-white border-[#1A1C21] shadow-xs" 
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5 text-purple-400" />
+                <span>Direct Hire</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Core Info */}
+          <div className="space-y-3.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Full Name *</label>
+                <input 
+                  value={form.full_name} 
+                  onChange={e => upd("full_name", e.target.value)} 
+                  placeholder="e.g. Cameron Williamson" 
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Work Email</label>
+                <input 
+                  value={form.email} 
+                  type="email"
+                  onChange={e => upd("email", e.target.value)} 
+                  placeholder="cameron@company.com" 
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Role / Job Title *</label>
+                <input 
+                  value={form.role_title} 
+                  onChange={e => upd("role_title", e.target.value)} 
+                  placeholder="e.g. Staff AI Systems Engineer" 
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Department</label>
+                <select 
+                  value={form.department} 
+                  onChange={e => upd("department", e.target.value)}
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Design">Design</option>
+                  <option value="Product">Product</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Marketing">Marketing</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Country Selection */}
+            <div>
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Country *</label>
+              <select 
+                value={form.country} 
+                onChange={e => handleCountryChange(e.target.value)}
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+              >
+                {COUNTRY_LIST.map(c => (
+                  <option key={c.code} value={c.name}>
+                    {c.flag} {c.name} ({c.currency})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Amount & Currency */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  {classification === "contractor" ? "Rate / Compensation *" : "Monthly Gross Salary *"}
+                </label>
+                <input 
+                  value={form.amount} 
+                  onChange={e => upd("amount", e.target.value)} 
+                  placeholder="e.g. 5000" 
+                  type="number" 
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Currency *</label>
+                <select 
+                  value={form.currency} 
+                  onChange={e => upd("currency", e.target.value)}
+                  className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+                >
+                  {CURRENCY_LIST.map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Specific Settings for EOR */}
+            {classification === "eor" && (
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>EOR Legal Entity: {selectedCountryObj?.entity || "Flowboard Global EOR"}</span>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Benefits Package Tier</label>
+                  <select 
+                    value={form.benefitsTier} 
+                    onChange={e => upd("benefitsTier", e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none"
+                  >
+                    <option value="Standard Statutory + Pension">Standard (Statutory Minimum + Pension)</option>
+                    <option value="Premium (Health + Pension + Tech)">Premium (Health + Pension + Remote Allowance)</option>
+                    <option value="Comprehensive Coverage">Comprehensive (Full Inpatient/Dental + Wellness)</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Specific Settings for Contractor */}
+            {classification === "contractor" && (
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Agreement Type</label>
+                    <select 
+                      value={form.agreementType} 
+                      onChange={e => upd("agreementType", e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none"
+                    >
+                      <option value="Monthly Retainer">Monthly Retainer</option>
+                      <option value="Hourly">Hourly</option>
+                      <option value="Fixed Scope">Fixed Scope</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Payment Terms</label>
+                    <select 
+                      value={form.paymentTerms} 
+                      onChange={e => upd("paymentTerms", e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium outline-none"
+                    >
+                      <option value="Net 0">Immediate (Net 0)</option>
+                      <option value="Net 15">Net 15 days</option>
+                      <option value="Net 30">Net 30 days</option>
+                      <option value="Bi-weekly">Bi-weekly cadence</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Start Date</label>
+              <input 
+                type="date" 
+                value={form.start_date} 
+                onChange={e => upd("start_date", e.target.value)} 
+                className="w-full bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-3.5 py-2.5 text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <button 
+              onClick={onClose} 
+              className="flex-1 py-3 border border-[var(--border-color)] text-xs font-semibold text-slate-500 rounded-xl hover:bg-slate-50 transition-all"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleSubmit} 
+              disabled={!form.full_name.trim() || !form.role_title.trim() || !form.amount.trim() || saving} 
+              className="flex-1 py-3 bg-[#1A1C21] text-white text-xs font-semibold rounded-xl hover:bg-black transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
+              Add Member
+            </button>
+          </div>
+
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
 }
 
 export default function ActiveWorkforcePage(){
@@ -460,6 +770,7 @@ export default function ActiveWorkforcePage(){
   const [directEditTarget,setDirectEditTarget]=useState<WorkforceMember|null>(null);
   const [showAddModal,setShowAddModal]=useState(false);
   const [saving,setSaving]=useState(false);
+  const [viewMode, setViewMode]=useState<"list"|"kanban">("list");
 
   const fetchAll=useCallback(async()=>{
     setLoading(true);setError(null);
@@ -617,52 +928,29 @@ export default function ActiveWorkforcePage(){
   const handleAddMember=async(form:any)=>{
     setSaving(true);
     try{
-      const {data:{user}}=await supabase.auth.getUser();
-      if(!user) throw new Error("Not authenticated");
+      await addUnifiedMember({
+        full_name: form.full_name,
+        email: form.email || null,
+        role_title: form.role_title,
+        department: form.department || "Engineering",
+        location: form.location || form.country || "Global",
+        start_date: form.start_date,
+        payment_monthly: form.payment_monthly ? Number(form.payment_monthly) : null,
+        payment_currency: form.payment_currency || "USD",
+        employment_model: form.classification || (form.member_type === "hired_contract" ? "contractor" : "eor"),
+        status: "Active",
+        eor_settings: form.eor_settings,
+        contractor_settings: form.contractor_settings
+      });
 
-      const {data:inserted,error:insErr}=await supabase.from("workforce_members").insert({
-        organization_id: user.id,
-        group_id:        activeGroup?.id || null,
-        full_name:       form.full_name,
-        email:           form.email||null,
-        role_title:      form.role_title||null,
-        location:        form.location||null,
-        department:      form.department||null,
-        member_type:     form.member_type,
-        start_date:      form.start_date||null,
-        payment_monthly: form.payment_monthly?Number(form.payment_monthly):null,
-        payment_currency:"USD",
-        is_active:       true,
-        online_status:   "online",
-        availability_status:"available"
-      }).select().single();
-
-      if(insErr){
-        throw insErr;
-      } else {
-        // Log to employment_history
-        await supabase.from("employment_history").insert({
-          workforce_member_id: inserted.id,
-          change_type: "hired",
-          new_values: {
-            full_name: inserted.full_name,
-            role_title: inserted.role_title,
-            member_type: inserted.member_type,
-            payment_monthly: inserted.payment_monthly
-          },
-          old_values: {},
-          notes: "Manually hired and onboarded to organization.",
-          triggered_by: "HR Manager"
-        });
-
-        // Refresh from DB so we get the canonical data
-        await fetchAll();
-      }
-
+      await fetchAll();
       toast({title:"Member added ✓"});
       setShowAddModal(false);
-    }catch(err:any){toast({variant:"destructive",title:"Error",description:err.message});}
-    finally{setSaving(false);}
+    }catch(err:any){
+      toast({variant:"destructive",title:"Error",description:err.message});
+    }finally{
+      setSaving(false);
+    }
   };
 
   const handleAssignProject=async({projectId,role}:any)=>{
@@ -854,27 +1142,51 @@ export default function ActiveWorkforcePage(){
     <div className="w-full space-y-6 pb-20 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">Team</h1>
-          <p className="text-sm font-medium text-slate-400">{counts.employee} Employees · {counts.hired_full_time} Partners · {counts.hired_contract} Contractors</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold dark:text-white tracking-tight">Team</h1>
+          <p className="text-xs font-medium text-slate-400">{counts.employee} Employees · {counts.hired_full_time} Partners · {counts.hired_contract} Contractors</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={fetchAll} className="p-3 border border-[var(--border-color)] rounded-xl text-slate-400 hover:bg-slate-500/5 transition-all" title="Refresh"><RefreshCw className="w-4 h-4"/></button>
-          <button onClick={()=>setShowAddModal(true)} className="flex items-center gap-2 px-5 py-3 bg-[#1A1C21] text-white font-bold text-xs tracking-tight rounded-xl hover:bg-black transition-all shadow-md shadow-slate-900/10"><UserPlus className="w-4 h-4"/> Add member</button>
+          {/* View mode toggle */}
+          <div className="flex items-center gap-1 bg-slate-100/80 border border-slate-200 p-1 rounded-xl mr-1">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                viewMode === "list" 
+                  ? "bg-white text-black shadow-xs" 
+                  : "text-slate-500 hover:text-black"
+              }`}
+            >
+              <LayoutList className="w-3.5 h-3.5" /> List
+            </button>
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                viewMode === "kanban" 
+                  ? "bg-white text-black shadow-xs" 
+                  : "text-slate-500 hover:text-black"
+              }`}
+            >
+              <Kanban className="w-3.5 h-3.5" /> Kanban
+            </button>
+          </div>
+
+          <button onClick={fetchAll} className="p-2.5 border border-[var(--border-color)] rounded-xl text-slate-400 hover:bg-slate-500/5 transition-all" title="Refresh"><RefreshCw className="w-4 h-4"/></button>
+          <button onClick={()=>setShowAddModal(true)} className="flex items-center gap-2 px-4 py-2.5 bg-[#1A1C21] text-white font-semibold text-xs tracking-tight rounded-xl hover:bg-black transition-all shadow-sm"><UserPlus className="w-4 h-4"/> Add member</button>
         </div>
       </div>
 
-      {expiringCount>0&&(<motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} className="flex items-center gap-3 p-4 rounded-xl bg-[#1A1C21]/5 border border-slate-200"><AlertTriangle className="w-5 h-5 text-slate-900 shrink-0"/><div><p className="text-xs font-black text-slate-900 uppercase tracking-widest">{expiringCount} contract{expiringCount>1?"s":""} expiring within 7 days</p><p className="text-[11px] font-medium text-slate-500 mt-0.5">Review highlighted cards and send a contract extension request.</p></div></motion.div>)}
+      {expiringCount>0&&(<motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} className="flex items-center gap-3 p-4 rounded-xl bg-[#1A1C21]/5 border border-slate-200"><AlertTriangle className="w-5 h-5 text-slate-900 shrink-0"/><div><p className="text-xs font-semibold text-slate-900 uppercase tracking-widest">{expiringCount} contract{expiringCount>1?"s":""} expiring within 7 days</p><p className="text-[11px] font-medium text-slate-500 mt-0.5">Review highlighted cards and send a contract extension request.</p></div></motion.div>)}
 
       <div className="p-4 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1"><Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, role, or location..." className="w-full pl-10 pr-4 py-3 bg-slate-500/5 border border-[var(--border-color)] rounded-xl text-sm font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"/></div>
-          <button onClick={()=>setFiltersOpen(v=>!v)} className={`flex items-center gap-2 px-4 py-3 border rounded-xl text-xs font-black uppercase tracking-widest transition-all ${filtersOpen?"bg-[#1A1C21] text-white border-[#1A1C21]":"border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}><SlidersHorizontal className="w-3.5 h-3.5"/> Filters</button>
+          <div className="relative flex-1"><Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, role, or location..." className="w-full pl-10 pr-4 py-2.5 bg-slate-500/5 border border-[var(--border-color)] rounded-xl text-xs font-medium outline-none focus:ring-2 ring-slate-900/10 transition-all"/></div>
+          <button onClick={()=>setFiltersOpen(v=>!v)} className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${filtersOpen?"bg-[#1A1C21] text-white border-[#1A1C21]":"border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}><SlidersHorizontal className="w-3.5 h-3.5"/> Filters</button>
         </div>
-        <AnimatePresence>{filtersOpen&&(<motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} className="overflow-hidden"><div className="relative pt-1"><select value={filterDept} onChange={e=>setFilterDept(e.target.value)} className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest text-slate-500 outline-none cursor-pointer">{depts.map(d=><option key={d}>{d}</option>)}</select><ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"/></div></motion.div>)}</AnimatePresence>
+        <AnimatePresence>{filtersOpen&&(<motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}} className="overflow-hidden"><div className="relative pt-1"><select value={filterDept} onChange={e=>setFilterDept(e.target.value)} className="w-full appearance-none bg-slate-500/5 border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-slate-500 outline-none cursor-pointer">{depts.map(d=><option key={d}>{d}</option>)}</select><ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"/></div></motion.div>)}</AnimatePresence>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {TABS.map(tab=>{const Icon=tab.icon;return(<button key={tab.key} onClick={()=>setActiveTab(tab.key)} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeTab===tab.key?"bg-[var(--card-bg)] text-[#1A1C21] border-[#1A1C21]/30 shadow-sm":"border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}><Icon className="w-3.5 h-3.5"/>{tab.label}<span className="text-[9px] opacity-60">{counts[tab.key as keyof typeof counts]}</span></button>);})}
+        {TABS.map(tab=>{const Icon=tab.icon;return(<button key={tab.key} onClick={()=>setActiveTab(tab.key)} className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold tracking-tight transition-all border ${activeTab===tab.key?"bg-[var(--card-bg)] text-[#1A1C21] border-[#1A1C21]/30 shadow-sm":"border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}><Icon className="w-3.5 h-3.5"/>{tab.label}<span className="text-[10px] opacity-60 ml-1">{counts[tab.key as keyof typeof counts]}</span></button>);})}
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -883,19 +1195,86 @@ export default function ActiveWorkforcePage(){
           {label:"On projects",    value:members.filter(m=>m.projects.length>0).length},
           {label:"Unassigned",     value:members.filter(m=>m.projects.length===0).length},
           {label:"On leave",       value:members.filter(m=>m.availability_status==="on_leave").length},
-        ].map(s=>(<div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p><p className="text-2xl font-black dark:text-white">{s.value}</p></div>))}
+        ].map(s=>(<div key={s.label} className="bg-[var(--card-bg)] border border-[var(--border-color)] rounded-2xl p-4"><p className="text-[9px] font-semibold uppercase tracking-wider text-slate-400 mb-1">{s.label}</p><p className="text-xl font-semibold dark:text-white">{s.value}</p></div>))}
       </div>
 
-      <AnimatePresence mode="popLayout">
-        {filtered.length>0?(<motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"><AnimatePresence>{filtered.map(m=><MemberCard key={m.id} member={m} onAssign={setAssignTarget} onView={setProfileTarget} onRemove={handleRemove}/>)}</AnimatePresence></motion.div>):(
-          <motion.div initial={{opacity:0}} animate={{opacity:1}} className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
-            <Users className="w-12 h-12 text-slate-300 mx-auto"/>
-            <h3 className="text-xl font-black tracking-tight dark:text-white">{search?"No members match":"No workforce members yet"}</h3>
-            <p className="text-sm text-slate-400">{search?"Try a different search":"Hire talents or add employees to get started"}</p>
-            {!search&&<button onClick={()=>setShowAddModal(true)} className="inline-flex items-center gap-2 px-6 py-3 bg-[#1A1C21] text-white text-[11px] font-bold tracking-tight rounded-xl hover:bg-black transition-all shadow-md shadow-[#1A1C21]/20"><UserPlus className="w-3.5 h-3.5"/> Add member</button>}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {viewMode === "list" ? (
+        <AnimatePresence mode="popLayout">
+          {filtered.length>0?(<motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"><AnimatePresence>{filtered.map(m=><MemberCard key={m.id} member={m} onAssign={setAssignTarget} onView={setProfileTarget} onRemove={handleRemove}/>)}</AnimatePresence></motion.div>):(
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} className="py-24 text-center space-y-4 bg-slate-500/5 rounded-2xl border border-dashed border-[var(--border-color)]">
+              <Users className="w-12 h-12 text-slate-300 mx-auto"/>
+              <h3 className="text-base font-semibold tracking-tight dark:text-white">{search?"No members match":"No workforce members yet"}</h3>
+              <p className="text-xs text-slate-400">{search?"Try a different search":"Hire talents or add employees to get started"}</p>
+              {!search&&<button onClick={()=>setShowAddModal(true)} className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1A1C21] text-white text-xs font-semibold tracking-tight rounded-xl hover:bg-black transition-all shadow-sm"><UserPlus className="w-3.5 h-3.5"/> Add member</button>}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      ) : (
+        /* KANBAN VIEW FOR TEAM */
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { key: "employee", title: "EOR Employees", type: "employee" as MemberType, color: "bg-emerald-500" },
+            { key: "hired_contract", title: "Contractors", type: "hired_contract" as MemberType, color: "bg-blue-500" },
+            { key: "hired_full_time", title: "Partners & Direct", type: "hired_full_time" as MemberType, color: "bg-purple-500" }
+          ].map(col => {
+            const colMembers = filtered.filter(m => m.member_type === col.type);
+            return (
+              <div key={col.key} className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col">
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${col.color}`} />
+                    <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider">{col.title}</h4>
+                  </div>
+                  <span className="text-[10px] font-bold bg-white text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
+                    {colMembers.length}
+                  </span>
+                </div>
+
+                <div className="space-y-3 flex-1">
+                  {colMembers.map(m => (
+                    <div 
+                      key={m.id}
+                      onClick={() => setProfileTarget(m)}
+                      className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-xs hover:border-slate-300 transition-all cursor-pointer space-y-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <MemberAvatar member={m} size="sm" />
+                          <div className="min-w-0">
+                            <h5 className="text-xs font-semibold text-slate-900 truncate">{rName(m)}</h5>
+                            <p className="text-[10px] text-slate-400 truncate">{m.role_title || "Team Member"}</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded shrink-0">
+                          {rLocation(m) || "Global"}
+                        </span>
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between border-t border-slate-100 text-xs">
+                        <span className="font-semibold text-slate-800">
+                          {fmtCurrency(m.payment_monthly, m.payment_currency)}
+                        </span>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setAssignTarget(m); }}
+                          className="text-[10px] font-semibold text-[#A079FF] hover:underline"
+                        >
+                          Assign Project
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {colMembers.length === 0 && (
+                    <div className="p-8 border border-dashed border-slate-300 rounded-xl text-center text-slate-400 text-xs font-medium">
+                      No members in {col.title.toLowerCase()}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <AnimatePresence>{showAddModal&&<AddMemberModal onAdd={handleAddMember} onClose={()=>setShowAddModal(false)} saving={saving}/>}</AnimatePresence>
       <AnimatePresence>{assignTarget&&<AssignProjectModal member={assignTarget} projects={projects} navigate={navigate} onAssign={handleAssignProject} onClose={()=>setAssignTarget(null)} saving={saving}/>}</AnimatePresence>

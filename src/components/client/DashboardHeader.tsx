@@ -112,8 +112,8 @@ export default function DashboardHeader({
         <nav className="hidden lg:flex items-center gap-1">
           <Link 
             to="/client/dashboard" 
-            className={`px-4 py-2 text-sm font-black rounded-xl transition-all ${
-              location.pathname === "/client/dashboard" ? "text-[#A079FF] bg-[#A079FF]/5" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+            className={`px-3.5 py-1.5 text-xs sm:text-sm font-medium rounded-xl transition-all ${
+              location.pathname === "/client/dashboard" ? "text-[#A079FF] bg-[#A079FF]/5" : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             Home
@@ -126,10 +126,10 @@ export default function DashboardHeader({
               onMouseLeave={() => setActiveGroup(null)}
             >
               <button
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-black transition-all rounded-xl ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all rounded-xl ${
                   activeGroup === group.label || group.items.some(i => location.pathname === i.path)
                     ? "text-[#A079FF] bg-[#A079FF]/5"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
                 {group.label}
@@ -140,7 +140,7 @@ export default function DashboardHeader({
               {activeGroup === group.label && (
                 <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 px-3">
                       Go to {group.label}
                     </p>
                     <div className="space-y-1">
@@ -150,10 +150,10 @@ export default function DashboardHeader({
                           <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all font-bold text-xs ${
+                            className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-all font-medium text-xs ${
                               isActive
                                 ? "bg-[#A079FF]/10 text-[#A079FF]"
-                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                             }`}
                           >
                             <item.icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#A079FF]" : "text-slate-400"}`} />
@@ -215,8 +215,8 @@ export default function DashboardHeader({
               )}
             </div>
             <div className="hidden sm:block text-left pr-2">
-              <p className="text-[11px] font-black text-slate-900 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
-              <p className="text-[9px] text-[#A079FF] font-black uppercase tracking-widest mt-1 opacity-80">{profile?.role_type || "Client"}</p>
+              <p className="text-[11px] font-semibold text-slate-800 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
+              <p className="text-[9px] text-[#A079FF] font-semibold uppercase tracking-wider mt-0.5 opacity-80">{profile?.role_type || "Client"}</p>
             </div>
           </button>
 
@@ -224,18 +224,18 @@ export default function DashboardHeader({
             <>
               <div className="fixed inset-0 z-[-1]" onClick={() => setIsProfileOpen(false)} />
               <div className="absolute right-0 mt-3 w-56 bg-white border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-4 border-b border-slate-50 mb-1">
-                   <p className="text-[10px] font-black uppercase text-slate-400">Account</p>
-                   <p className="text-sm font-black text-slate-900 truncate">{profile?.full_name}</p>
+                <div className="p-3.5 border-b border-slate-50 mb-1">
+                   <p className="text-[10px] font-semibold uppercase text-slate-400">Account</p>
+                   <p className="text-xs font-semibold text-slate-900 truncate">{profile?.full_name}</p>
                 </div>
-                <Link to="/client/profile" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/client/profile" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <User className="w-4 h-4" /> Profile Settings
                 </Link>
-                <Link to="/client/settings" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/client/settings" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <Settings className="w-4 h-4" /> System Preference
                 </Link>
                 <div className="h-px bg-slate-50 my-1" />
-                <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 text-xs font-black text-red-500 hover:bg-red-50 hover:text-red-600 w-full rounded-xl transition-all">
+                <button onClick={handleLogout} className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-red-500 hover:bg-red-50 hover:text-red-600 w-full rounded-xl transition-all">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </div>

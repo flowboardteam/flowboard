@@ -82,7 +82,7 @@ export default function DashboardIndex() {
 
       {/* Welcome Header */}
       <div className="text-center pt-4">
-        <h1 className="text-3xl md:text-4xl font-black text-[#1A1C21] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#1A1C21] tracking-tight">
           Welcome, {firstName} 👋
         </h1>
       </div>
@@ -131,7 +131,7 @@ export default function DashboardIndex() {
       {(activeTab === "All" || activeTab === "Teams") && (
         <div className="relative h-[200px] rounded-2xl bg-[#A079FF]/10 overflow-hidden flex items-center group shadow-sm border border-[#A079FF]/30">
           <div className="relative z-10 pl-8 md:pl-12 max-w-lg space-y-2.5">
-            <h2 className="text-lg md:text-xl font-bold text-[#1A1C21] tracking-tight leading-snug">
+            <h2 className="text-base sm:text-lg font-semibold text-[#1A1C21] tracking-tight leading-snug">
               Drive growth with Engage
             </h2>
             <p className="text-xs sm:text-sm font-medium text-[#1A1C21]/70 leading-relaxed">

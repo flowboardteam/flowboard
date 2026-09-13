@@ -186,7 +186,7 @@ export default function ClientDashboardIndex() {
 
       {/* Header Section */}
       <div className="space-y-4">
-        <h1 className="text-3xl md:text-4xl font-black tracking-tight text-[#1A1C21]">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1A1C21]">
           Welcome, {profile?.full_name?.split(" ")[0] || "there"} 👋
         </h1>
         
@@ -209,7 +209,7 @@ export default function ClientDashboardIndex() {
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/20 blur-[90px] rounded-full -mr-40 -mt-40 group-hover:bg-white/30 transition-all duration-700" />
           
           <div className="relative z-10 space-y-4">
-            <h2 className="text-3xl md:text-4xl lg:text-[40px] font-black leading-[1.08] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-semibold leading-[1.15] tracking-tight">
               Find your next <br /> big talent.
             </h2>
             <p className="max-w-md text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
@@ -310,7 +310,7 @@ export default function ClientDashboardIndex() {
             </div>
             
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1 px-1">Payroll Cycle</p>
-            <h3 className="text-xl font-extrabold text-[#1A1C21] tracking-tight mb-5 px-1">{stats.payroll}</h3>
+            <h3 className="text-xl font-semibold text-[#1A1C21] tracking-tight mb-5 px-1">{stats.payroll}</h3>
             
             <div className="space-y-3 pt-4 border-t border-slate-100">
               <div className="flex justify-between items-center text-xs">
@@ -333,12 +333,12 @@ export default function ClientDashboardIndex() {
              <div className="p-4 bg-white rounded-xl border border-[var(--border-color)] shadow-sm">
                 <Briefcase size={15} className="text-slate-400 mb-2" />
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Active Roles</p>
-                <p className="text-lg font-black text-[#1A1C21]">{stats.activeRoles}</p>
+                <p className="text-lg font-semibold text-[#1A1C21]">{stats.activeRoles}</p>
              </div>
              <div className="p-4 bg-white rounded-xl border border-[var(--border-color)] shadow-sm">
                 <Clock size={15} className="text-slate-400 mb-2" />
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Time Logs</p>
-                <p className="text-lg font-black text-[#1A1C21]">{stats.timeLogs}</p>
+                <p className="text-lg font-semibold text-[#1A1C21]">{stats.timeLogs}</p>
              </div>
           </div>
 

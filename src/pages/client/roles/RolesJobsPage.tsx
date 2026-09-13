@@ -598,19 +598,19 @@ export default function RolesJobsPage() {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-[#A079FF] text-[11px] font-bold tracking-widest">
+          <div className="flex items-center gap-2 text-[#A079FF] text-[11px] font-semibold tracking-wider">
             <BriefcaseBusiness className="w-3.5 h-3.5" /> Roles & jobs
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-white tracking-tight">
             Build your team.
           </h1>
-          <p className="text-sm font-medium text-slate-400">
+          <p className="text-xs font-medium text-slate-400">
             {counts.open} open · {counts.draft} drafts · {counts.closed} closed
           </p>
         </div>
         <button
           onClick={() => navigate("/client/roles/create")}
-          className="w-full md:w-auto px-8 py-4 bg-[#A079FF] text-white font-black text-xs tracking-widest rounded-md hover:bg-[#A079FF]/90 transition-all hover:scale-105 shadow-lg shadow-[#A079FF]/20 flex items-center justify-center gap-2"
+          className="w-full md:w-auto px-6 py-3 bg-[#A079FF] text-white font-semibold text-xs tracking-wider rounded-lg hover:bg-[#A079FF]/90 transition-all shadow-md shadow-[#A079FF]/20 flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" /> Create role
         </button>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { 
   Users, Briefcase, Plus, Search, CheckCircle2, 
   AlertCircle, FileText, ArrowUpRight, DollarSign, 
-  Calendar, ShieldCheck, Filter, Download, MoreVertical, CreditCard
+  Calendar, ShieldCheck, Filter, Download, MoreVertical, 
+  CreditCard, LayoutList, Kanban, MapPin, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,274 +31,264 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Contractor {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  country: string;
-  countryCode: string;
-  agreementType: "Monthly Retainer" | "Hourly" | "Fixed Scope";
-  rate: number;
-  rateUnit: string;
-  paymentTerms: "Net 0" | "Net 15" | "Net 30" | "Bi-weekly";
-  complianceStatus: "Verified" | "Action Required" | "In Review";
-  status: "Active" | "Onboarding" | "Paused";
-  startDate: string;
-  sowDescription: string;
-}
-
-const INITIAL_CONTRACTORS: Contractor[] = [
-  {
-    id: "CTR-101",
-    name: "Alex Rivera",
-    email: "alex.rivera@dev.io",
-    role: "Senior Frontend Engineer (React/Next.js)",
-    country: "Nigeria",
-    countryCode: "NG",
-    agreementType: "Monthly Retainer",
-    rate: 4200,
-    rateUnit: "/month",
-    paymentTerms: "Net 0",
-    complianceStatus: "Verified",
-    status: "Active",
-    startDate: "Nov 01, 2025",
-    sowDescription: "Lead frontend architecture, design system component migration, and performance optimization for web apps."
-  },
-  {
-    id: "CTR-102",
-    name: "Fatima Al-Sayed",
-    email: "fatima.cloud@architect.me",
-    role: "Cloud DevOps & Terraform Specialist",
-    country: "Egypt",
-    countryCode: "EG",
-    agreementType: "Monthly Retainer",
-    rate: 4800,
-    rateUnit: "/month",
-    paymentTerms: "Net 15",
-    complianceStatus: "Verified",
-    status: "Active",
-    startDate: "Dec 15, 2025",
-    sowDescription: "Automate multi-region AWS and Supabase disaster recovery scripts and continuous integration pipelines."
-  },
-  {
-    id: "CTR-103",
-    name: "Kofi Owusu",
-    role: "Fullstack Python / FastAPI Engineer",
-    email: "kofi.owusu@engineers.tech",
-    country: "Ghana",
-    countryCode: "GH",
-    agreementType: "Hourly",
-    rate: 35,
-    rateUnit: "/hr",
-    paymentTerms: "Bi-weekly",
-    complianceStatus: "Verified",
-    status: "Active",
-    startDate: "Jan 10, 2026",
-    sowDescription: "Microservices API engineering, queue workers, and vector embedding indexing pipeline maintenance."
-  },
-  {
-    id: "CTR-104",
-    name: "Mariana Santos",
-    email: "mariana.ux@design.br",
-    role: "UX Research & Product Strategist",
-    country: "Brazil",
-    countryCode: "BR",
-    agreementType: "Fixed Scope",
-    rate: 3600,
-    rateUnit: " milestone",
-    paymentTerms: "Net 0",
-    complianceStatus: "Action Required",
-    status: "Onboarding",
-    startDate: "Oct 15, 2026",
-    sowDescription: "Complete user research sprints, usability benchmarking, and interactive Figma prototyping for customer onboarding."
-  }
-];
+import { 
+  COUNTRY_LIST, 
+  CURRENCY_LIST, 
+  UnifiedWorkforceMember, 
+  fetchUnifiedWorkforce, 
+  addUnifiedMember, 
+  deleteUnifiedMember 
+} from "@/lib/workforceSync";
 
 export default function ClientContractorsPage() {
   const { toast } = useToast();
-  const [contractors, setContractors] = useState<Contractor[]>(INITIAL_CONTRACTORS);
+  const [allMembers, setAllMembers] = useState<UnifiedWorkforceMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [agreementFilter, setAgreementFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [typeFilter, setTypeFilter] = useState("All");
-
-  // Modals
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
+  const [kanbanGrouping, setKanbanGrouping] = useState<"status" | "agreement">("status");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
+  const [selectedContractor, setSelectedContractor] = useState<UnifiedWorkforceMember | null>(null);
 
-  // New contractor form
-  const [newName, setNewName] = useState("");
+  // New contractor form state
+  const [newFullName, setNewFullName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newRole, setNewRole] = useState("");
+  const [newDepartment, setNewDepartment] = useState("Engineering");
   const [newCountry, setNewCountry] = useState("Nigeria");
   const [newAgreementType, setNewAgreementType] = useState<"Monthly Retainer" | "Hourly" | "Fixed Scope">("Monthly Retainer");
   const [newRate, setNewRate] = useState("");
-  const [newTerms, setNewTerms] = useState<"Net 0" | "Net 15" | "Net 30" | "Bi-weekly">("Net 0");
+  const [newCurrency, setNewCurrency] = useState("USD");
+  const [newPaymentTerms, setNewPaymentTerms] = useState<"Net 0" | "Net 15" | "Net 30" | "Bi-weekly">("Net 0");
   const [newSow, setNewSow] = useState("");
+  const [newStartDate, setNewStartDate] = useState(new Date().toISOString().split("T")[0]);
 
-  const filteredContractors = contractors.filter((c) => {
-    const matchesSearch = 
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "All" || c.status === statusFilter;
-    const matchesType = typeFilter === "All" || c.agreementType === typeFilter;
-    return matchesSearch && matchesStatus && matchesType;
-  });
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchUnifiedWorkforce();
+      setAllMembers(data);
+    } catch (e) {
+      console.warn("Failed to load contractors:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const activeCount = contractors.filter(c => c.status === "Active").length;
-  const totalMonthlyRunRate = contractors.reduce((sum, c) => {
-    if (c.agreementType === "Monthly Retainer") return sum + c.rate;
-    if (c.agreementType === "Hourly") return sum + (c.rate * 160); // approx 160 hrs
-    return sum + c.rate;
+  useEffect(() => {
+    loadData();
+    const handleSync = () => loadData();
+    window.addEventListener("workforce_updated", handleSync);
+    return () => window.removeEventListener("workforce_updated", handleSync);
+  }, []);
+
+  const contractors = useMemo(() => {
+    return allMembers.filter((m) => m.employment_model === "contractor");
+  }, [allMembers]);
+
+  const filteredContractors = useMemo(() => {
+    return contractors.filter((c) => {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = 
+        c.full_name.toLowerCase().includes(q) ||
+        (c.role_title && c.role_title.toLowerCase().includes(q)) ||
+        (c.location && c.location.toLowerCase().includes(q));
+
+      const agrType = c.contractor_settings?.agreementType || "Monthly Retainer";
+      const matchesAgreement = agreementFilter === "All" || agrType === agreementFilter;
+      const matchesStatus = statusFilter === "All" || c.status === statusFilter;
+
+      return matchesSearch && matchesAgreement && matchesStatus;
+    });
+  }, [contractors, searchQuery, agreementFilter, statusFilter]);
+
+  // Metrics
+  const activeCount = contractors.filter((c) => c.status === "Active").length;
+  const estimatedMonthlySpend = contractors.reduce((sum, c) => {
+    return sum + (c.payment_monthly || 0);
   }, 0);
 
-  const handleAddContractor = () => {
-    if (!newName || !newEmail || !newRole || !newRate) {
+  const handleCreateContractor = async () => {
+    if (!newFullName.trim() || !newRole.trim() || !newRate.trim()) {
       toast({
-        title: "Missing Fields",
-        description: "Please complete all required contractor information.",
+        title: "Incomplete details",
+        description: "Please enter contractor full name, job title, and rate.",
         variant: "destructive"
       });
       return;
     }
 
-    const newCtr: Contractor = {
-      id: `CTR-${Math.floor(100 + Math.random() * 900)}`,
-      name: newName,
-      email: newEmail,
-      role: newRole,
-      country: newCountry,
-      countryCode: newCountry === "Nigeria" ? "NG" : newCountry === "Ghana" ? "GH" : "GLOBAL",
-      agreementType: newAgreementType,
-      rate: parseFloat(newRate) || 3500,
-      rateUnit: newAgreementType === "Hourly" ? "/hr" : "/month",
-      paymentTerms: newTerms,
-      complianceStatus: "In Review",
-      status: "Onboarding",
-      startDate: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-      sowDescription: newSow || "Standard software development and engineering consulting services."
-    };
+    try {
+      await addUnifiedMember({
+        full_name: newFullName.trim(),
+        email: newEmail.trim() || null,
+        role_title: newRole.trim(),
+        department: newDepartment,
+        location: newCountry,
+        start_date: newStartDate,
+        payment_monthly: parseFloat(newRate) || 0,
+        payment_currency: newCurrency,
+        employment_model: "contractor",
+        status: "Active",
+        contractor_settings: {
+          agreementType: newAgreementType,
+          paymentTerms: newPaymentTerms,
+          rateUnit: newAgreementType === "Hourly" ? "/hr" : newAgreementType === "Monthly Retainer" ? "/month" : " milestone",
+          sowDescription: newSow.trim() || "Independent contractor services as specified in project milestone SOW.",
+          complianceStatus: "Verified"
+        }
+      });
 
-    setContractors([newCtr, ...contractors]);
-    setIsAddModalOpen(false);
+      setIsAddModalOpen(false);
+      setNewFullName("");
+      setNewEmail("");
+      setNewRole("");
+      setNewRate("");
+      setNewSow("");
 
-    setNewName("");
-    setNewEmail("");
-    setNewRole("");
-    setNewRate("");
-    setNewSow("");
+      toast({
+        title: "Contractor Added ✓",
+        description: `${newFullName} has been added to your contractors roster.`
+      });
 
-    toast({
-      title: "Contractor Agreement Created",
-      description: `Contract and onboarding invitation sent to ${newCtr.name}.`
-    });
+      await loadData();
+    } catch (err: any) {
+      toast({
+        title: "Error adding contractor",
+        description: err.message,
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleToggleStatus = (id: string) => {
-    setContractors(contractors.map(c => {
-      if (c.id === id) {
-        const nextStatus = c.status === "Active" ? "Paused" : "Active";
-        toast({
-          title: `Contractor ${nextStatus}`,
-          description: `${c.name}'s contract status updated to ${nextStatus}.`
-        });
-        return { ...c, status: nextStatus };
-      }
-      return c;
-    }));
+  const handleDeleteContractor = async (id: string, name: string) => {
+    await deleteUnifiedMember(id);
+    toast({
+      title: "Contractor Removed",
+      description: `${name} has been removed from your contractor roster.`
+    });
+    setSelectedContractor(null);
+    await loadData();
+  };
+
+  const fmtCurrency = (amount: number | null, curr: string = "USD") => {
+    if (!amount) return "$0";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: curr,
+      maximumFractionDigits: 0
+    }).format(amount);
   };
 
   return (
-    <div className="w-full p-8 bg-[#FAFAFB] min-h-screen font-sans text-[#1A1C21]">
+    <div className="w-full p-4 sm:p-6 lg:p-8 bg-[#FAFAFB] min-h-screen font-sans text-[#1A1C21]">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold tracking-tight text-[#1A1C21]">Contractors</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-[#1A1C21]">Contractors & SOW Management</h1>
             <Badge className="bg-slate-100 text-slate-800 border border-slate-200 text-[10px] font-bold">
-              Independent Agreements
+              Automated W-8BEN & Tax
             </Badge>
           </div>
           <p className="text-xs font-medium text-[#1A1C21]/60">
-            Manage global independent contractors, agreements, SOW deliverables, tax compliance, and automated payouts.
+            Manage global independent contractors, execute automated ICAs, review statement of works, and streamline invoices.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
+          <Link to="/client/workforce">
+            <Button variant="outline" className="border-slate-200 text-xs font-bold rounded-lg h-9">
+              <Users className="w-3.5 h-3.5 mr-1.5" /> View Full Team
+            </Button>
+          </Link>
+
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-[#1A1C21] hover:bg-black text-white font-bold text-xs rounded-md shadow-sm px-5 h-9">
-                <Plus className="w-3.5 h-3.5 mr-1.5" /> Add Contractor
+              <Button className="bg-[#1A1C21] hover:bg-black text-white font-bold text-xs rounded-lg shadow-sm px-4 h-9">
+                <Plus className="w-3.5 h-3.5 mr-1.5" /> + Add Contractor
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-white border-[#EEEEF0] rounded-md max-w-lg">
+            <DialogContent className="bg-white border-[#EEEEF0] rounded-xl max-w-lg shadow-xl">
               <DialogHeader>
-                <DialogTitle className="text-base font-bold">Create Contractor Agreement</DialogTitle>
+                <DialogTitle className="text-base font-bold flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-slate-900" />
+                  Onboard Global Contractor
+                </DialogTitle>
                 <DialogDescription className="text-xs">
-                  Generate localized consulting agreements, IP protection, and payment routing.
+                  Generate localized Independent Contractor Agreements (ICA) and establish automated milestone payouts.
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="space-y-4 py-2">
+              <div className="space-y-3.5 py-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Contractor Full Name *</Label>
+                  <Input 
+                    placeholder="e.g. Alex Rivera" 
+                    value={newFullName} 
+                    onChange={(e) => setNewFullName(e.target.value)}
+                    className="text-xs border-slate-200 h-9"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold">Full Name</Label>
-                    <Input 
-                      placeholder="e.g. Maya Lin" 
-                      value={newName} 
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="text-xs border-slate-200"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <Label className="text-xs font-bold">Email Address</Label>
                     <Input 
+                      placeholder="alex@dev.io" 
                       type="email"
-                      placeholder="maya@example.com" 
                       value={newEmail} 
                       onChange={(e) => setNewEmail(e.target.value)}
-                      className="text-xs border-slate-200"
+                      className="text-xs border-slate-200 h-9"
                     />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Department</Label>
+                    <Select value={newDepartment} onValueChange={setNewDepartment}>
+                      <SelectTrigger className="text-xs border-slate-200 h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="Engineering">Engineering</SelectItem>
+                        <SelectItem value="Design">Design</SelectItem>
+                        <SelectItem value="Product">Product</SelectItem>
+                        <SelectItem value="Marketing">Marketing</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold">Role / Position</Label>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Job Title / Role *</Label>
                     <Input 
-                      placeholder="e.g. Lead React Engineer" 
+                      placeholder="e.g. Lead Frontend Architect" 
                       value={newRole} 
                       onChange={(e) => setNewRole(e.target.value)}
-                      className="text-xs border-slate-200"
+                      className="text-xs border-slate-200 h-9"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold">Country</Label>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Country of Tax Residence</Label>
                     <Select value={newCountry} onValueChange={setNewCountry}>
-                      <SelectTrigger className="text-xs border-slate-200"><SelectValue /></SelectTrigger>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="Nigeria">Nigeria</SelectItem>
-                        <SelectItem value="Ghana">Ghana</SelectItem>
-                        <SelectItem value="Kenya">Kenya</SelectItem>
-                        <SelectItem value="South Africa">South Africa</SelectItem>
-                        <SelectItem value="Egypt">Egypt</SelectItem>
-                        <SelectItem value="Brazil">Brazil</SelectItem>
-                        <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                        <SelectItem value="Philippines">Philippines</SelectItem>
+                      <SelectTrigger className="text-xs border-slate-200 h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white max-h-60">
+                        {COUNTRY_LIST.map((c) => (
+                          <SelectItem key={c.code} value={c.name}>
+                            <span className="mr-1.5">{c.flag}</span> {c.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold">Agreement Type</Label>
-                    <Select value={newAgreementType} onValueChange={(v: any) => setNewAgreementType(v)}>
-                      <SelectTrigger className="text-xs border-slate-200"><SelectValue /></SelectTrigger>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Agreement Structure</Label>
+                    <Select value={newAgreementType} onValueChange={(val: any) => setNewAgreementType(val)}>
+                      <SelectTrigger className="text-xs border-slate-200 h-9"><SelectValue /></SelectTrigger>
                       <SelectContent className="bg-white">
                         <SelectItem value="Monthly Retainer">Monthly Retainer</SelectItem>
                         <SelectItem value="Hourly">Hourly</SelectItem>
@@ -305,45 +297,71 @@ export default function ClientContractorsPage() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold">Rate ($ USD)</Label>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Rate / Amount *</Label>
                     <Input 
+                      placeholder="e.g. 4500" 
                       type="number"
-                      placeholder="4000" 
                       value={newRate} 
                       onChange={(e) => setNewRate(e.target.value)}
-                      className="text-xs border-slate-200"
+                      className="text-xs border-slate-200 h-9"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold">Payout Terms</Label>
-                    <Select value={newTerms} onValueChange={(v: any) => setNewTerms(v)}>
-                      <SelectTrigger className="text-xs border-slate-200"><SelectValue /></SelectTrigger>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Currency</Label>
+                    <Select value={newCurrency} onValueChange={setNewCurrency}>
+                      <SelectTrigger className="text-xs border-slate-200 h-9"><SelectValue /></SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="Net 0">Net 0 (Instant)</SelectItem>
-                        <SelectItem value="Net 15">Net 15</SelectItem>
-                        <SelectItem value="Net 30">Net 30</SelectItem>
-                        <SelectItem value="Bi-weekly">Bi-weekly</SelectItem>
+                        {CURRENCY_LIST.slice(0, 6).map((cur) => (
+                          <SelectItem key={cur.code} value={cur.code}>{cur.code} ({cur.symbol})</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold">Scope of Work (SOW)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Payment Terms</Label>
+                    <Select value={newPaymentTerms} onValueChange={(val: any) => setNewPaymentTerms(val)}>
+                      <SelectTrigger className="text-xs border-slate-200 h-9"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="Net 0">Immediate (Net 0)</SelectItem>
+                        <SelectItem value="Net 15">Net 15 days</SelectItem>
+                        <SelectItem value="Net 30">Net 30 days</SelectItem>
+                        <SelectItem value="Bi-weekly">Bi-weekly cadence</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs font-bold">Start Date</Label>
+                    <Input 
+                      type="date"
+                      value={newStartDate} 
+                      onChange={(e) => setNewStartDate(e.target.value)}
+                      className="text-xs border-slate-200 h-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Statement of Work (SOW) Scope</Label>
                   <Textarea 
-                    placeholder="Describe main responsibilities, milestones, and deliverable expectations..."
+                    placeholder="Brief outline of deliverables and milestones..."
                     value={newSow}
                     onChange={(e) => setNewSow(e.target.value)}
-                    className="text-xs border-slate-200 min-h-[80px]"
+                    className="text-xs border-slate-200 h-16 resize-none"
                   />
                 </div>
               </div>
 
-              <DialogFooter>
-                <Button onClick={handleAddContractor} className="w-full bg-[#1A1C21] hover:bg-black text-xs font-bold">
-                  Generate Agreement & Invite
+              <DialogFooter className="gap-2 sm:gap-0 mt-2">
+                <Button variant="outline" onClick={() => setIsAddModalOpen(false)} className="text-xs h-9">
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateContractor} className="bg-[#1A1C21] hover:bg-black text-white text-xs font-bold h-9">
+                  Save Contractor
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -351,15 +369,15 @@ export default function ClientContractorsPage() {
         </div>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Metrics Row (Dynamic) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Contractors</span>
-            <Users className="w-4 h-4 text-[#A079FF]" />
+            <Users className="w-4 h-4 text-blue-500" />
           </div>
           <div className="text-xl font-black text-[#1A1C21]">{activeCount} Contractors</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Direct consulting agreements</p>
+          <p className="text-[10px] text-slate-500 font-medium mt-1">Independent service agreements</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
@@ -367,17 +385,17 @@ export default function ClientContractorsPage() {
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estimated Monthly Spend</span>
             <DollarSign className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">${totalMonthlyRunRate.toLocaleString()}</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Across all active contracts</p>
+          <div className="text-xl font-black text-[#1A1C21]">${estimatedMonthlySpend.toLocaleString()}</div>
+          <p className="text-[10px] text-emerald-600 font-bold mt-1">Retainers & fixed scopes</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Compliance & Tax Forms</span>
-            <ShieldCheck className="w-4 h-4 text-blue-500" />
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tax & Legal Compliance</span>
+            <ShieldCheck className="w-4 h-4 text-[#A079FF]" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">100% W-8BEN Signed</div>
-          <p className="text-[10px] text-emerald-600 font-bold mt-1">Zero misclassification risk</p>
+          <div className="text-xl font-black text-[#1A1C21]">W-8BEN / ICA Active</div>
+          <p className="text-[10px] text-slate-500 font-medium mt-1">Direct IP assignment clauses</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
@@ -385,200 +403,388 @@ export default function ClientContractorsPage() {
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Invoices</span>
             <CreditCard className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">1 Pending Review</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Ready for payroll cycle</p>
+          <div className="text-xl font-black text-[#1A1C21]">0 Invoices Due</div>
+          <p className="text-[10px] text-slate-500 font-medium mt-1">All contractor payouts current</p>
         </Card>
       </div>
 
-      {/* Contractors Table Card */}
-      <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none">
-        <div className="p-4 border-b border-[#EEEEF0] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div className="relative w-full sm:w-72">
+      {/* Controls Bar & View Switcher */}
+      <div className="bg-white border border-[#EEEEF0] rounded-xl p-3 mb-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 flex-1">
+          <div className="relative flex-1 max-w-xs">
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input 
-              placeholder="Search contractors, roles, countries..."
+              placeholder="Search contractors by name, role, country..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 text-xs h-8 border-slate-200"
+              className="pl-8 text-xs h-8 border-slate-200 w-full"
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="text-xs h-8 w-36 border-slate-200"><SelectValue placeholder="Type" /></SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All">All Types</SelectItem>
-                <SelectItem value="Monthly Retainer">Monthly Retainer</SelectItem>
-                <SelectItem value="Hourly">Hourly</SelectItem>
-                <SelectItem value="Fixed Scope">Fixed Scope</SelectItem>
-              </SelectContent>
-            </Select>
+          <Select value={agreementFilter} onValueChange={setAgreementFilter}>
+            <SelectTrigger className="text-xs h-8 w-36 border-slate-200">
+              <SelectValue placeholder="Agreement" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="All">All Agreements</SelectItem>
+              <SelectItem value="Monthly Retainer">Monthly Retainer</SelectItem>
+              <SelectItem value="Hourly">Hourly</SelectItem>
+              <SelectItem value="Fixed Scope">Fixed Scope</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="text-xs h-8 w-32 border-slate-200"><SelectValue placeholder="Status" /></SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectItem value="All">All Statuses</SelectItem>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Onboarding">Onboarding</SelectItem>
-                <SelectItem value="Paused">Paused</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="text-xs h-8 w-32 border-slate-200">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="All">All Statuses</SelectItem>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Onboarding">Onboarding</SelectItem>
+              <SelectItem value="Paused">Paused</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#EEEEF0] bg-[#FAFAFB]/60">
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Contractor</th>
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Country</th>
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Agreement & Rate</th>
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Payment Terms</th>
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Compliance</th>
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Status</th>
-                <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#EEEEF0]">
-              {filteredContractors.map((ctr) => (
-                <tr key={ctr.id} className="hover:bg-[#FAFAFB]/40 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="text-xs font-bold text-[#1A1C21]">{ctr.name}</div>
-                    <div className="text-[10px] text-slate-500 font-medium">{ctr.role}</div>
-                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">{ctr.email}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-xs font-semibold text-[#1A1C21]">{ctr.country}</div>
-                    <div className="text-[10px] text-slate-400">Remote Contract</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-xs font-bold text-[#1A1C21]">
-                      ${ctr.rate.toLocaleString()}<span className="text-slate-500 font-normal">{ctr.rateUnit}</span>
-                    </div>
-                    <div className="text-[10px] text-slate-500 font-medium">{ctr.agreementType}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge variant="outline" className="text-[10px] font-bold text-slate-700 bg-slate-50">
-                      {ctr.paymentTerms}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5 text-xs">
-                      {ctr.complianceStatus === "Verified" ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                      ) : (
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                      )}
-                      <span className={ctr.complianceStatus === "Verified" ? "text-emerald-700 font-bold text-[11px]" : "text-amber-700 font-medium text-[11px]"}>
-                        {ctr.complianceStatus}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge className={`text-[9px] font-bold uppercase tracking-wider rounded-sm shadow-none ${
-                      ctr.status === "Active" 
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                        : ctr.status === "Onboarding"
-                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                        : "bg-slate-100 text-slate-700 border-slate-200"
-                    }`}>
-                      {ctr.status}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => setSelectedContractor(ctr)}
-                        className="text-xs font-bold text-[#A079FF] hover:bg-[#A079FF]/10 h-7 px-2.5"
-                      >
-                        View SOW
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleToggleStatus(ctr.id)}
-                        className="text-xs font-medium text-slate-500 hover:text-slate-900 h-7 px-2"
-                      >
-                        {ctr.status === "Active" ? "Pause" : "Resume"}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
-
-      {/* SOW & Details Modal */}
-      <Dialog open={!!selectedContractor} onOpenChange={(open) => !open && setSelectedContractor(null)}>
-        <DialogContent className="bg-white border-[#EEEEF0] rounded-md max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">{selectedContractor?.name}</DialogTitle>
-            <DialogDescription className="text-xs">
-              {selectedContractor?.role} • {selectedContractor?.country}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedContractor && (
-            <div className="py-3 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold">Compensation Rate</span>
-                  <p className="font-bold text-slate-900 mt-0.5">${selectedContractor.rate.toLocaleString()} {selectedContractor.rateUnit}</p>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold">Agreement Structure</span>
-                  <p className="font-bold text-slate-900 mt-0.5">{selectedContractor.agreementType}</p>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold">Payment Schedule</span>
-                  <p className="font-bold text-slate-900 mt-0.5">{selectedContractor.paymentTerms}</p>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-[10px] uppercase font-bold">Effective Since</span>
-                  <p className="font-bold text-slate-900 mt-0.5">{selectedContractor.startDate}</p>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-900">Scope of Work & Deliverables (SOW)</Label>
-                <div className="p-3 bg-white border border-slate-200 rounded-md text-slate-700 leading-relaxed">
-                  {selectedContractor.sowDescription}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-bold text-slate-900">Legal Documents & Compliance</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded border border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-slate-400" />
-                      <span className="font-medium">Independent Contractor Agreement (Signed)</span>
-                    </div>
-                    <Badge variant="outline" className="text-[10px] text-emerald-700 bg-emerald-50 border-emerald-200">Active</Badge>
-                  </div>
-                  <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded border border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-slate-400" />
-                      <span className="font-medium">Proprietary Information & Inventions Agreement (PIIA)</span>
-                    </div>
-                    <Badge variant="outline" className="text-[10px] text-emerald-700 bg-emerald-50 border-emerald-200">Signed</Badge>
-                  </div>
-                </div>
-              </div>
+        {/* View mode toggle */}
+        <div className="flex items-center gap-3">
+          {viewMode === "kanban" && (
+            <div className="flex items-center gap-1 text-xs">
+              <span className="text-slate-400 font-bold text-[11px]">Group:</span>
+              <button
+                onClick={() => setKanbanGrouping("status")}
+                className={`px-2 py-1 rounded text-[11px] font-bold ${
+                  kanbanGrouping === "status" ? "bg-slate-200 text-black" : "text-slate-500 hover:bg-slate-100"
+                }`}
+              >
+                Status
+              </button>
+              <button
+                onClick={() => setKanbanGrouping("agreement")}
+                className={`px-2 py-1 rounded text-[11px] font-bold ${
+                  kanbanGrouping === "agreement" ? "bg-slate-200 text-black" : "text-slate-500 hover:bg-slate-100"
+                }`}
+              >
+                Structure
+              </button>
             </div>
           )}
 
-          <DialogFooter>
-            <Button onClick={() => setSelectedContractor(null)} variant="outline" className="w-full text-xs font-bold">
-              Close
+          <div className="flex items-center gap-1.5 bg-slate-100/80 border border-slate-200 p-1 rounded-lg">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                viewMode === "list" 
+                  ? "bg-white text-black shadow-xs" 
+                  : "text-slate-500 hover:text-black"
+              }`}
+            >
+              <LayoutList className="w-3.5 h-3.5" /> List
+            </button>
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                viewMode === "kanban" 
+                  ? "bg-white text-black shadow-xs" 
+                  : "text-slate-500 hover:text-black"
+              }`}
+            >
+              <Kanban className="w-3.5 h-3.5" /> Kanban
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      {filteredContractors.length === 0 ? (
+        <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none py-16 px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 mx-auto flex items-center justify-center mb-4 text-[#1A1C21]">
+            <Briefcase className="w-8 h-8 text-[#1A1C21]" />
+          </div>
+          <h3 className="text-base font-bold text-[#1A1C21] tracking-tight mb-1">
+            {searchQuery || agreementFilter !== "All" || statusFilter !== "All" 
+              ? "No matching contractors found" 
+              : "No contractors added yet"}
+          </h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto mb-6 leading-relaxed">
+            {searchQuery || agreementFilter !== "All" || statusFilter !== "All"
+              ? "Try adjusting your filters or search keywords to find specific contractors."
+              : "When talent is added to your workforce as an independent contractor, their SOWs, payment terms, and signed agreements appear here."}
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="bg-[#1A1C21] hover:bg-black text-white text-xs font-bold px-5 h-9"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1.5" /> + Add Contractor
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Link to="/client/workforce">
+              <Button variant="outline" className="border-slate-200 text-xs font-bold h-9">
+                Manage Full Team
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      ) : viewMode === "list" ? (
+        /* LIST VIEW */
+        <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none overflow-hidden">
+          <CardContent className="p-0 overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#EEEEF0] bg-[#FAFAFB]/80">
+                  <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Contractor</th>
+                  <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Country</th>
+                  <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Agreement Structure</th>
+                  <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Rate & Terms</th>
+                  <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50">Status</th>
+                  <th className="px-6 py-3 text-[10px] font-bold uppercase text-[#1A1C21]/50 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#EEEEF0]">
+                {filteredContractors.map((c) => (
+                  <tr key={c.id} className="hover:bg-[#FAFAFB]/60 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-xs text-slate-700">
+                          {c.full_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-[#1A1C21]">{c.full_name}</div>
+                          <div className="text-[10px] text-slate-400">{c.role_title || "Contractor"}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-semibold text-[#1A1C21] flex items-center gap-1.5">
+                        <MapPin className="w-3 h-3 text-slate-400" />
+                        {c.location || "Global"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge variant="outline" className="text-xs border-slate-200 font-semibold bg-slate-50">
+                        {c.contractor_settings?.agreementType || "Monthly Retainer"}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs font-bold text-[#1A1C21]">
+                        {fmtCurrency(c.payment_monthly, c.payment_currency)}{c.contractor_settings?.rateUnit || "/mo"}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {c.contractor_settings?.paymentTerms || "Net 0"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge className={`text-[9px] font-bold uppercase tracking-wider rounded-sm shadow-none ${
+                        c.status === "Active" 
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                          : "bg-amber-50 text-amber-700 border-amber-200"
+                      }`}>
+                        {c.status}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setSelectedContractor(c)}
+                        className="text-xs font-bold text-[#A079FF] hover:bg-[#A079FF]/10 h-7 px-2.5"
+                      >
+                        SOW & Terms
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </Card>
+      ) : (
+        /* KANBAN VIEW */
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {kanbanGrouping === "status" ? (
+            (["Active", "Onboarding", "Paused"] as const).map((colStatus) => {
+              const items = filteredContractors.filter((c) => c.status === colStatus);
+              return (
+                <div key={colStatus} className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${
+                        colStatus === "Active" ? "bg-emerald-500" : colStatus === "Onboarding" ? "bg-amber-500" : "bg-slate-400"
+                      }`} />
+                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">{colStatus}</h4>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] font-bold bg-white text-slate-600 px-1.5 py-0.5">
+                      {items.length}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3 flex-1">
+                    {items.map((c) => (
+                      <div 
+                        key={c.id}
+                        onClick={() => setSelectedContractor(c)}
+                        className="bg-white border border-slate-200/90 rounded-lg p-3.5 shadow-xs hover:border-slate-300 transition-all cursor-pointer space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-900 leading-snug">{c.full_name}</h5>
+                            <p className="text-[11px] text-slate-500">{c.role_title || "Contractor"}</p>
+                          </div>
+                          <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
+                            {c.location || "Global"}
+                          </span>
+                        </div>
+
+                        <div className="pt-1 flex items-center justify-between border-t border-slate-100 text-xs">
+                          <span className="font-bold text-slate-800">
+                            {fmtCurrency(c.payment_monthly, c.payment_currency)}{c.contractor_settings?.rateUnit || "/mo"}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-medium">
+                            {c.contractor_settings?.agreementType || "Retainer"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+
+                    {items.length === 0 && (
+                      <div className="p-6 border border-dashed border-slate-300 rounded-lg text-center text-slate-400 text-xs font-medium">
+                        No contractors in {colStatus.toLowerCase()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            (["Monthly Retainer", "Hourly", "Fixed Scope"] as const).map((agrType) => {
+              const items = filteredContractors.filter(
+                (c) => (c.contractor_settings?.agreementType || "Monthly Retainer") === agrType
+              );
+              return (
+                <div key={agrType} className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="w-3.5 h-3.5 text-slate-600" />
+                      <h4 className="text-xs font-bold text-slate-800">{agrType}</h4>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] font-bold bg-white text-slate-600 px-1.5 py-0.5">
+                      {items.length}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-3 flex-1">
+                    {items.map((c) => (
+                      <div 
+                        key={c.id}
+                        onClick={() => setSelectedContractor(c)}
+                        className="bg-white border border-slate-200/90 rounded-lg p-3.5 shadow-xs hover:border-slate-300 transition-all cursor-pointer space-y-2.5"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h5 className="text-xs font-bold text-slate-900">{c.full_name}</h5>
+                            <p className="text-[11px] text-slate-500">{c.role_title || "Contractor"}</p>
+                          </div>
+                          <Badge className={`text-[9px] font-bold ${
+                            c.status === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
+                          }`}>
+                            {c.status}
+                          </Badge>
+                        </div>
+
+                        <div className="pt-1 flex items-center justify-between border-t border-slate-100 text-xs">
+                          <span className="font-bold text-slate-800">
+                            {fmtCurrency(c.payment_monthly, c.payment_currency)}{c.contractor_settings?.rateUnit || "/mo"}
+                          </span>
+                          <span className="text-[10px] text-slate-500">
+                            {c.contractor_settings?.paymentTerms || "Net 0"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+
+                    {items.length === 0 && (
+                      <div className="p-6 border border-dashed border-slate-300 rounded-lg text-center text-slate-400 text-xs font-medium">
+                        No contractors under {agrType.toLowerCase()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* Contractor Details & SOW Modal */}
+      {selectedContractor && (
+        <Dialog open={!!selectedContractor} onOpenChange={(open) => !open && setSelectedContractor(null)}>
+          <DialogContent className="bg-white border-slate-200 rounded-xl max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-base font-bold flex items-center justify-between">
+                <span>{selectedContractor.full_name}</span>
+                <Badge className="text-[9px] font-bold uppercase">{selectedContractor.status}</Badge>
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-500">
+                {selectedContractor.role_title} · {selectedContractor.location}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-2 text-xs">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Agreement Type</span>
+                  <span className="font-bold text-slate-800">{selectedContractor.contractor_settings?.agreementType || "Monthly Retainer"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Rate / Compensation</span>
+                  <span className="font-bold text-slate-800">
+                    {fmtCurrency(selectedContractor.payment_monthly, selectedContractor.payment_currency)}{selectedContractor.contractor_settings?.rateUnit || "/mo"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Payment Terms</span>
+                  <span className="font-bold text-slate-800">{selectedContractor.contractor_settings?.paymentTerms || "Net 0"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Compliance Status</span>
+                  <span className="font-bold text-emerald-600">W-8BEN Verified</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Start Date</span>
+                  <span className="font-bold text-slate-800">{selectedContractor.start_date || "Immediate"}</span>
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-[11px] font-bold text-slate-600">Statement of Work (SOW)</Label>
+                <p className="mt-1 text-xs text-slate-600 bg-slate-50 p-2.5 rounded-md border border-slate-200 leading-relaxed">
+                  {selectedContractor.contractor_settings?.sowDescription || "Standard independent software engineering and product consulting agreement."}
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="flex justify-between sm:justify-between w-full">
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => handleDeleteContractor(selectedContractor.id, selectedContractor.full_name)}
+                className="text-xs h-8"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1" /> Remove Contractor
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSelectedContractor(null)}
+                className="text-xs h-8"
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </div>
   );
 }

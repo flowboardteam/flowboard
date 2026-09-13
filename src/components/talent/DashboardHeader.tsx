@@ -130,11 +130,11 @@ export default function DashboardHeader({
           <div className="w-8 h-8 rounded-lg flex items-center justify-center">
             <img src="/flowboardlogo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
-          <span className="text-lg font-black tracking-tighter text-[var(--text-main)] uppercase hidden sm:block">Talent</span>
+          <span className="text-base font-semibold tracking-tight text-[var(--text-main)] uppercase hidden sm:block">Talent</span>
         </Link>
 
         {/* Desktop Navigation Row */}
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav className="hidden lg:flex items-center gap-1">
           {NAV_GROUPS.map((group) => (
             <div 
               key={group.label}
@@ -143,10 +143,10 @@ export default function DashboardHeader({
               onMouseLeave={() => setActiveGroup(null)}
             >
               <button
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-black transition-all rounded-xl ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all rounded-xl ${
                   activeGroup === group.label || group.items.some(i => location.pathname === i.path)
                     ? "text-[#A079FF] bg-[#A079FF]/5"
-                    : "text-slate-500 hover:text-slate-900"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
                 {group.label}
@@ -157,7 +157,7 @@ export default function DashboardHeader({
               {activeGroup === group.label && (
                 <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-2">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 px-3">
                       Go to {group.label}
                     </p>
                     <div className="space-y-1">
@@ -168,10 +168,10 @@ export default function DashboardHeader({
                           <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex items-center justify-between px-3 py-2.5 rounded-xl transition-all font-bold text-xs ${
+                            className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all font-medium text-xs ${
                               isActive
                                 ? "bg-[#A079FF]/10 text-[#A079FF]"
-                                : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
@@ -179,7 +179,7 @@ export default function DashboardHeader({
                               <span className="truncate">{item.name}</span>
                             </div>
                             {badgeCount > 0 && (
-                              <span className="ml-2 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-lg">
+                              <span className="ml-2 bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg">
                                 {badgeCount}
                               </span>
                             )}
@@ -237,7 +237,7 @@ export default function DashboardHeader({
               )}
             </div>
             <div className="hidden sm:block text-left pr-2">
-              <p className="text-[11px] font-black text-slate-900 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
+              <p className="text-[11px] font-semibold text-slate-800 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
             </div>
           </button>
 
@@ -245,18 +245,18 @@ export default function DashboardHeader({
             <>
               <div className="fixed inset-0 z-[-1]" onClick={() => setIsProfileOpen(false)} />
               <div className="absolute right-0 mt-3 w-56 bg-white border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-4 border-b border-slate-50 mb-1">
-                   <p className="text-[10px] font-black uppercase text-slate-400">Account</p>
-                   <p className="text-sm font-black text-slate-900 truncate">{profile?.full_name}</p>
+                <div className="p-3.5 border-b border-slate-50 mb-1">
+                   <p className="text-[10px] font-semibold uppercase text-slate-400">Account</p>
+                   <p className="text-xs font-semibold text-slate-900 truncate">{profile?.full_name}</p>
                 </div>
-                <Link to="/talent/profile" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/talent/profile" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <User className="w-4 h-4" /> Profile Settings
                 </Link>
-                <Link to="/talent/settings" className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-500 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
+                <Link to="/talent/settings" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <Settings className="w-4 h-4" /> System Preference
                 </Link>
                 <div className="h-px bg-slate-50 my-1" />
-                <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 text-xs font-black text-red-500 hover:bg-red-50 hover:text-red-600 w-full rounded-xl transition-all">
+                <button onClick={handleLogout} className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-red-500 hover:bg-red-50 hover:text-red-600 w-full rounded-xl transition-all">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </div>
