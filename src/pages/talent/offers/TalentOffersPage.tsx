@@ -695,15 +695,15 @@ export default function TalentOffersPage() {
 
       {/* ── Header ── */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
+        <div className="flex items-center gap-2 text-blue-600 text-xs font-medium uppercase tracking-wider">
           <Inbox className="w-3.5 h-3.5" /> Offers
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">
-          Your <span className="text-blue-600">offers.</span>
+        <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">
+          Your <span className="text-blue-600 font-medium">offers.</span>
         </h1>
-        <p className="text-sm font-medium text-slate-400">
+        <p className="text-sm font-normal text-slate-500">
           {counts.pending > 0
-            ? <span className="text-amber-600 font-black">{counts.pending} pending — review and respond</span>
+            ? <span className="text-amber-600 font-medium">{counts.pending} pending — review and respond</span>
             : `${counts.all} total · ${counts.accepted} accepted`
           }
         </p>

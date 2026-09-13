@@ -654,9 +654,6 @@ export default function ClientEORPage() {
                     <div key={colStatus} className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col">
                       <div className="flex items-center justify-between mb-3 px-1">
                         <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${
-                            colStatus === "Active" ? "bg-emerald-500" : colStatus === "Onboarding" ? "bg-amber-500" : "bg-blue-500"
-                          }`} />
                           <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">{colStatus}</h4>
                         </div>
                         <Badge variant="secondary" className="text-[10px] font-bold bg-white text-slate-600 px-1.5 py-0.5">

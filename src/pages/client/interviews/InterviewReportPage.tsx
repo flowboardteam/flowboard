@@ -106,23 +106,23 @@ export default function InterviewReportPage() {
       <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
-            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold uppercase tracking-widest">
+            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-medium uppercase tracking-wider">
               Flowboard AI Evaluation Report
             </span>
-            <h1 className="text-3xl font-black text-slate-900 mt-2 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 mt-2 tracking-tight">
               {report?.candidate?.full_name || "Sarah Mensah"}
             </h1>
-            <p className="text-sm font-medium text-slate-500 mt-1">
-              Role: <strong>{report?.job?.title || "Senior Full Stack Engineer"}</strong>
+            <p className="text-sm font-normal text-slate-500 mt-1">
+              Role: <strong className="font-medium text-slate-800">{report?.job?.title || "Senior Full Stack Engineer"}</strong>
             </p>
           </div>
 
           {/* Overall Score Badge */}
           <div className="bg-slate-900 text-white rounded-2xl p-6 text-center shrink-0 border border-slate-800 shadow-xl">
-            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block mb-1">
+            <span className="text-[10px] font-medium uppercase text-slate-400 tracking-wider block mb-1">
               Overall Score
             </span>
-            <div className="text-4xl font-black text-emerald-400">
+            <div className="text-4xl font-medium text-emerald-400">
               {report?.overall_score || 92} <span className="text-lg text-slate-400">/ 100</span>
             </div>
             <div className="mt-2 text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">

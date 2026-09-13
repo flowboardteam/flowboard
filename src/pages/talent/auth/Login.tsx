@@ -63,6 +63,8 @@ export default function Login() {
       });
       setIsLoading(false);
     } else if (data.session) {
+      localStorage.setItem("intended_role", "talent");
+      await supabase.from("profiles").update({ role_type: "talent" }).eq("id", data.session.user.id);
       setNotification({
         open: true,
         type: "success",
@@ -70,7 +72,7 @@ export default function Login() {
         description: "Redirecting to your talent dashboard...",
       });
 
-      setTimeout(() => navigate("/talent/dashboard", { replace: true }), 1000);
+      navigate("/talent/dashboard", { replace: true });
     }
   };
 

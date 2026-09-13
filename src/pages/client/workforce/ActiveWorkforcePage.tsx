@@ -195,9 +195,9 @@ function ProfileDrawer({member,onClose,onRemove,onRequestChange,onAvailabilityCh
                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">{member.role_title||"No title"}</p>
                 {member.department&&<p className="text-[11px] font-bold text-slate-400 mt-1">{member.department}</p>}
                 <div className="flex flex-wrap justify-center gap-2 mt-3">
-                  <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ${tc.bg} ${tc.color}`}><span className={`w-1.5 h-1.5 rounded-full ${tc.dot}`}/>{tc.label}</span>
-                  <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2 py-1 rounded-lg border ${ac.bg} ${ac.color}`}>{ac.label}</span>
-                  <span className={`inline-flex items-center gap-1.5 text-[9px] font-black uppercase px-2 py-0.5 rounded-lg ${oc.dot==="bg-[#1A1C21]"?"bg-slate-100 text-slate-900":"bg-slate-500/10 text-slate-400"}`}><span className={`w-1.5 h-1.5 rounded-full ${oc.dot}`}/>{oc.label}</span>
+                  <span className={`inline-flex items-center text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ${tc.bg} ${tc.color}`}>{tc.label}</span>
+                  <span className={`inline-flex items-center text-[10px] font-black uppercase px-2 py-1 rounded-lg border ${ac.bg} ${ac.color}`}>{ac.label}</span>
+                  <span className={`inline-flex items-center text-[9px] font-black uppercase px-2 py-0.5 rounded-lg ${oc.dot==="bg-[#1A1C21]"?"bg-slate-100 text-slate-900":"bg-slate-500/10 text-slate-400"}`}>{oc.label}</span>
                 </div>
               </div>
               {bio&&<div className="bg-slate-500/5 rounded-xl p-4 mb-3"><p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1"><BookOpen className="w-3 h-3"/>Bio</p><p className="text-xs font-medium text-slate-500 dark:text-slate-400 leading-relaxed">{bio}</p></div>}
@@ -272,7 +272,7 @@ function MemberCard({member,onAssign,onView,onRemove}:{member:WorkforceMember;on
         <div className="min-w-0 flex-1"><h3 className="text-sm font-black dark:text-white tracking-tight truncate">{rName(member)}</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate mt-0.5">{member.role_title||"No title"}</p></div>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ${tc.bg} ${tc.color}`}><span className={`w-1.5 h-1.5 rounded-full ${tc.dot}`}/>{tc.label}</span>
+        <span className={`inline-flex items-center text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border ${tc.bg} ${tc.color}`}>{tc.label}</span>
         {ac&&member.availability_status!=="available"&&<span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase px-2 py-1 rounded-lg border ${ac.bg} ${ac.color}`}>{ac.label}</span>}
       </div>
       <div className="space-y-1.5">
@@ -1222,7 +1222,6 @@ export default function ActiveWorkforcePage(){
               <div key={col.key} className="bg-slate-100/70 border border-slate-200/80 rounded-xl p-3 flex flex-col">
                 <div className="flex items-center justify-between mb-3 px-1">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${col.color}`} />
                     <h4 className="text-xs font-semibold text-slate-800 uppercase tracking-wider">{col.title}</h4>
                   </div>
                   <span className="text-[10px] font-bold bg-white text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">

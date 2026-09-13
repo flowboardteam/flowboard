@@ -593,7 +593,7 @@ export default function TalentSourcingPage() {
           {roleLoading
             ? <div className="h-12 w-72 bg-slate-500/10 rounded-md animate-pulse" />
             : (
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+              <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
                 Source for {role?.title ?? "role"}.
               </h1>
             )
@@ -602,13 +602,13 @@ export default function TalentSourcingPage() {
           {!roleLoading && role && (
             <div className="flex flex-wrap items-center gap-2">
               {[role.department, role.type, role.location, role.experience_level].filter(Boolean).map(tag => (
-                <span key={tag} className="text-[10px] font-black uppercase tracking-wider bg-slate-500/10 text-slate-500 px-2.5 py-1 rounded-md">{tag}</span>
+                <span key={tag} className="text-[10px] font-medium uppercase tracking-wider bg-slate-500/10 text-slate-500 px-2.5 py-1 rounded-md">{tag}</span>
               ))}
               {role.skills?.slice(0, 4).map(s => (
-                <span key={s} className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-[#1A1C21] px-2.5 py-1 rounded-md">{s}</span>
+                <span key={s} className="text-[10px] font-medium uppercase tracking-wider bg-slate-100 text-[#1A1C21] px-2.5 py-1 rounded-md">{s}</span>
               ))}
               {(role.skills?.length ?? 0) > 4 && (
-                <span className="text-[10px] font-black text-slate-400">+{role.skills.length - 4} skills</span>
+                <span className="text-[10px] font-medium text-slate-400">+{role.skills.length - 4} skills</span>
               )}
             </div>
           )}
@@ -617,7 +617,7 @@ export default function TalentSourcingPage() {
         {/* Top-right actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-shrink-0">
           {aiLoading && (
-            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#1A1C21]">
+            <span className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-widest text-[#1A1C21]">
               <Sparkles className="w-3.5 h-3.5 animate-pulse" /> AI scoring...
             </span>
           )}
@@ -626,11 +626,11 @@ export default function TalentSourcingPage() {
           <button
             onClick={handleSearchDeeper}
             disabled={!role}
-            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[#A079FF]/30 rounded-md text-[10px] font-black tracking-widest text-[#A079FF] hover:bg-[#A079FF]/5 hover:border-[#A079FF]/60 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
+            className="flex items-center gap-2 px-5 py-3 bg-[var(--card-bg)] border border-[#A079FF]/30 rounded-md text-[10px] font-medium tracking-widest text-[#A079FF] hover:bg-[#A079FF]/5 hover:border-[#A079FF]/60 transition-all disabled:opacity-40 disabled:cursor-not-allowed group"
           >
             <img src="/flowboardlogo.png" alt="" className="w-5 h-5 object-contain group-hover:animate-pulse" />
             SEARCH DEEPER
-            <span className="text-[9px] bg-[#A079FF]/10 text-[#A079FF] px-2.5 py-1 rounded-md border border-[#A079FF]/20 font-black tracking-wider">
+            <span className="text-[9px] bg-[#A079FF]/10 text-[#A079FF] px-2.5 py-1 rounded-md border border-[#A079FF]/20 font-medium tracking-wider">
               Haraka-01 · AI POWERED
             </span>
           </button>

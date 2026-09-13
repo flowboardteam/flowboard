@@ -604,9 +604,6 @@ export default function RolesJobsPage() {
           <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
             Build your team.
           </h1>
-          <p className="text-xs font-normal text-slate-400">
-            {counts.open} open · {counts.draft} drafts · {counts.closed} closed
-          </p>
         </div>
         <button
           onClick={() => navigate("/client/roles/create")}

@@ -375,7 +375,7 @@ export default function GroupsPage() {
               )}
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#1A1C21]">
                 {selectedGroupDetails.name}
               </h1>
               <div className="flex items-center gap-2 mt-1">

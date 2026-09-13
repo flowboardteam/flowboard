@@ -30,10 +30,10 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
           </div>
           
           <div className="truncate">
-            <h3 className="font-black text-[var(--text-main)] dark:text-slate-100 text-sm sm:text-base tracking-tight truncate">
+            <h3 className="font-medium text-[var(--text-main)] dark:text-slate-100 text-sm sm:text-base tracking-tight truncate">
               {talent.full_name}
             </h3>
-            <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-[8px] sm:text-[9px] font-black tracking-wider">
+            <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 text-[9px] sm:text-[10px] font-normal tracking-wide">
               <Briefcase className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-900/80" />
               <span className="truncate">{talent.primary_role || "Professional"}</span>
             </div>
@@ -54,7 +54,7 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
             </button>
           )}
           <div className="flex flex-col items-center">
-            <div className="text-[9px] sm:text-[10px] font-black text-slate-900 mb-1 leading-none">{displayScore}%</div>
+            <div className="text-[9px] sm:text-[10px] font-medium text-slate-900 mb-1 leading-none">{displayScore}%</div>
             <div className="w-8 sm:w-10 h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-[#1A1C21] transition-all duration-1000 shadow-[0_0_8px_rgba(16,185,129,0.5)]" 
@@ -67,10 +67,10 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
 
       <div className="space-y-4 sm:space-y-5 flex-1 flex flex-col justify-between">
         <div>
-          <p className="text-[8px] sm:text-[9px] font-black tracking-[0.1em] sm:tracking-[0.15em] text-slate-400 dark:text-slate-500 mb-2">Capabilities</p>
+          <p className="text-[8px] sm:text-[9px] font-medium tracking-wider text-slate-400 dark:text-slate-500 mb-2">Capabilities</p>
           <div className="flex flex-wrap gap-1.5">
             {talent.skills?.slice(0, 3).map((skill: string) => (
-              <span key={skill} className="px-2 sm:px-2.5 py-1 bg-slate-50 dark:bg-slate-100 rounded-lg text-[9px] sm:text-[10px] font-black text-slate-900 dark:text-emerald-400 border border-emerald-500/10 dark:border-slate-200">
+              <span key={skill} className="px-2 sm:px-2.5 py-1 bg-slate-50 dark:bg-slate-100 rounded-lg text-[9px] sm:text-[10px] font-medium text-slate-900 dark:text-emerald-400 border border-emerald-500/10 dark:border-slate-200">
                 {skill}
               </span>
             ))}
@@ -80,14 +80,14 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
 
         <div className="grid grid-cols-2 gap-2 sm:gap-4 border-t border-[var(--border-color)] pt-4">
           <div>
-            <p className="text-[8px] sm:text-[9px] font-black tracking-widest text-slate-400 dark:text-slate-500">Seniority</p>
-            <p className="text-[10px] sm:text-[11px] font-black text-[var(--text-main)] dark:text-slate-200 truncate">
+            <p className="text-[8px] sm:text-[9px] font-medium tracking-wider text-slate-400 dark:text-slate-500">Seniority</p>
+            <p className="text-[10px] sm:text-[11px] font-medium text-[var(--text-main)] dark:text-slate-200 truncate">
               {talent.experience_level || "Junior"}
             </p>
           </div>
           <div>
-            <p className="text-[8px] sm:text-[9px] font-black tracking-widest text-slate-400 dark:text-slate-500">Location</p>
-            <p className="text-[10px] sm:text-[11px] font-black text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
+            <p className="text-[8px] sm:text-[9px] font-medium tracking-wider text-slate-400 dark:text-slate-500">Location</p>
+            <p className="text-[10px] sm:text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
               <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-slate-900/50" /> 
               {talent.location?.split(',')[0] || "Global"}
             </p>
@@ -96,7 +96,7 @@ export function TalentCard({ talent, onReview, isShortlisted, onShortlist }: Tal
 
         <button 
           onClick={() => onReview(talent)}
-          className="w-full mt-2 py-3 sm:py-3.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-black text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.2em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg"
+          className="w-full mt-2 py-3 sm:py-3.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-xl font-medium text-[10px] sm:text-xs tracking-wide hover:scale-[1.01] active:scale-[0.99] transition-all shadow-md"
         >
           Review Profile
         </button>

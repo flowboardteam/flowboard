@@ -47,7 +47,7 @@ export default function ClientDashboardIndex() {
     const name = activeGroup.name || "";
     if (name.toLowerCase().includes("flowboard")) {
       return {
-        payroll: "$94,000.00",
+        payroll: "$0.00",
         contractors: "$52,000.00",
         fullTime: "$42,000.00",
         activeRoles: "3",
@@ -59,7 +59,7 @@ export default function ClientDashboardIndex() {
       };
     } else if (name.toLowerCase().includes("vanguard")) {
       return {
-        payroll: "$13,000.00",
+        payroll: "$0.00",
         contractors: "$8,000.00",
         fullTime: "$5,000.00",
         activeRoles: "2",
@@ -70,7 +70,7 @@ export default function ClientDashboardIndex() {
       };
     } else if (name.toLowerCase().includes("gablecorp")) {
       return {
-        payroll: "$25,500.00",
+        payroll: "$0.00",
         contractors: "$15,000.00",
         fullTime: "$10,500.00",
         activeRoles: "6",
@@ -309,7 +309,7 @@ export default function ClientDashboardIndex() {
               </span>
             </div>
             
-            <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.15em] mb-1 px-1">Payroll Cycle</p>
+            <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.15em] mb-1 px-1">Payroll Account</p>
             <h3 className="text-xl font-medium text-[#1A1C21] tracking-tight mb-5 px-1">{stats.payroll}</h3>
             
             <div className="space-y-3 pt-4 border-t border-slate-100">

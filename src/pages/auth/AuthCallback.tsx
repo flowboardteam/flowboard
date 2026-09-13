@@ -25,7 +25,7 @@ export default function AuthCallback() {
         const redirect = searchParams.get("redirect");
         const intendedRole = localStorage.getItem("intended_role");
 
-        if (redirect) {
+        if (redirect && redirect !== "/" && redirect !== "/login") {
           navigate(redirect, { replace: true });
           return;
         }
@@ -37,6 +37,7 @@ export default function AuthCallback() {
           } else {
             navigate("/talent/dashboard", { replace: true });
           }
+          localStorage.removeItem("intended_role");
         } else {
           navigate("/talent/login", { replace: true });
         }

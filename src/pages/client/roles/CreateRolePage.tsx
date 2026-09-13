@@ -1058,7 +1058,7 @@ export default function CreateRolePage() {
   const editId = searchParams.get("edit");
   const { activeGroup } = useGroups();
 
-  const [mode, setMode] = useState<null | "manual" | "ai">("manual");
+  const [mode, setMode] = useState<null | "manual" | "ai">(editId ? "manual" : null);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
@@ -1358,7 +1358,7 @@ export default function CreateRolePage() {
       <div className="max-w-2xl mx-auto pb-20 px-4 sm:px-0">
         <button
           onClick={() => navigate("/client/roles")}
-          className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-10"
+          className="flex items-center gap-2 text-xs font-medium tracking-wide text-slate-400 hover:text-blue-600 transition-colors mb-10"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
         </button>
@@ -1385,14 +1385,14 @@ export default function CreateRolePage() {
               <FileText className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
             </div>
             <div>
-              <p className="text-lg font-black dark:text-white tracking-tight mb-1">
+              <p className="text-lg font-medium dark:text-white tracking-tight mb-1">
                 Manual
               </p>
-              <p className="text-sm font-medium text-slate-500 leading-relaxed">
+              <p className="text-sm font-normal text-slate-500 leading-relaxed">
                 Fill in all the role details yourself step by step
               </p>
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-black text-slate-500 tracking-widest group-hover:text-blue-600 transition-colors mt-auto">
+            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-500 tracking-wider group-hover:text-blue-600 transition-colors mt-auto">
               START
             </div>
           </motion.button>
@@ -1404,7 +1404,7 @@ export default function CreateRolePage() {
             className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group relative overflow-hidden"
           >
             <div className="absolute top-4 right-4">
-              <span className="text-[10px] font-black tracking-widest bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+              <span className="text-[10px] font-medium tracking-wider bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg border border-emerald-500/20">
                 AI POWERED
               </span>
             </div>
@@ -1416,16 +1416,16 @@ export default function CreateRolePage() {
               />
             </div>
             <div>
-              <p className="text-lg font-black dark:text-white tracking-tight mb-1">
+              <p className="text-lg font-medium dark:text-white tracking-tight mb-1">
                 Haraka01
               </p>
-              <p className="text-sm font-medium text-slate-500 leading-relaxed">
+              <p className="text-sm font-normal text-slate-500 leading-relaxed">
                 Describe the role in plain English — Haraka01 will generate a
                 complete job description, responsibilities, skills, and benefits
                 for you to review and refine.
               </p>
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-black text-blue-600 tracking-widest mt-auto">
+            <div className="flex items-center gap-1 text-[11px] font-medium text-blue-600 tracking-wider mt-auto">
               GENERATE
             </div>
           </motion.button>
@@ -1440,12 +1440,12 @@ export default function CreateRolePage() {
       <div className="max-w-2xl mx-auto pb-20 px-4 sm:px-0">
         <button
           onClick={() => setMode(null)}
-          className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-10"
+          className="flex items-center gap-2 text-xs font-medium tracking-wide text-slate-400 hover:text-blue-600 transition-colors mb-10"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back
         </button>
         <div className="space-y-2 mb-8">
-          <div className="flex items-center gap-2 text-blue-600 text-[12px] font-bold tracking-widest">
+          <div className="flex items-center gap-2 text-blue-600 text-xs font-medium tracking-wider">
             <img
               src="/flowboardlogo.png"
               alt=""
@@ -1453,10 +1453,10 @@ export default function CreateRolePage() {
             />{" "}
             Haraka01
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+          <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
             Generate a role.
           </h1>
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+          <p className="text-sm font-normal text-slate-600 dark:text-slate-400">
             Describe the role in plain English — Haraka01 will generate a
             complete job description, responsibilities, skills, and benefits for
             you to review and refine.
@@ -1475,24 +1475,24 @@ export default function CreateRolePage() {
       <div className="flex items-center justify-between mb-8 sm:mb-10">
         <button
           onClick={() => (step > 1 ? setStep(step - 1) : setMode(null))}
-          className="flex items-center gap-2 text-[11px] font-black tracking-widest text-slate-400 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-2 text-xs font-medium tracking-wide text-slate-400 hover:text-blue-600 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back
         </button>
         <button
           onClick={() => navigate("/client/roles")}
-          className="text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors"
+          className="text-xs font-medium uppercase tracking-wider text-slate-400 hover:text-red-500 transition-colors"
         >
           Cancel
         </button>
       </div>
 
       <div className="space-y-2 mb-6">
-        <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold tracking-widest">
+        <div className="flex items-center gap-2 text-blue-600 text-xs font-medium tracking-wide">
           <BriefcaseBusiness className="w-3.5 h-3.5" />
           {editId ? "Edit role" : "Create role"} — manual
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+        <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
           {step === 1 && "Basic information"}
           {step === 2 && "Role description"}
           {step === 3 && "Skills & requirements"}

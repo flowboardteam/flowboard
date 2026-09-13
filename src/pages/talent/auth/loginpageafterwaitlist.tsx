@@ -64,6 +64,7 @@ export default function Login() {
       });
       setIsLoading(false);
     } else if (data.session) {
+      localStorage.setItem("intended_role", "talent");
       setNotification({
         open: true,
         type: "success",

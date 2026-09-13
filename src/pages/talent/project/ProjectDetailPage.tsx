@@ -443,8 +443,8 @@ export default function ProjectDetailPage() {
             <FolderKanban className="w-3.5 h-3.5" /> Project Boards
           </div>
           <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">{project.name}</h1>
-            {project.description && <p className="mt-2 text-sm text-slate-500">{project.description}</p>}
+            <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">{project.name}</h1>
+            {project.description && <p className="mt-2 text-sm font-normal text-slate-500">{project.description}</p>}
             <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
               <button
                 type="button"

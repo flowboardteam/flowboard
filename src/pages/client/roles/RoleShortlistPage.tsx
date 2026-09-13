@@ -447,8 +447,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
       className="p-5 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] flex flex-col gap-4 hover:border-[#1A1C21]/30 transition-all relative"
     >
       <div className="flex items-center justify-between">
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${stage.bg}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${stage.color}`} />
+        <span className={`inline-flex items-center text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${stage.bg}`}>
           {stage.label}
         </span>
         <div className="flex items-center gap-2">
@@ -474,7 +473,7 @@ function CandidateCard({ candidate, onStageChange, onRemove, onHire }) {
                       <button key={s.key}
                         onClick={() => { onStageChange(candidate.id, s.key); setMenuOpen(false); }}
                         className={`flex items-center gap-2 w-full px-2 py-2 text-[11px] font-bold rounded-lg hover:bg-slate-500/5 transition-colors ${s.text}`}>
-                        <span className={`w-2 h-2 rounded-full ${s.color}`} /> {s.label}
+                        {s.label}
                       </button>
                     ))}
                   </div>
@@ -677,9 +676,6 @@ export default function RoleShortlistPage() {
           <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">
             {role?.title ?? "Role"} <span className="text-[#1A1C21]">candidates.</span>
           </h1>
-          <p className="text-sm font-normal text-slate-400">
-            {candidates.length} shortlisted · {stageCounts.hired ?? 0} hired · {stageCounts.interviewing ?? 0} interviewing
-          </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link to="/client/shortlist"
@@ -702,7 +698,6 @@ export default function RoleShortlistPage() {
         {PIPELINE_STAGES.map(s => (
           <button key={s.key} onClick={() => setActiveStage(s.key)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all border ${activeStage === s.key ? `bg-[var(--card-bg)] ${s.text} border-current shadow-sm` : "border-[var(--border-color)] text-slate-400 hover:bg-slate-500/5"}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${s.color}`} />
             {s.label}
             <span className="text-[9px] opacity-60">{stageCounts[s.key] ?? 0}</span>
           </button>

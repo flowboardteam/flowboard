@@ -155,7 +155,7 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm overflow-hidden">
           <img src="/flowboardlogo.png" alt="Logo" className="w-6 h-6 object-contain rounded-full" />
         </div>
-        <span className="text-lg font-black tracking-tight text-[var(--text-main)]">Flowboard</span>
+        <span className="text-lg font-medium tracking-tight text-[var(--text-main)]">Flowboard</span>
       </div>
 
       {/* Navigation */}
@@ -241,20 +241,20 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
         {showMiniMenu && (
           <div className="absolute bottom-full left-0 mb-4 w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 z-50 ring-1 ring-black/5">
             <button onClick={() => { navigate("/client/profile"); setShowMiniMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-medium tracking-wide text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
               <User className="w-3.5 h-3.5" /> Profile Settings
             </button>
             <button onClick={() => { navigate("/client/settings"); setShowMiniMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-medium tracking-wide text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
               <Settings className="w-3.5 h-3.5" /> System Preferences
             </button>
             <button onClick={() => { navigate("/client/settings/groups"); setShowMiniMenu(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-medium tracking-wide text-slate-500 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-all">
               <Building2 className="w-3.5 h-3.5" /> Organization Groups
             </button>
             <div className="h-px bg-[var(--border-color)] my-1" />
             <button onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black tracking-widest text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+              className="w-full flex items-center gap-3 px-4 py-3 text-xs font-medium tracking-wide text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
               <LogOut className="w-3.5 h-3.5" /> Sign Out
             </button>
           </div>
@@ -267,14 +267,14 @@ export default function ClientSidebar({ onClose }: { onClose?: () => void }) {
             <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 border border-[var(--border-color)] flex items-center justify-center overflow-hidden shadow-sm shrink-0">
               {profile?.avatar_url
                 ? <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                : <span className="text-slate-500 font-black text-xs">{profile ? getInitials(profile.full_name) : "..."}</span>
+                : <span className="text-slate-500 font-medium text-xs">{profile ? getInitials(profile.full_name) : "..."}</span>
               }
             </div>
             <div className="flex flex-col text-left truncate">
-              <span className="text-xs font-black text-[var(--text-main)] tracking-tight truncate max-w-[100px]">
+              <span className="text-xs font-medium text-[var(--text-main)] tracking-tight truncate max-w-[100px]">
                 {profile?.full_name || "Loading..."}
               </span>
-              <span className="text-[9px] font-black text-slate-900 uppercase tracking-[0.2em] mt-0.5 opacity-80">
+              <span className="text-[9px] font-medium text-slate-600 uppercase tracking-wider mt-0.5 opacity-80">
                 {profile?.role_type || "MANAGER"}
               </span>
             </div>

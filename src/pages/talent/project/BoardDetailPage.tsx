@@ -352,14 +352,14 @@ export default function BoardDetailPage() {
             <FolderKanban className="w-3.5 h-3.5" /> Board list
           </div>
           <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">{board.name}</h1>
-            {board.description && <p className="mt-2 text-sm text-slate-500">{board.description}</p>}
-            <p className="mt-3 text-xs uppercase tracking-[0.2em] text-slate-400">{board.department}</p>
+            <h1 className="text-2xl sm:text-3xl font-medium text-slate-950 tracking-tight">{board.name}</h1>
+            {board.description && <p className="mt-2 text-sm font-normal text-slate-500">{board.description}</p>}
+            <p className="mt-2 text-xs font-normal uppercase tracking-wider text-slate-400">{board.department}</p>
           </div>
         </div>
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 rounded-2xl bg-white border border-slate-200 px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-50 transition"
+          className="inline-flex items-center gap-2 rounded-2xl bg-white border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>

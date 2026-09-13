@@ -560,20 +560,13 @@ export default function ClientOffersPage() {
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black text-[#1A1C21] dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium text-[#1A1C21] dark:text-white tracking-tight">
             Offers
           </h1>
-          <p className="text-sm font-medium text-slate-400">
-            {counts.pending > 0
-              ? <span className="text-slate-900 font-black">{counts.pending} Awaiting response · </span>
-              : null
-            }
-            {counts.accepted} Accepted · {counts.declined} Declined
-          </p>
         </div>
         <button
           onClick={() => navigate("/client/talent-pool")}
-          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-[#1A1C21] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-md shadow-black/10"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-3 bg-[#1A1C21] text-white text-[10px] font-medium uppercase tracking-wider rounded-xl hover:bg-black transition-all shadow-md shadow-black/10"
         >
           <Users className="w-3.5 h-3.5" /> Find more talent
         </button>

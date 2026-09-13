@@ -83,11 +83,10 @@ export default function SystemPrefs() {
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 px-4 md:px-0">
       <header className="flex justify-between items-end">
         <div>
-          {/* FIXED: Text color now uses var(--text-main) */}
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-[var(--text-main)]">
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[var(--text-main)]">
             System Configuration
           </h1>
-          <p className="text-slate-500 font-medium text-sm">
+          <p className="text-slate-500 font-normal text-sm">
             Optimize your workspace interface and communication protocols.
           </p>
         </div>

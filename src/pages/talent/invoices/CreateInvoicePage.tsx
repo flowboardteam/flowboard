@@ -145,8 +145,8 @@ export default function CreateInvoicePage() {
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back
             </button>
-            <h1 className="text-2xl font-black tracking-tight">Create Invoice</h1>
-            <p className="text-xs font-medium text-slate-500 mt-1">Disburse service metrics to compliance panels.</p>
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight">Create Invoice</h1>
+            <p className="text-xs font-normal text-slate-500 mt-1">Disburse service metrics to compliance panels.</p>
           </div>
         </div>
 

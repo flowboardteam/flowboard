@@ -405,10 +405,10 @@ export default function TalentContractChangesPage(){
     <div className="w-full space-y-6 pb-20 p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest"><ArrowRightLeft className="w-3.5 h-3.5"/> Contract Changes</div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">Contract changes.</h1>
-        <p className="text-sm font-medium text-slate-400">
-          {counts.pending>0?<span className="text-amber-600 font-black">{counts.pending} pending — review and respond · </span>:null}
+        <div className="flex items-center gap-2 text-blue-600 text-xs font-medium uppercase tracking-wider"><ArrowRightLeft className="w-3.5 h-3.5"/> Contract Changes</div>
+        <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">Contract changes.</h1>
+        <p className="text-sm font-normal text-slate-500">
+          {counts.pending>0?<span className="text-amber-600 font-medium">{counts.pending} pending — review and respond · </span>:null}
           {counts.all} total · {counts.accepted} accepted
         </p>
       </div>
