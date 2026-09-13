@@ -50,6 +50,8 @@ import CreateRolePage from "./pages/client/roles/CreateRolePage";
 import TalentSourcingPage from "./pages/client/roles/TalentSourcingPage";
 import RoleShortlistPage from "./pages/client/roles/RoleShortlistPage";
 import ActiveWorkforcePage from "./pages/client/workforce/ActiveWorkforcePage";
+import ClientEORPage from "./pages/client/eor/ClientEORPage";
+import ClientContractorsPage from "./pages/client/contractors/ClientContractorsPage";
 import ClientOffersPage from "./pages/client/offers/ClientOffersPage";
 import Haraka from "./pages/client/haraka";
 import GroupsPage from "./pages/client/settings/Groups";
@@ -222,12 +224,13 @@ const App = () => (
 
             {/* Active Workforce */}
             <Route path="workforce"    element={<ActiveWorkforcePage />} />
+            <Route path="eor"          element={<ClientEORPage />} />
+            <Route path="contractors"  element={<ClientContractorsPage />} />
 
             <Route path="projects" element={<ClientProjectsPage />} />
 
 
             {/* Placeholders */}
-            <Route path="tracker"      element={<ComingSoon />} />
             <Route path="teams"        element={<ComingSoon />} />
             <Route path="apps"         element={<ComingSoon />} />
             <Route path="payroll"      element={<ClientPayrollPage />} />

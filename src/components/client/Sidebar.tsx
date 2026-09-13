@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Briefcase, UserPlus, Users, Cpu, Zap,
   Clock, Projector, Grid, BarChart3, Wallet, ChevronDown,
   Settings, LogOut, User, BookmarkCheck, ListChecks, Send,
-  FolderKanban, Building2
+  FolderKanban, Building2, ShieldCheck
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -31,10 +31,11 @@ const BASE_MENU = [
       { name: "Offers Sent",   path: "/client/offers",      icon: Send,          badge: "offersPending"},
     ],
   },
-  { name: "Team",                 path: "/client/workforce",            icon: Users     },
+  { name: "Team",                 path: "/client/workforce",            icon: Users       },
+  { name: "EOR Services",         path: "/client/eor",                  icon: ShieldCheck },
+  { name: "Contractors",          path: "/client/contractors",          icon: Briefcase   },
   { name: "Projects",             path: "/client/projects",             icon: FolderKanban },
-  { name: "Time Tracker",         path: "/client/tracker",              icon: Clock     },
-  { name: "Apps",                 path: "/client/apps",                 icon: Grid      },
+  { name: "Apps",                 path: "/client/apps",                 icon: Grid        },
   { name: "Payroll & Compliance", path: "/client/payroll", icon: Wallet },
 ];
 

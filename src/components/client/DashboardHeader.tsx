@@ -7,7 +7,7 @@ import {
   User, Settings, LogOut, ChevronDown,
   Briefcase, UserPlus, Zap, BookmarkCheck,
   Users, Send, Clock, FolderKanban,
-  Grid, Wallet, BarChart3, Cpu, FileText, LayoutDashboard, Building2
+  Grid, Wallet, BarChart3, Cpu, FileText, LayoutDashboard, Building2, ShieldCheck
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import GroupSwitcher from "./GroupSwitcher";
@@ -23,7 +23,6 @@ const NAV_GROUPS = [
       { name: "Interviews",     path: "/client/interviews",      icon: Clock         },
       { name: "Shortlisted",    path: "/client/shortlist",       icon: BookmarkCheck },
       { name: "Talent Pool",    path: "/client/talent-pool",     icon: Users         },
-      { name: "Reviews",        path: "/client/reviews",         icon: Grid          },
       { name: "Offers",         path: "/client/offers",          icon: Send          },
     ],
   },
@@ -31,8 +30,9 @@ const NAV_GROUPS = [
     label: "Workforce",
     items: [
       { name: "Team",             path: "/client/workforce",     icon: Users         },
+      { name: "EOR Services",     path: "/client/eor",           icon: ShieldCheck   },
+      { name: "Contractors",      path: "/client/contractors",   icon: Briefcase     },
       { name: "Projects",         path: "/client/projects",      icon: FolderKanban  },
-      { name: "Time Tracker",     path: "/client/tracker",       icon: Clock         },
     ],
   },
   {
