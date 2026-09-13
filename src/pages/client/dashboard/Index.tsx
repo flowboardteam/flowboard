@@ -186,7 +186,7 @@ export default function ClientDashboardIndex() {
 
       {/* Header Section */}
       <div className="space-y-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#1A1C21]">
+        <h1 className="text-3xl md:text-4xl font-black tracking-tight text-[#1A1C21]">
           Welcome, {profile?.full_name?.split(" ")[0] || "there"} 👋
         </h1>
         
@@ -205,11 +205,11 @@ export default function ClientDashboardIndex() {
         </div>
 
         {/* Main Growth Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-[#A079FF] p-6 sm:p-8 text-white min-h-[240px] flex flex-col justify-end group border border-[#A079FF]/80">
+        <div className="relative overflow-hidden rounded-2xl bg-[#A079FF] p-6 sm:p-8 text-white min-h-[250px] flex flex-col justify-end group border border-[#A079FF]/80">
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/20 blur-[90px] rounded-full -mr-40 -mt-40 group-hover:bg-white/30 transition-all duration-700" />
           
           <div className="relative z-10 space-y-4">
-            <h2 className="text-2xl md:text-3xl font-black leading-tight tracking-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-[40px] font-black leading-[1.08] tracking-tight">
               Find your next <br /> big talent.
             </h2>
             <p className="max-w-md text-xs sm:text-sm text-white/90 font-medium leading-relaxed">

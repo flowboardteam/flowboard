@@ -82,7 +82,7 @@ export default function DashboardIndex() {
 
       {/* Welcome Header */}
       <div className="text-center pt-4">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-[#1A1C21] tracking-tight">
+        <h1 className="text-3xl md:text-4xl font-black text-[#1A1C21] tracking-tight">
           Welcome, {firstName} 👋
         </h1>
       </div>
