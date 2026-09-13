@@ -671,23 +671,23 @@ export default function RoleShortlistPage() {
             className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-[#1A1C21] transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
           </button>
-          <div className="flex items-center gap-2 text-[#1A1C21] text-[11px] font-bold uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-[#1A1C21] text-[11px] font-medium uppercase tracking-wider">
             <ListChecks className="w-3.5 h-3.5" /> Shortlist
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">
             {role?.title ?? "Role"} <span className="text-[#1A1C21]">candidates.</span>
           </h1>
-          <p className="text-sm font-medium text-slate-400">
+          <p className="text-sm font-normal text-slate-400">
             {candidates.length} shortlisted · {stageCounts.hired ?? 0} hired · {stageCounts.interviewing ?? 0} interviewing
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link to="/client/shortlist"
-            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-black tracking-widest text-slate-600 hover:border-slate-400 transition-all shadow-sm">
+            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-medium tracking-wider text-slate-600 hover:border-slate-400 transition-all shadow-sm">
             Master Pipeline
           </Link>
           <Link to={`/client/roles/${roleId}/source`}
-            className="flex items-center gap-2 px-6 py-3.5 bg-[#1A1C21] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#1A1C21] transition-all shadow-md shadow-slate-900/10">
+            className="flex items-center gap-2 px-6 py-3.5 bg-[#1A1C21] text-white text-xs font-medium uppercase tracking-wider rounded-xl hover:bg-[#1A1C21] transition-all shadow-md shadow-slate-900/10">
             <Users className="w-3.5 h-3.5" /> Source more talent
           </Link>
         </div>

@@ -175,7 +175,7 @@ export default function HarakaAgent() {
 
 
 
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+          <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
             Find talent.
           </h1>
 

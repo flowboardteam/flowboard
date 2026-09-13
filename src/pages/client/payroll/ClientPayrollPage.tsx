@@ -545,8 +545,8 @@ export default function ClientPayrollPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1A1C21]">Payroll</h1>
-          <p className="text-xs font-medium text-[#1A1C21]/60 mt-0.5">Send Bulk Payments in Seconds</p>
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#1A1C21]">Payroll</h1>
+          <p className="text-xs font-normal text-[#1A1C21]/60 mt-0.5">Send Bulk Payments in Seconds</p>
         </div>
         
         <div className="flex items-center gap-3">

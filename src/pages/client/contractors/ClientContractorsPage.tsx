@@ -189,12 +189,12 @@ export default function ClientContractorsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold tracking-tight text-[#1A1C21]">Contractors & SOW Management</h1>
-            <Badge className="bg-slate-100 text-slate-800 border border-slate-200 text-[10px] font-bold">
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#1A1C21]">Contractors & SOW Management</h1>
+            <Badge className="bg-slate-100 text-slate-800 border border-slate-200 text-[10px] font-medium">
               Automated W-8BEN & Tax
             </Badge>
           </div>
-          <p className="text-xs font-medium text-[#1A1C21]/60">
+          <p className="text-xs font-normal text-[#1A1C21]/60">
             Manage global independent contractors, execute automated ICAs, review statement of works, and streamline invoices.
           </p>
         </div>
@@ -373,38 +373,38 @@ export default function ClientContractorsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Contractors</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Active Contractors</span>
             <Users className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">{activeCount} Contractors</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Independent service agreements</p>
+          <div className="text-xl font-medium text-[#1A1C21]">{activeCount} Contractors</div>
+          <p className="text-[10px] text-slate-500 font-normal mt-1">Independent service agreements</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estimated Monthly Spend</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Estimated Monthly Spend</span>
             <DollarSign className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">${estimatedMonthlySpend.toLocaleString()}</div>
-          <p className="text-[10px] text-emerald-600 font-bold mt-1">Retainers & fixed scopes</p>
+          <div className="text-xl font-medium text-[#1A1C21]">${estimatedMonthlySpend.toLocaleString()}</div>
+          <p className="text-[10px] text-emerald-600 font-medium mt-1">Retainers & fixed scopes</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tax & Legal Compliance</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Tax & Legal Compliance</span>
             <ShieldCheck className="w-4 h-4 text-[#A079FF]" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">W-8BEN / ICA Active</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Direct IP assignment clauses</p>
+          <div className="text-xl font-medium text-[#1A1C21]">W-8BEN / ICA Active</div>
+          <p className="text-[10px] text-slate-500 font-normal mt-1">Direct IP assignment clauses</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pending Invoices</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Pending Invoices</span>
             <CreditCard className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">0 Invoices Due</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">All contractor payouts current</p>
+          <div className="text-xl font-medium text-[#1A1C21]">0 Invoices Due</div>
+          <p className="text-[10px] text-slate-500 font-normal mt-1">All contractor payouts current</p>
         </Card>
       </div>
 

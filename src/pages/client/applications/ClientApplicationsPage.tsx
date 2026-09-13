@@ -120,10 +120,10 @@ export default function ClientApplicationsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
             Applications
           </h1>
-          <p className="text-sm font-medium text-slate-500 mt-1 max-w-xl">
+          <p className="text-sm font-normal text-slate-500 mt-1 max-w-xl">
             Track talent through your hiring pipeline. Each role shows candidates shortlisted, offers sent and hires confirmed.
           </p>
         </div>

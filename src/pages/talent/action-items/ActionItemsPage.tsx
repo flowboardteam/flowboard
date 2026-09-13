@@ -9,8 +9,8 @@ export default function ActionItemsPage() {
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="relative h-[240px] rounded-2xl bg-[#A079FF]/10 overflow-hidden flex items-center group shadow-sm border border-[#A079FF]/30">
           <div className="p-8 text-[#1A1C21]">
-            <h1 className="text-3xl font-bold">Action Items</h1>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-slate-700">To-dos and documents that require your attention.</p>
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight">Action Items</h1>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-slate-700 font-normal">To-dos and documents that require your attention.</p>
           </div>
           <div className="absolute right-0 top-0 h-full w-1/3 md:w-1/2 bg-[url('https://images.unsplash.com/photo-1557683311-eac922347aa1?q=80&w=2029&auto=format&fit=crop')] bg-cover opacity-10" />
         </div>

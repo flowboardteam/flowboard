@@ -722,23 +722,23 @@ export default function MasterShortlistHub() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-[#1A1C21] text-[11px] font-bold uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-[#1A1C21] text-[11px] font-medium uppercase tracking-wider">
             <ListChecks className="w-3.5 h-3.5" /> Master Shortlist Hub
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">
             Ultimate <span className="text-[#1A1C21]">Candidate Pipeline.</span>
           </h1>
-          <p className="text-sm font-medium text-slate-400">
+          <p className="text-sm font-normal text-slate-400">
             {candidates.length} total candidates · {candidates.filter(c => c.status === "hired").length} hired · {candidates.filter(c => c.status === "interviewing").length} interviewing
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
           <Link to="/client/roles"
-            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-black tracking-widest text-slate-600 hover:border-slate-400 transition-all shadow-sm">
+            className="flex items-center gap-2 px-5 py-3.5 bg-[var(--card-bg)] border border-[var(--border-color)] rounded-xl text-xs font-medium tracking-wider text-slate-600 hover:border-slate-400 transition-all shadow-sm">
             <Building2 className="w-3.5 h-3.5" /> View All Roles
           </Link>
           <Link to="/client/haraka"
-            className="flex items-center gap-2 px-6 py-3.5 bg-[#1A1C21] text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-[#1A1C21] transition-all shadow-md shadow-slate-900/10">
+            className="flex items-center gap-2 px-6 py-3.5 bg-[#1A1C21] text-white text-xs font-medium uppercase tracking-wider rounded-xl hover:bg-[#1A1C21] transition-all shadow-md shadow-slate-900/10">
             <Zap className="w-3.5 h-3.5 fill-current" /> Sourcing Discovery
           </Link>
         </div>

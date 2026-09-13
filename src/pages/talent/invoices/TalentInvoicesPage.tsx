@@ -79,8 +79,8 @@ export default function TalentInvoicesPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-[var(--text-main)]">Invoices</h1>
-          <p className="text-sm text-slate-500 font-medium mt-1">
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[var(--text-main)]">Invoices</h1>
+          <p className="text-sm text-slate-500 font-normal mt-1">
             Manage and raise invoices for active organizational engagements.
           </p>
         </div>

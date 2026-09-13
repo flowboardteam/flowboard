@@ -186,7 +186,7 @@ export default function ClientDashboardIndex() {
 
       {/* Header Section */}
       <div className="space-y-4">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1A1C21]">
+        <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#1A1C21]">
           Welcome, {profile?.full_name?.split(" ")[0] || "there"} 👋
         </h1>
         
@@ -198,7 +198,7 @@ export default function ClientDashboardIndex() {
             placeholder="Search roles, candidates, or invoices..."
             className="w-full h-11 pl-11 pr-16 bg-white border border-[var(--border-color)] rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A079FF]/10 focus:border-[#A079FF]/40 transition-all text-xs sm:text-sm font-medium text-slate-600"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-bold text-slate-400 border border-slate-200">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-medium text-slate-400 border border-slate-200">
             <span>⌘</span>
             <span>K</span>
           </div>
@@ -209,17 +209,17 @@ export default function ClientDashboardIndex() {
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/20 blur-[90px] rounded-full -mr-40 -mt-40 group-hover:bg-white/30 transition-all duration-700" />
           
           <div className="relative z-10 space-y-4">
-            <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-semibold leading-[1.15] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-medium leading-[1.15] tracking-tight">
               Find your next <br /> big talent.
             </h2>
-            <p className="max-w-md text-xs sm:text-sm text-white/90 font-medium leading-relaxed">
+            <p className="max-w-md text-xs sm:text-sm text-white/90 font-normal leading-relaxed">
               Source top-tier talent filtered by Haraka. Create your next role.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
-              <Link to="/client/roles" className="px-5 py-2.5 bg-white hover:bg-slate-50 text-[#A079FF] font-bold text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shadow-black/10 flex items-center gap-1.5 group/btn">
+              <Link to="/client/roles" className="px-5 py-2.5 bg-white hover:bg-slate-50 text-[#A079FF] font-medium text-xs uppercase tracking-wider rounded-lg transition-all shadow-md shadow-black/10 flex items-center gap-1.5 group/btn">
                 Browse Contracts <Plus size={14} className="group-hover:rotate-90 transition-transform" />
               </Link>
-              <Link to="/client/haraka" className="px-5 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/40 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all">
+              <Link to="/client/haraka" className="px-5 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/40 text-white font-medium text-xs uppercase tracking-wider rounded-lg transition-all">
                 Run AI Search
               </Link>
             </div>
@@ -232,7 +232,7 @@ export default function ClientDashboardIndex() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all ${
+              className={`px-4 py-1.5 rounded-md text-xs font-medium transition-all ${
                 activeTab === tab.id 
                   ? "bg-white text-[#A079FF] shadow-sm border border-slate-200" 
                   : "text-slate-500 hover:text-slate-900"
@@ -254,9 +254,9 @@ export default function ClientDashboardIndex() {
              <div className="p-5 border-b border-[var(--border-color)] flex justify-between items-center">
                 <div className="flex items-center gap-2.5">
                    <Users className="text-[#A079FF] w-4 h-4" />
-                   <h3 className="text-sm font-bold text-[#1A1C21] tracking-tight">Candidates to review</h3>
+                   <h3 className="text-sm font-medium text-[#1A1C21] tracking-tight">Candidates to review</h3>
                 </div>
-                <Link to="/client/roles" className="text-[10px] font-bold uppercase tracking-widest text-[#A079FF] hover:text-[#9165f7] transition-colors">See all</Link>
+                <Link to="/client/roles" className="text-[10px] font-medium uppercase tracking-wider text-[#A079FF] hover:text-[#9165f7] transition-colors">See all</Link>
              </div>
              <div className="p-5 space-y-3">
                   {stats.candidates.length > 0 ? stats.candidates.map((c: any, idx: number) => (
@@ -266,20 +266,20 @@ export default function ClientDashboardIndex() {
                              {c.img ? (
                                <img src={c.img} alt="" className="w-full h-full object-cover" />
                              ) : (
-                               <span className="text-xs font-bold text-slate-400 uppercase">
+                               <span className="text-xs font-medium text-slate-400 uppercase">
                                  {c.name.split(' ').map((x:any)=>x[0]).join('')}
                                </span>
                              )}
                            </div>
                            <div>
-                              <p className="text-xs font-bold text-[#1A1C21]">{c.name}</p>
-                              <p className="text-[10px] font-medium text-slate-400 tracking-wider mt-0.5">{c.role}</p>
+                              <p className="text-xs font-medium text-[#1A1C21]">{c.name}</p>
+                              <p className="text-[10px] font-normal text-slate-400 tracking-wider mt-0.5">{c.role}</p>
                            </div>
                         </div>
                         <div className="flex items-center gap-3">
                            <div className="text-right hidden sm:block">
-                              <p className="text-[10px] font-bold text-[#A079FF] uppercase tracking-wider">{c.match} Match</p>
-                              <p className="text-[9px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">{c.tag}</p>
+                              <p className="text-[10px] font-medium text-[#A079FF] uppercase tracking-wider">{c.match} Match</p>
+                              <p className="text-[9px] font-normal text-slate-400 uppercase tracking-wider mt-0.5">{c.tag}</p>
                            </div>
                            <Link to="/client/shortlist" className="p-1.5 rounded-md bg-white border border-slate-200 text-slate-400 hover:text-[#A079FF] hover:border-[#A079FF]/30 transition-all shadow-sm">
                              <ArrowUpRight size={16} />
@@ -304,26 +304,26 @@ export default function ClientDashboardIndex() {
               <div className="w-10 h-10 rounded-xl bg-[#A079FF]/10 text-[#A079FF] flex items-center justify-center border border-[#A079FF]/20">
                 <Wallet size={18} />
               </div>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#A079FF]/10 border border-[#A079FF]/20 text-[#A079FF] text-[9px] font-bold uppercase tracking-wider">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#A079FF]/10 border border-[#A079FF]/20 text-[#A079FF] text-[9px] font-medium uppercase tracking-wider">
                 Live
               </span>
             </div>
             
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1 px-1">Payroll Cycle</p>
-            <h3 className="text-xl font-semibold text-[#1A1C21] tracking-tight mb-5 px-1">{stats.payroll}</h3>
+            <p className="text-[9px] font-medium text-slate-400 uppercase tracking-[0.15em] mb-1 px-1">Payroll Cycle</p>
+            <h3 className="text-xl font-medium text-[#1A1C21] tracking-tight mb-5 px-1">{stats.payroll}</h3>
             
             <div className="space-y-3 pt-4 border-t border-slate-100">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-500 font-medium tracking-tight">Contractors</span>
-                <span className="text-[#1A1C21] font-bold">{stats.contractors}</span>
+                <span className="text-slate-500 font-normal tracking-tight">Contractors</span>
+                <span className="text-[#1A1C21] font-medium">{stats.contractors}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-500 font-medium tracking-tight">Full-time</span>
-                <span className="text-[#1A1C21] font-bold">{stats.fullTime}</span>
+                <span className="text-slate-500 font-normal tracking-tight">Full-time</span>
+                <span className="text-[#1A1C21] font-medium">{stats.fullTime}</span>
               </div>
             </div>
 
-            <Link to="/client/payroll" className="mt-6 flex items-center justify-between p-3 bg-slate-50 hover:bg-[#A079FF]/5 hover:text-[#A079FF] rounded-xl transition-all border border-slate-100 font-bold text-[10px] uppercase tracking-wider">
+            <Link to="/client/payroll" className="mt-6 flex items-center justify-between p-3 bg-slate-50 hover:bg-[#A079FF]/5 hover:text-[#A079FF] rounded-xl transition-all border border-slate-100 font-medium text-[10px] uppercase tracking-wider">
               View Invoices <ArrowRight size={13} />
             </Link>
           </div>
@@ -332,13 +332,13 @@ export default function ClientDashboardIndex() {
           <div className="grid grid-cols-2 gap-3">
              <div className="p-4 bg-white rounded-xl border border-[var(--border-color)] shadow-sm">
                 <Briefcase size={15} className="text-slate-400 mb-2" />
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Active Roles</p>
-                <p className="text-lg font-semibold text-[#1A1C21]">{stats.activeRoles}</p>
+                <p className="text-[9px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Active Roles</p>
+                <p className="text-lg font-medium text-[#1A1C21]">{stats.activeRoles}</p>
              </div>
              <div className="p-4 bg-white rounded-xl border border-[var(--border-color)] shadow-sm">
                 <Clock size={15} className="text-slate-400 mb-2" />
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Time Logs</p>
-                <p className="text-lg font-semibold text-[#1A1C21]">{stats.timeLogs}</p>
+                <p className="text-[9px] font-medium text-slate-400 uppercase tracking-wider mb-0.5">Time Logs</p>
+                <p className="text-lg font-medium text-[#1A1C21]">{stats.timeLogs}</p>
              </div>
           </div>
 

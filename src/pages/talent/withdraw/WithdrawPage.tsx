@@ -58,8 +58,8 @@ export default function WithdrawPage() {
       <div className="mx-auto max-w-7xl px-6 py-8">
         <div className="relative h-[220px] rounded-2xl bg-[#A079FF]/10 overflow-hidden flex items-center group shadow-sm border border-[#A079FF]/30">
           <div className="p-8 text-[#1A1C21]">
-            <h1 className="text-3xl font-bold">Withdraw</h1>
-            <p className="mt-2 max-w-xl text-sm leading-7 text-slate-700">View external bank accounts and start a withdrawal.</p>
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight">Withdraw</h1>
+            <p className="mt-2 max-w-xl text-sm leading-7 text-slate-700 font-normal">View external bank accounts and start a withdrawal.</p>
           </div>
         </div>
 
@@ -67,8 +67,8 @@ export default function WithdrawPage() {
           <div className="rounded-3xl bg-white border border-[#EEEEF0] p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Automatic withdrawals</p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">Automatic withdrawals distribution</h2>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-500 font-medium">Automatic withdrawals</p>
+                <h2 className="mt-2 text-xl sm:text-2xl font-medium text-slate-950 tracking-tight">Automatic withdrawals distribution</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
                   Each time you receive a payment, your funds will be automatically withdrawn to the following accounts.
                 </p>

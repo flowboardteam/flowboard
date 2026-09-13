@@ -1148,10 +1148,10 @@ export default function GroupsPage() {
   return (
     <div className="space-y-8 pb-20 animate-in fade-in duration-500">
       <div className="space-y-1">
-        <h1 className="text-3xl font-black text-[#1A1C21] tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-medium text-[#1A1C21] tracking-tight">
           Groups
         </h1>
-        <p className="text-sm font-medium text-slate-400">
+        <p className="text-sm font-normal text-slate-400">
           Define working groups that reflect the organization's structure
         </p>
       </div>
@@ -1159,10 +1159,10 @@ export default function GroupsPage() {
       {/* Suggestion Banner */}
       <section className="relative overflow-hidden rounded-[2rem] bg-[#E0E7FF] p-10 flex flex-col md:flex-row items-center justify-between gap-8 border border-indigo-200 group">
         <div className="relative z-10 max-w-xl space-y-4">
-          <span className="text-[10px] font-bold text-slate-900">
+          <span className="text-[10px] font-medium text-slate-900">
             Suggested for you
           </span>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-medium text-slate-900 tracking-tight">
             Avoid costly missteps
           </h2>
           <p className="text-slate-600 font-medium leading-relaxed">

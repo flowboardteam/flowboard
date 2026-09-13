@@ -179,7 +179,7 @@ export default function TalentProjectPage() {
   return (
     <div className="w-full space-y-6 pb-20 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">
           Projects.
         </h1>
         <div className="flex items-center gap-2 text-sm text-slate-500">

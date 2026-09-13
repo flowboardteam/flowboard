@@ -1363,13 +1363,13 @@ export default function CreateRolePage() {
           <ArrowLeft className="w-3.5 h-3.5" /> Back to roles
         </button>
         <div className="space-y-3 mb-10">
-          <div className="flex items-center gap-2 text-blue-600 text-[11px] font-bold uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-blue-600 text-[11px] font-medium uppercase tracking-wider">
             <BriefcaseBusiness className="w-3.5 h-3.5" /> Roles & jobs
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+          <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
             Create a role.
           </h1>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-sm font-normal text-slate-500">
             Choose how you'd like to define this job role
           </p>
         </div>

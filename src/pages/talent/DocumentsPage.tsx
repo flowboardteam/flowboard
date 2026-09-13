@@ -52,8 +52,8 @@ export default function DocumentsPage() {
       <div className="rounded-3xl bg-white border border-slate-200 p-8 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl font-black text-slate-950">All Documents</h1>
-            <p className="mt-2 text-sm text-slate-500">Manage, review, and access documents connected to your account.</p>
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-slate-950">All Documents</h1>
+            <p className="mt-2 text-sm text-slate-500 font-normal">Manage, review, and access documents connected to your account.</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative w-full sm:w-[320px]">

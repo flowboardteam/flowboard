@@ -365,7 +365,7 @@ export default function TalentJobsPage() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-[1600px] mx-auto">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-xl font-black tracking-tight text-[#1A1C21]">Find jobs</h1>
+              <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#1A1C21]">Find jobs</h1>
               {debugError && (
                 <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-1">
                   Database Error: {debugError}

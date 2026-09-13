@@ -1070,7 +1070,7 @@ export default function ClientProjectsPage(){
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl sm:text-4xl font-extrabold dark:text-white tracking-tight">Projects</h1>
+          <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">Projects</h1>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={fetchAll} className="p-3 border border-[var(--border-color)] rounded-xl text-slate-400 hover:bg-slate-500/5 transition-all" title="Refresh"><RefreshCw className="w-4 h-4"/></button>

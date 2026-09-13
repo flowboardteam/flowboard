@@ -323,7 +323,7 @@ export default function TalentPool() {
       <div className="p-4 sm:p-6 lg:p-10 space-y-8 animate-in fade-in duration-500">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-black text-[#1A1C21] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-medium text-[#1A1C21] tracking-tight">
             Talent Pool
           </h1>
         </div>

@@ -1142,15 +1142,15 @@ export default function ActiveWorkforcePage(){
     <div className="w-full space-y-6 pb-20 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-semibold dark:text-white tracking-tight">Team</h1>
-          <p className="text-xs font-medium text-slate-400">{counts.employee} Employees · {counts.hired_full_time} Partners · {counts.hired_contract} Contractors</p>
+          <h1 className="text-2xl sm:text-3xl font-medium dark:text-white tracking-tight">Team</h1>
+          <p className="text-xs font-normal text-slate-400">{counts.employee} Employees · {counts.hired_full_time} Partners · {counts.hired_contract} Contractors</p>
         </div>
         <div className="flex items-center gap-2">
           {/* View mode toggle */}
           <div className="flex items-center gap-1 bg-slate-100/80 border border-slate-200 p-1 rounded-xl mr-1">
             <button
               onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === "list" 
                   ? "bg-white text-black shadow-xs" 
                   : "text-slate-500 hover:text-black"
@@ -1160,7 +1160,7 @@ export default function ActiveWorkforcePage(){
             </button>
             <button
               onClick={() => setViewMode("kanban")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 viewMode === "kanban" 
                   ? "bg-white text-black shadow-xs" 
                   : "text-slate-500 hover:text-black"

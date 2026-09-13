@@ -38,10 +38,10 @@ export default function GroupSwitcher() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-black text-slate-900 truncate leading-tight">
+              <p className="text-xs font-medium text-slate-800 truncate leading-tight">
                 {activeGroup.name}
               </p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+              <p className="text-[9px] font-normal text-slate-400 uppercase tracking-wider mt-0.5">
                 {groups.length} {groups.length === 1 ? "Organization" : "Organizations"}
               </p>
             </div>
@@ -50,7 +50,7 @@ export default function GroupSwitcher() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" className="w-64 p-2 rounded-2xl shadow-2xl border-[var(--border-color)] bg-white animate-in fade-in zoom-in-95 duration-200">
-          <DropdownMenuLabel className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <DropdownMenuLabel className="px-3 py-2 text-[10px] font-medium uppercase tracking-wider text-slate-400">
             Switch Organization
           </DropdownMenuLabel>
           <div className="space-y-1 py-1">
@@ -60,7 +60,7 @@ export default function GroupSwitcher() {
                 onClick={() => setActiveGroup(group)}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
                   activeGroup.id === group.id 
-                    ? "bg-[#A079FF]/5 text-[#A079FF] font-black" 
+                    ? "bg-[#A079FF]/5 text-[#A079FF] font-medium" 
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -77,7 +77,7 @@ export default function GroupSwitcher() {
                   <div className="flex flex-col min-w-0">
                     <span className="truncate text-xs">{group.name}</span>
                     {group.is_primary && (
-                      <span className="text-[8px] font-black uppercase text-slate-900 tracking-tighter">Primary</span>
+                      <span className="text-[8px] font-medium uppercase text-slate-500 tracking-wider">Primary</span>
                     )}
                   </div>
                 </div>
@@ -90,14 +90,14 @@ export default function GroupSwitcher() {
 
           <DropdownMenuItem 
             onClick={() => navigate("/client/settings/groups")}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#A079FF]/5 hover:text-[#A079FF] transition-all text-xs font-bold"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#A079FF]/5 hover:text-[#A079FF] transition-all text-xs font-medium"
           >
             <Settings className="w-4 h-4" /> Group settings
           </DropdownMenuItem>
           
           <DropdownMenuItem 
             onClick={() => navigate("/client/settings/groups?create=true")}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#A079FF]/5 hover:text-[#A079FF] transition-all text-xs font-bold"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer text-slate-600 hover:bg-[#A079FF]/5 hover:text-[#A079FF] transition-all text-xs font-medium"
           >
             <Plus className="w-4 h-4" /> Create group
           </DropdownMenuItem>

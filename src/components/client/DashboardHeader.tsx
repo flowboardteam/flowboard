@@ -194,7 +194,7 @@ export default function DashboardHeader({
           >
             <Bell className="w-6 h-6" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-[#A079FF] text-white text-[9px] font-black rounded-full flex items-center justify-center border-2 border-[var(--sidebar-bg)] shadow-lg">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#A079FF] text-white text-[9px] font-medium rounded-full flex items-center justify-center border-2 border-[var(--sidebar-bg)] shadow-lg">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -215,8 +215,8 @@ export default function DashboardHeader({
               )}
             </div>
             <div className="hidden sm:block text-left pr-2">
-              <p className="text-[11px] font-semibold text-slate-800 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
-              <p className="text-[9px] text-[#A079FF] font-semibold uppercase tracking-wider mt-0.5 opacity-80">{profile?.role_type || "Client"}</p>
+              <p className="text-[11px] font-medium text-slate-800 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
+              <p className="text-[9px] text-[#A079FF] font-medium uppercase tracking-wider mt-0.5 opacity-80">{profile?.role_type || "Client"}</p>
             </div>
           </button>
 
@@ -225,8 +225,8 @@ export default function DashboardHeader({
               <div className="fixed inset-0 z-[-1]" onClick={() => setIsProfileOpen(false)} />
               <div className="absolute right-0 mt-3 w-56 bg-white border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
                 <div className="p-3.5 border-b border-slate-50 mb-1">
-                   <p className="text-[10px] font-semibold uppercase text-slate-400">Account</p>
-                   <p className="text-xs font-semibold text-slate-900 truncate">{profile?.full_name}</p>
+                   <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Account</p>
+                   <p className="text-xs font-medium text-slate-900 truncate">{profile?.full_name}</p>
                 </div>
                 <Link to="/client/profile" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
                   <User className="w-4 h-4" /> Profile Settings

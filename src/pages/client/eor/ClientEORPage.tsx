@@ -236,12 +236,12 @@ export default function ClientEORPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold tracking-tight text-[#1A1C21]">Employer of Record (EOR) Services</h1>
-            <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-[#1A1C21]">Employer of Record (EOR) Services</h1>
+            <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
               100% Compliant
             </Badge>
           </div>
-          <p className="text-xs font-medium text-[#1A1C21]/60">
+          <p className="text-xs font-normal text-[#1A1C21]/60">
             Legally hire, onboard, and pay global full-time employees in 150+ countries without establishing local legal entities.
           </p>
         </div>
@@ -406,38 +406,38 @@ export default function ClientEORPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active EOR Staff</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Active EOR Staff</span>
             <Users className="w-4 h-4 text-[#A079FF]" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">{activeStaffCount} Individuals</div>
-          <p className="text-[10px] text-emerald-600 font-bold mt-1">Full-time statutory employees</p>
+          <div className="text-xl font-medium text-[#1A1C21]">{activeStaffCount} Individuals</div>
+          <p className="text-[10px] text-emerald-600 font-medium mt-1">Full-time statutory employees</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Jurisdictions</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Active Jurisdictions</span>
             <Globe className="w-4 h-4 text-blue-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">{uniqueCountriesCount} Countries</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Local labor contracts active</p>
+          <div className="text-xl font-medium text-[#1A1C21]">{uniqueCountriesCount} Countries</div>
+          <p className="text-[10px] text-slate-500 font-normal mt-1">Local labor contracts active</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Compliance Guarantee</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Compliance Guarantee</span>
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">100% Protected</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Zero misclassification liability</p>
+          <div className="text-xl font-medium text-[#1A1C21]">100% Protected</div>
+          <p className="text-[10px] text-slate-500 font-normal mt-1">Zero misclassification liability</p>
         </Card>
 
         <Card className="bg-white border border-[#EEEEF0] rounded-xl shadow-none p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Monthly EOR Payroll</span>
+            <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Monthly EOR Payroll</span>
             <DollarSign className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-xl font-black text-[#1A1C21]">${totalMonthlySpend.toLocaleString()}/mo</div>
-          <p className="text-[10px] text-slate-500 font-medium mt-1">Includes tax & benefits routing</p>
+          <div className="text-xl font-medium text-[#1A1C21]">${totalMonthlySpend.toLocaleString()}/mo</div>
+          <p className="text-[10px] text-slate-500 font-normal mt-1">Includes tax & benefits routing</p>
         </Card>
       </div>
 
