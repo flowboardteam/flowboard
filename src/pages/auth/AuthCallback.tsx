@@ -25,8 +25,13 @@ export default function AuthCallback() {
         const redirect = searchParams.get("redirect");
         const intendedRole = localStorage.getItem("intended_role");
 
-        if (redirect && redirect !== "/" && redirect !== "/login") {
-          navigate(redirect, { replace: true });
+        // Paths that should never be used as post-login redirect destinations
+        const invalidRedirects = ["/", "/login", "/client/login", "/talent/login", "/client/signup", "/talent/signup"];
+        const isValidRedirect = (path: string | null): boolean =>
+          !!path && !invalidRedirects.includes(path) && !path.startsWith("/login") && !path.startsWith("/auth");
+
+        if (isValidRedirect(redirect)) {
+          navigate(redirect!, { replace: true });
           return;
         }
 
@@ -39,7 +44,8 @@ export default function AuthCallback() {
           }
           localStorage.removeItem("intended_role");
         } else {
-          navigate("/talent/login", { replace: true });
+          const fallbackLogin = intendedRole === "client" ? "/client/login" : "/talent/login";
+          navigate(fallbackLogin, { replace: true });
         }
       } catch (err: any) {
         console.error("Auth callback error:", err);

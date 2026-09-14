@@ -85,12 +85,20 @@ export default function ClientLogin() {
 
       const pendingToken = localStorage.getItem("pendingInviteToken");
       const intendedRedirect = localStorage.getItem("intended_redirect");
-      
+
+      // Safelist of paths that should NOT be used as post-login redirects
+      const invalidRedirects = ["/", "/login", "/client/login", "/talent/login", "/client/signup", "/talent/signup"];
+      const isValidRedirect = (path: string | null): boolean =>
+        !!path && !invalidRedirects.includes(path) && !path.startsWith("/login") && !path.startsWith("/auth");
+
       let defaultRedirect = "/client/dashboard";
       if (pendingToken) {
         defaultRedirect = `/invite/${pendingToken}`;
+      } else if (isValidRedirect(intendedRedirect)) {
+        defaultRedirect = intendedRedirect!;
+        localStorage.removeItem("intended_redirect");
       } else if (intendedRedirect) {
-        defaultRedirect = intendedRedirect;
+        // Clear bad redirect values
         localStorage.removeItem("intended_redirect");
       }
 
