@@ -45,7 +45,7 @@ export default function DashboardIndex() {
     fetchProfile();
   }, []);
 
-  const firstName = profile?.full_name?.split(" ")[0] || "George";
+  const firstName = profile?.full_name?.split(" ")[0] || "";
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-20">
@@ -83,7 +83,7 @@ export default function DashboardIndex() {
       {/* Welcome Header */}
       <div className="text-center pt-4">
         <h1 className="text-2xl sm:text-3xl font-medium text-[#1A1C21] tracking-tight">
-          Welcome, {firstName} 👋
+          Welcome{firstName ? `, ${firstName}` : ""} 👋
         </h1>
       </div>
 

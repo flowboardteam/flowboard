@@ -81,7 +81,8 @@ export default function Login() {
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get("redirect") || "/talent/dashboard";
 
-    const callbackRedirectUrl = `${window.location.origin}/login/callback?redirect=${encodeURIComponent(redirect)}`;
+    localStorage.setItem("intended_redirect", redirect);
+    const callbackRedirectUrl = `${window.location.origin}/login/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,

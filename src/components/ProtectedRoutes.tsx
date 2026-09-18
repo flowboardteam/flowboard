@@ -62,15 +62,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "User",
           updated_at: new Date().toISOString()
         }, { onConflict: "id" });
-      } else if (intendedRole && profile.role_type !== intendedRole) {
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ role_type: intendedRole })
-          .eq("id", user.id);
-        
-        if (!updateError) {
-          profile.role_type = intendedRole;
-        }
+      } else if (intendedRole) {
         localStorage.removeItem("intended_role");
       }
 
@@ -109,13 +101,8 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         return;
       }
       if (role === "client" && path.startsWith("/talent")) {
-        if (intendedRole === "talent") {
-          profile.role_type = "talent";
-          await supabase.from("profiles").update({ role_type: "talent" }).eq("id", user.id);
-        } else {
-          navigate(config.dashboard, { replace: true });
-          return;
-        }
+        navigate(config.dashboard, { replace: true });
+        return;
       }
 
       // 5. ONBOARDING LOGIC

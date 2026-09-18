@@ -102,12 +102,12 @@ export default function TalentOnboarding() {
         setFullName(
           user.user_metadata?.full_name ||
             user.user_metadata?.name ||
-            "George Aleesu"
+            ""
         );
         setDigitalSignature(
           user.user_metadata?.full_name ||
             user.user_metadata?.name ||
-            "George Aleesu"
+            ""
         );
       }
     };

@@ -52,6 +52,7 @@ const MENU_GROUPS = [
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const [pendingOffers,    setPendingOffers]    = useState(0);
   const [pendingContracts, setPendingContracts] = useState(0);
+  const [userName,         setUserName]         = useState("");
 
   useEffect(() => {
     const fetchCounts = async () => {
@@ -73,6 +74,9 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
       setPendingOffers(offerCount ?? 0);
       setPendingContracts(contractCount ?? 0);
+
+      const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+      setUserName(profile?.full_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "Talent User");
     };
 
     fetchCounts();
@@ -150,7 +154,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <Users className="w-5 h-5 text-slate-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[var(--text-main)] truncate">George Aleesu</p>
+            <p className="text-sm font-medium text-[var(--text-main)] truncate">{userName || "Loading..."}</p>
             <p className="text-[10px] font-medium uppercase tracking-wider text-[#00A86B]">Talent</p>
           </div>
         </NavLink>

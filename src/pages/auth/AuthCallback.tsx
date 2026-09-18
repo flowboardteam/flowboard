@@ -22,7 +22,7 @@ export default function AuthCallback() {
           // ensure host is matching current live domain
         }
 
-        const redirect = searchParams.get("redirect");
+        const redirect = searchParams.get("redirect") || localStorage.getItem("intended_redirect");
         const intendedRole = localStorage.getItem("intended_role");
 
         // Paths that should never be used as post-login redirect destinations
@@ -43,6 +43,7 @@ export default function AuthCallback() {
             navigate("/talent/dashboard", { replace: true });
           }
           localStorage.removeItem("intended_role");
+          localStorage.removeItem("intended_redirect");
         } else {
           const fallbackLogin = intendedRole === "client" ? "/client/login" : "/talent/login";
           navigate(fallbackLogin, { replace: true });

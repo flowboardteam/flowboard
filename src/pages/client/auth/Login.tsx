@@ -118,7 +118,8 @@ export default function ClientLogin() {
       redirect = intendedRedirect;
     }
 
-    const callbackRedirectUrl = `${window.location.origin}/login/callback?redirect=${encodeURIComponent(redirect)}`;
+    localStorage.setItem("intended_redirect", redirect);
+    const callbackRedirectUrl = `${window.location.origin}/login/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
