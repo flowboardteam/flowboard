@@ -17,13 +17,10 @@ const DEV_KEY =
 
 const PROD_KEY =
   import.meta.env.VITE_CLERK_CLIENT_PUBLISHABLE_KEY ||
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  "pk_live_Y2xlcmsuYXBwLmZsb3dib2FyZC50ZWFtJA";
 
 const PUBLISHABLE_KEY = isLocalhost ? DEV_KEY : PROD_KEY;
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key");
-}
 
 createRoot(document.getElementById("root")!).render(
   <ClerkProvider publishableKey={PUBLISHABLE_KEY} appearance={{ theme: shadcn }}>
