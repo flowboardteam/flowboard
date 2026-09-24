@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import GroupSwitcher from "./GroupSwitcher";
+import { UserButton } from "@clerk/clerk-react";
 
 const NAV_GROUPS = [
   {
@@ -201,46 +202,9 @@ export default function DashboardHeader({
           </button>
         </div>
 
-        {/* User Profile Dropdown */}
-        <div className="relative ml-2">
-          <button
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-3 p-1 rounded-xl bg-slate-50/50 hover:bg-[#A079FF]/5 border border-[var(--border-color)] transition-all"
-          >
-             <div className="w-8 h-8 rounded-lg bg-slate-200 border border-[var(--border-color)] flex items-center justify-center overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                <User className="w-5 h-5 text-slate-400" />
-              )}
-            </div>
-            <div className="hidden sm:block text-left pr-2">
-              <p className="text-[11px] font-medium text-slate-800 leading-none">{profile?.full_name?.split(" ")[0] || "Me"}</p>
-              <p className="text-[9px] text-[#A079FF] font-medium uppercase tracking-wider mt-0.5 opacity-80">{profile?.role_type || "Client"}</p>
-            </div>
-          </button>
-
-          {isProfileOpen && (
-            <>
-              <div className="fixed inset-0 z-[-1]" onClick={() => setIsProfileOpen(false)} />
-              <div className="absolute right-0 mt-3 w-56 bg-white border border-[var(--border-color)] rounded-2xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200">
-                <div className="p-3.5 border-b border-slate-50 mb-1">
-                   <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">Account</p>
-                   <p className="text-xs font-medium text-slate-900 truncate">{profile?.full_name}</p>
-                </div>
-                <Link to="/client/profile" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
-                  <User className="w-4 h-4" /> Profile Settings
-                </Link>
-                <Link to="/client/settings" className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-slate-600 hover:text-[#A079FF] hover:bg-[#A079FF]/5 rounded-xl transition-all" onClick={() => setIsProfileOpen(false)}>
-                  <Settings className="w-4 h-4" /> System Preference
-                </Link>
-                <div className="h-px bg-slate-50 my-1" />
-                <button onClick={handleLogout} className="flex items-center gap-3 px-3.5 py-2.5 text-xs font-medium text-red-500 hover:bg-red-50 hover:text-red-600 w-full rounded-xl transition-all">
-                  <LogOut className="w-4 h-4" /> Sign Out
-                </button>
-              </div>
-            </>
-          )}
+        {/* Clerk User Button */}
+        <div className="flex items-center ml-2">
+          <UserButton showName afterSignOutUrl="/client/login" />
         </div>
 
         <button onClick={onMenuClick} className="lg:hidden p-2 text-slate-400 hover:bg-slate-100 rounded-xl transition-colors">

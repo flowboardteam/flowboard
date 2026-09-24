@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2, Zap, BrainCircuit, Target, ShieldCheck,
@@ -175,9 +175,18 @@ export default function HarakaAgent() {
 
 
 
-          <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
-            Find talent.
-          </h1>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl font-medium text-slate-900 dark:text-white tracking-tight">
+              Find talent.
+            </h1>
+            <Link
+              to="/client/haraka/test"
+              className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/60 hover:bg-indigo-100 transition-colors"
+            >
+              <BrainCircuit className="w-3.5 h-3.5" />
+              AI Foundation Test Console
+            </Link>
+          </div>
 
           {/* Context banner — shown when launched from a role */}
           {sourceRole && (

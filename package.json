@@ -12,6 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.10",
+    "@clerk/react": "^6.17.1",
+    "@clerk/ui": "^1.35.0",
     "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",

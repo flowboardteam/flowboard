@@ -21,10 +21,14 @@ import {
   RefreshCw,
   Pencil,
   Eye,
+  Sparkles,
+  BrainCircuit,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useGroups } from "@/contexts/GroupContext";
+import { draftRoleWithMia, MiaRoleInput, MiaRoleOutput } from "@/lib/haraka";
+import MiaRoleReviewModal from "./components/MiaRoleReviewModal";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DEPARTMENTS = [
@@ -1058,11 +1062,92 @@ export default function CreateRolePage() {
   const editId = searchParams.get("edit");
   const { activeGroup } = useGroups();
 
-  const [mode, setMode] = useState<null | "manual" | "ai">(editId ? "manual" : null);
+  const [mode, setMode] = useState<null | "manual" | "ai" | "mia">(editId ? "manual" : null);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(!!editId);
+
+  // Mia AI Agent states
+  const [miaDrafting, setMiaDrafting] = useState(false);
+  const [miaDraft, setMiaDraft] = useState<MiaRoleOutput | null>(null);
+  const [miaModalOpen, setMiaModalOpen] = useState(false);
+  const [miaPromptText, setMiaPromptText] = useState("");
+  const [miaInput, setMiaInput] = useState<MiaRoleInput>({
+    roleTitle: "",
+    department: "",
+    employmentType: "Full-time",
+    location: "Remote",
+    experienceLevel: "",
+    salaryRange: "",
+    additionalNotes: "",
+  });
+
+  const handleTriggerMia = async (customPayload?: MiaRoleInput) => {
+    if (!activeGroup?.id) {
+      alert("Please ensure an active organization group is selected.");
+      return;
+    }
+
+    const payload: MiaRoleInput = customPayload || {
+      roleTitle: miaInput.roleTitle || form.title,
+      department: miaInput.department || form.department,
+      employmentType: miaInput.employmentType || form.type,
+      location: miaInput.location || form.location,
+      experienceLevel: miaInput.experienceLevel || form.experience_level,
+      salaryRange: miaInput.salaryRange || form.salary || (salaryMin ? `${salaryCurrency}${salaryMin}${salaryMax ? ` - ${salaryCurrency}${salaryMax}` : ""} ${salaryPeriod}` : null),
+      responsibilities: form.responsibilities.length > 0 ? form.responsibilities : undefined,
+      requirements: form.skills.length > 0 ? form.skills : undefined,
+      additionalNotes: miaPromptText || miaInput.additionalNotes || form.description,
+    };
+
+    setMiaDrafting(true);
+    try {
+      const response = await draftRoleWithMia(payload, activeGroup.id);
+      if (response.success && response.parsedData) {
+        setMiaDraft(response.parsedData);
+        setMiaModalOpen(true);
+      } else {
+        alert(response.error || "Mia encountered an issue drafting this role. Please try again.");
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to communicate with Mia.");
+    } finally {
+      setMiaDrafting(false);
+    }
+  };
+
+  const handleApplyMiaDraft = (approvedRole: MiaRoleOutput) => {
+    setForm((prev) => ({
+      ...prev,
+      title: approvedRole.jobTitle || prev.title,
+      department: approvedRole.department || prev.department,
+      type: (approvedRole.employmentType as any) || prev.type,
+      location: (approvedRole.locationType as any) || prev.location,
+      location_details:
+        approvedRole.locationDetails !== undefined && approvedRole.locationDetails !== null
+          ? approvedRole.locationDetails
+          : prev.location_details,
+      description: approvedRole.summary || prev.description,
+      responsibilities: approvedRole.responsibilities || prev.responsibilities,
+      skills: approvedRole.skills || prev.skills,
+      benefits: approvedRole.benefits && approvedRole.benefits.length > 0 ? approvedRole.benefits : prev.benefits,
+      education: approvedRole.educationRequirement || prev.education,
+      other_requirements: [
+        ...(approvedRole.requiredQualifications || []),
+        ...(approvedRole.preferredQualifications?.map((q) => `(Preferred) ${q}`) || []),
+      ],
+      experience_level: approvedRole.experienceRequirement || prev.experience_level,
+    }));
+
+    if (approvedRole.salaryGuidance) {
+      parseSalary(approvedRole.salaryGuidance);
+    }
+
+    setMiaModalOpen(false);
+    setMode("manual");
+    setStep(1);
+  };
 
   // Salary range builder states
   const [salaryCurrency, setSalaryCurrency] = useState("$");
@@ -1379,57 +1464,188 @@ export default function CreateRolePage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setMode("manual")}
-            className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group"
+            className="p-6 sm:p-8 rounded-3xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group cursor-pointer"
           >
-            <div className="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-slate-500/10 flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
               <FileText className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" />
             </div>
             <div>
-              <p className="text-lg font-medium dark:text-white tracking-tight mb-1">
+              <p className="text-lg font-bold dark:text-white tracking-tight mb-1">
                 Manual
               </p>
               <p className="text-sm font-normal text-slate-500 leading-relaxed">
-                Fill in all the role details yourself step by step
+                Fill in all the role details yourself step by step with optional AI assistance.
               </p>
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-500 tracking-wider group-hover:text-blue-600 transition-colors mt-auto">
-              START
+            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-500 tracking-wider group-hover:text-blue-600 transition-colors mt-auto">
+              START MANUALLY →
             </div>
           </motion.button>
 
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setMode("ai")}
-            className="p-6 sm:p-8 rounded-2xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-sm text-left flex flex-col gap-4 hover:border-blue-500/50 transition-all group relative overflow-hidden"
+            onClick={() => setMode("mia")}
+            className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-indigo-950/20 via-[var(--card-bg)] to-[var(--card-bg)] border border-indigo-500/30 shadow-sm text-left flex flex-col gap-4 hover:border-indigo-500/60 transition-all group relative overflow-hidden cursor-pointer"
           >
             <div className="absolute top-4 right-4">
-              <span className="text-[10px] font-medium tracking-wider bg-emerald-500/10 text-emerald-600 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                AI POWERED
+              <span className="text-[10px] font-bold tracking-wider bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full border border-indigo-500/20 flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                HARAKA AGENT
               </span>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-sm">
-              <img
-                src="/flowboardlogo.png"
-                alt="Haraka01"
-                className="w-8 h-8 object-contain"
-              />
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm">
+              <BrainCircuit className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-lg font-medium dark:text-white tracking-tight mb-1">
-                Haraka01
+              <p className="text-lg font-bold text-white tracking-tight mb-1">
+                Mia (Role Agent)
               </p>
-              <p className="text-sm font-normal text-slate-500 leading-relaxed">
-                Describe the role in plain English — Haraka01 will generate a
-                complete job description, responsibilities, skills, and benefits
-                for you to review and refine.
+              <p className="text-sm font-normal text-slate-400 leading-relaxed">
+                Describe the role in plain English. Mia drafts responsibilities, competencies, qualifications, and screening questions for your review.
               </p>
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-medium text-blue-600 tracking-wider mt-auto">
-              GENERATE
+            <div className="flex items-center gap-1 text-[11px] font-bold text-indigo-400 tracking-wider mt-auto">
+              DRAFT WITH MIA →
             </div>
           </motion.button>
         </div>
+
+        {/* Optional legacy generator link */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setMode("ai")}
+            className="text-xs text-slate-500 hover:text-slate-400 transition-colors underline cursor-pointer"
+          >
+            Or use legacy Haraka01 generator
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Mia mode ───────────────────────────────────────────────────────────
+  if (mode === "mia") {
+    return (
+      <div className="max-w-2xl mx-auto pb-20 px-4 sm:px-0">
+        <button
+          onClick={() => setMode(null)}
+          className="flex items-center gap-2 text-xs font-medium tracking-wide text-slate-400 hover:text-indigo-400 transition-colors mb-8 cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to mode selection
+        </button>
+
+        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-6 text-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-sm">
+              <BrainCircuit className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-white tracking-tight">Haraka Mia</h2>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                  Job Description & Role Agent
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Mia drafts structured job requisitions, responsibilities, and evaluation competencies for human review.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                Role Title (Optional or working title)
+              </label>
+              <input
+                type="text"
+                value={miaInput.roleTitle || ""}
+                onChange={(e) => setMiaInput({ ...miaInput, roleTitle: e.target.value })}
+                placeholder="e.g. Senior Full-Stack Engineer"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 font-medium"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Department
+                </label>
+                <select
+                  value={miaInput.department || ""}
+                  onChange={(e) => setMiaInput({ ...miaInput, department: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                >
+                  <option value="">Select or leave open</option>
+                  {DEPARTMENTS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Location / Work Model
+                </label>
+                <select
+                  value={miaInput.location || "Remote"}
+                  onChange={(e) => setMiaInput({ ...miaInput, location: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                >
+                  {LOCATIONS.map((loc) => (
+                    <option key={loc} value={loc}>{loc}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                Describe the role in plain English
+              </label>
+              <textarea
+                rows={4}
+                value={miaPromptText}
+                onChange={(e) => setMiaPromptText(e.target.value)}
+                placeholder="e.g. We need someone who can lead our backend services, scale PostgreSQL, manage CI/CD pipelines, and collaborate with our frontend team. 3-5 years experience..."
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 resize-none font-medium leading-relaxed"
+              />
+              <p className="text-[11px] text-slate-500 mt-1">
+                You can provide as little or as much context as you have — Mia will identify any missing information.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => handleTriggerMia()}
+            disabled={miaDrafting || (!miaPromptText.trim() && !miaInput.roleTitle?.trim())}
+            className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 transition-all cursor-pointer"
+          >
+            {miaDrafting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                DRAFTING WITH MIA...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                DRAFT WITH MIA
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Render Review Modal if draft is ready */}
+        {miaDraft && (
+          <MiaRoleReviewModal
+            isOpen={miaModalOpen}
+            draft={miaDraft}
+            groupId={activeGroup?.id || ""}
+            onApply={handleApplyMiaDraft}
+            onClose={() => setMiaModalOpen(false)}
+          />
+        )}
       </div>
     );
   }
@@ -1500,6 +1716,46 @@ export default function CreateRolePage() {
         </h1>
       </div>
 
+      {/* Haraka Mia Assistant Trigger Banner */}
+      {step <= 2 && (
+        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 shadow-sm">
+              <BrainCircuit className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-200">Haraka Mia</span>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                  AI Role Agent
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Want AI assistance? Let Mia draft or enhance this role based on your entered details.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => handleTriggerMia()}
+            disabled={miaDrafting}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/20 shrink-0 cursor-pointer disabled:opacity-50"
+          >
+            {miaDrafting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Drafting with Mia...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                Ask Mia to draft
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Step indicator — mobile-safe */}
       <div className="mb-6 sm:mb-8">
         <StepIndicator currentStep={step} />
@@ -1560,6 +1816,17 @@ export default function CreateRolePage() {
           </div>
         )}
       </div>
+
+      {/* Mia Review Modal */}
+      {miaDraft && (
+        <MiaRoleReviewModal
+          isOpen={miaModalOpen}
+          draft={miaDraft}
+          groupId={activeGroup?.id || ""}
+          onApply={handleApplyMiaDraft}
+          onClose={() => setMiaModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
