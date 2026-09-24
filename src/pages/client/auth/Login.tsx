@@ -69,7 +69,8 @@ export default function ClientLogin() {
       {/* --- RIGHT SIDE: Clerk Sign In Component --- */}
       <div className="flex flex-col justify-center items-center px-6 py-12 lg:px-24 bg-white relative">
         <SignIn
-          routing="virtual"
+          path="/client/login"
+          routing="path"
           signUpUrl="/client/signup"
           forceRedirectUrl="/client/dashboard"
         />

@@ -137,8 +137,8 @@ const App = () => (
           <Route path="/login" element={<Index />} />
 
           {/* Talent Auth */}
-          <Route path="/talent/signup"          element={<TalentSignup />} />
-          <Route path="/talent/login"           element={<TalentLogin />} />
+          <Route path="/talent/signup/*"        element={<TalentSignup />} />
+          <Route path="/talent/login/*"         element={<TalentLogin />} />
           <Route path="/talent/forgot-password" element={<ForgotPassword />} />
           <Route path="/talent/reset-password"  element={<ResetPassword />} />
           <Route path="/login/callback"        element={<AuthCallback />} />
@@ -149,8 +149,8 @@ const App = () => (
           <Route path="/faq"     element={<FAQPage />} />
 
           {/* Client Auth */}
-          <Route path="/client/signup"          element={<ClientSignup />} />
-          <Route path="/client/login"           element={<ClientLogin />} />
+          <Route path="/client/signup/*"        element={<ClientSignup />} />
+          <Route path="/client/login/*"         element={<ClientLogin />} />
           <Route path="/client/forgot-password" element={<ClientForgotPassword />} />
           <Route path="/client/reset-password"  element={<ClientResetPassword />} />
           <Route path="/invite/:token" element={<InvitePage />} />
