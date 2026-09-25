@@ -65,9 +65,9 @@ export default function TalentSignUp() {
       {/* --- RIGHT SIDE: Clerk Sign Up Component --- */}
       <div className="flex flex-col justify-center items-center px-6 py-12 lg:px-24 bg-white relative">
         <SignUp
-          path="/talent/signup"
+          path={window.location.pathname.startsWith("/signup") ? "/signup" : "/talent/signup"}
           routing="path"
-          signInUrl="/talent/login"
+          signInUrl={window.location.pathname.startsWith("/signup") ? "/login" : "/talent/login"}
           forceRedirectUrl="/talent/dashboard"
         />
       </div>

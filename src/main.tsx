@@ -26,8 +26,8 @@ const DEV_KEY =
   "pk_test_bXVzaWNhbC1nb3NoYXdrLTIxOTguY2xlcmsuYWNjb3VudHMuZGV2JA";
 
 // Determine domain portal mode
-const isTalentDomain = hostname.includes("talent") || hostname.includes("talents");
-const isClientDomain = hostname.includes("client") || hostname.includes("clients");
+const isTalentDomain = hostname.includes("talent");
+const isClientDomain = hostname.includes("business") || hostname.includes("client");
 
 let PUBLISHABLE_KEY = DEV_KEY;
 if (!isLocalhost) {
@@ -40,6 +40,7 @@ if (!isLocalhost) {
     PUBLISHABLE_KEY = CLIENT_PROD_KEY;
   }
 }
+
 
 createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
