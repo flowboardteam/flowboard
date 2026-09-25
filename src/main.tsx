@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { ClerkProvider } from "@clerk/clerk-react";
-import { shadcn } from "@clerk/ui/themes";
 import App from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import "./index.css";
 
 const isLocalhost =
@@ -23,7 +23,10 @@ const PROD_KEY =
 const PUBLISHABLE_KEY = isLocalhost ? DEV_KEY : PROD_KEY;
 
 createRoot(document.getElementById("root")!).render(
-  <ClerkProvider publishableKey={PUBLISHABLE_KEY} appearance={{ theme: shadcn }}>
-    <App />
-  </ClerkProvider>
+  <ErrorBoundary>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <App />
+    </ClerkProvider>
+  </ErrorBoundary>
 );
+
