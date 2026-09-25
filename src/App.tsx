@@ -106,12 +106,18 @@ import OpenPositions from "./pages/public/careers/OpenPositions";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ShadcnToaster />
-      <BrowserRouter>
-        <Routes>
+const App = () => {
+  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+  const isTalentDomain = hostname.includes("talent");
+  const isClientDomain = hostname.includes("business") || hostname.includes("client");
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ShadcnToaster />
+        <BrowserRouter>
+          <Routes>
+
 
           {/* ── Public ────────────────────────────────────────────── */}
           <Route path="/" element={<Index />} />
@@ -134,7 +140,9 @@ const App = () => (
           <Route path="/partners/apply" element={<PartnerApply />} />
           <Route path="/careers/open-positions" element={<OpenPositions />} />
           <Route path="/jobs/:roleId" element={<JobPosting />} />
-          <Route path="/login" element={<Index />} />
+          {/* Direct Auth Aliases for Custom Subdomains (talent.flowboard.team & business.flowboard.team) */}
+          <Route path="/login/*" element={isTalentDomain ? <TalentLogin /> : isClientDomain ? <ClientLogin /> : <Index />} />
+          <Route path="/signup/*" element={isTalentDomain ? <TalentSignup /> : isClientDomain ? <ClientSignup /> : <Index />} />
 
           {/* Talent Auth */}
           <Route path="/talent/signup/*"        element={<TalentSignup />} />
@@ -154,6 +162,7 @@ const App = () => (
           <Route path="/client/forgot-password" element={<ClientForgotPassword />} />
           <Route path="/client/reset-password"  element={<ClientResetPassword />} />
           <Route path="/invite/:token" element={<InvitePage />} />
+
 
           {/* Candidate AI Interview Portal */}
           <Route path="/interview/:token"           element={<CandidateConsentPage />} />
@@ -249,6 +258,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
