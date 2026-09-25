@@ -69,9 +69,9 @@ export default function ClientLogin() {
       {/* --- RIGHT SIDE: Clerk Sign In Component --- */}
       <div className="flex flex-col justify-center items-center px-6 py-12 lg:px-24 bg-white relative">
         <SignIn
-          path={window.location.pathname.startsWith("/login") ? "/login" : "/client/login"}
+          path={window.location.pathname === "/" ? "/" : window.location.pathname.startsWith("/login") ? "/login" : "/client/login"}
           routing="path"
-          signUpUrl={window.location.pathname.startsWith("/login") ? "/signup" : "/client/signup"}
+          signUpUrl="/signup"
           forceRedirectUrl="/client/dashboard"
         />
       </div>

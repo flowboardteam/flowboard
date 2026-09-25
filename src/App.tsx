@@ -119,30 +119,13 @@ const App = () => {
           <Routes>
 
 
-          {/* ── Public ────────────────────────────────────────────── */}
-          <Route path="/" element={<Index />} />
+          {/* ── Public / Subdomain Root ──────────────────────────── */}
+          <Route path="/" element={isTalentDomain ? <TalentLogin /> : isClientDomain ? <ClientLogin /> : <Index />} />
 
-          {/* Platform Options */}
-          <Route path="/platform/applicant-tracking" element={<ApplicantTracking />} />
-          <Route path="/platform/quality-assurance" element={<QualityAssurance />} />
-          <Route path="/platform/global-talent-cloud" element={<GlobalTalentCloud />} />
-          <Route path="/platform/global-payroll" element={<GlobalPayroll />} />
-
-          {/* Solutions Options */}
-          <Route path="/solutions/startups" element={<Startups />} />
-          <Route path="/solutions/enterprises" element={<Enterprises />} />
-          <Route path="/solutions/remote-teams" element={<RemoteTeams />} />
-          <Route path="/solutions/intelligent-sourcing" element={<IntelligentSourcing />} />
-          <Route path="/solutions/performance-tracking" element={<PerformanceTracking />} />
-          <Route path="/solutions/compliance-automation" element={<ComplianceAutomation />} />
-
-          <Route path="/resources/hub" element={<ResourceHub />} />
-          <Route path="/partners/apply" element={<PartnerApply />} />
-          <Route path="/careers/open-positions" element={<OpenPositions />} />
-          <Route path="/jobs/:roleId" element={<JobPosting />} />
           {/* Direct Auth Aliases for Custom Subdomains (talent.flowboard.team & business.flowboard.team) */}
           <Route path="/login/*" element={isTalentDomain ? <TalentLogin /> : isClientDomain ? <ClientLogin /> : <Index />} />
           <Route path="/signup/*" element={isTalentDomain ? <TalentSignup /> : isClientDomain ? <ClientSignup /> : <Index />} />
+
 
           {/* Talent Auth */}
           <Route path="/talent/signup/*"        element={<TalentSignup />} />
