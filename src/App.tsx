@@ -11,7 +11,7 @@ import { TalentPublicProfile } from "./pages/TalentPublicProfile";
 import JobPosting from "./pages/public/jobs/JobPosting";
 
 // Talent Auth
-import TalentSignup from "./pages/talent/auth/Signup";
+import TalentSignup from "./pages/talent/auth/signupageafterwaitlist";
 import TalentLogin from "./pages/talent/auth/Login";
 import ForgotPassword from "./pages/talent/auth/ForgotPassword";
 import ResetPassword from "./pages/talent/auth/ResetPassword";
@@ -54,7 +54,6 @@ import ClientEORPage from "./pages/client/eor/ClientEORPage";
 import ClientContractorsPage from "./pages/client/contractors/ClientContractorsPage";
 import ClientOffersPage from "./pages/client/offers/ClientOffersPage";
 import Haraka from "./pages/client/haraka";
-import HarakaFoundationTest from "./pages/client/haraka/HarakaFoundationTest";
 import GroupsPage from "./pages/client/settings/Groups";
 import ClientPayrollPage from "./pages/client/payroll/ClientPayrollPage";
 import InvitePage from "./pages/InvitePage";
@@ -207,7 +206,6 @@ const App = () => (
 
             {/* Talent & AI */}
             <Route path="haraka"       element={<Haraka />} />
-            <Route path="haraka/test"  element={<HarakaFoundationTest />} />
             <Route path="shortlist"    element={<Shortlist />} />
             <Route path="talent-pool"  element={<ClientTalentPool />} />
 
