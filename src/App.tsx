@@ -106,30 +106,39 @@ import OpenPositions from "./pages/public/careers/OpenPositions";
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
-  const isTalentDomain = hostname.includes("talent");
-  const isClientDomain = hostname.includes("business") || hostname.includes("client");
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <ShadcnToaster />
+      <BrowserRouter>
+        <Routes>
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <ShadcnToaster />
-        <BrowserRouter>
-          <Routes>
+          {/* ── Public ────────────────────────────────────────────── */}
+          <Route path="/" element={<Index />} />
 
+          {/* Platform Options */}
+          <Route path="/platform/applicant-tracking" element={<ApplicantTracking />} />
+          <Route path="/platform/quality-assurance" element={<QualityAssurance />} />
+          <Route path="/platform/global-talent-cloud" element={<GlobalTalentCloud />} />
+          <Route path="/platform/global-payroll" element={<GlobalPayroll />} />
 
-          {/* ── Public / Subdomain Root ──────────────────────────── */}
-          <Route path="/" element={isTalentDomain ? <TalentLogin /> : isClientDomain ? <ClientLogin /> : <Index />} />
+          {/* Solutions Options */}
+          <Route path="/solutions/startups" element={<Startups />} />
+          <Route path="/solutions/enterprises" element={<Enterprises />} />
+          <Route path="/solutions/remote-teams" element={<RemoteTeams />} />
+          <Route path="/solutions/intelligent-sourcing" element={<IntelligentSourcing />} />
+          <Route path="/solutions/performance-tracking" element={<PerformanceTracking />} />
+          <Route path="/solutions/compliance-automation" element={<ComplianceAutomation />} />
 
-          {/* Direct Auth Aliases for Custom Subdomains (talent.flowboard.team & business.flowboard.team) */}
-          <Route path="/login/*" element={isTalentDomain ? <TalentLogin /> : isClientDomain ? <ClientLogin /> : <Index />} />
-          <Route path="/signup/*" element={isTalentDomain ? <TalentSignup /> : isClientDomain ? <ClientSignup /> : <Index />} />
-
+          <Route path="/resources/hub" element={<ResourceHub />} />
+          <Route path="/partners/apply" element={<PartnerApply />} />
+          <Route path="/careers/open-positions" element={<OpenPositions />} />
+          <Route path="/jobs/:roleId" element={<JobPosting />} />
+          <Route path="/login" element={<Index />} />
 
           {/* Talent Auth */}
-          <Route path="/talent/signup/*"        element={<TalentSignup />} />
-          <Route path="/talent/login/*"         element={<TalentLogin />} />
+          <Route path="/talent/signup"          element={<TalentSignup />} />
+          <Route path="/talent/login"           element={<TalentLogin />} />
           <Route path="/talent/forgot-password" element={<ForgotPassword />} />
           <Route path="/talent/reset-password"  element={<ResetPassword />} />
           <Route path="/login/callback"        element={<AuthCallback />} />
@@ -140,12 +149,11 @@ const App = () => {
           <Route path="/faq"     element={<FAQPage />} />
 
           {/* Client Auth */}
-          <Route path="/client/signup/*"        element={<ClientSignup />} />
-          <Route path="/client/login/*"         element={<ClientLogin />} />
+          <Route path="/client/signup"          element={<ClientSignup />} />
+          <Route path="/client/login"           element={<ClientLogin />} />
           <Route path="/client/forgot-password" element={<ClientForgotPassword />} />
           <Route path="/client/reset-password"  element={<ClientResetPassword />} />
           <Route path="/invite/:token" element={<InvitePage />} />
-
 
           {/* Candidate AI Interview Portal */}
           <Route path="/interview/:token"           element={<CandidateConsentPage />} />
@@ -241,7 +249,6 @@ const App = () => {
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-  );
-};
+);
 
 export default App;

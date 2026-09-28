@@ -69,13 +69,11 @@ export default function ClientSignup() {
       {/* --- RIGHT SIDE: Clerk Sign Up Component --- */}
       <div className="flex flex-col justify-center items-center px-6 py-12 lg:px-24 bg-white relative">
         <SignUp
-          path={window.location.pathname.startsWith("/signup") ? "/signup" : "/client/signup"}
-          routing="path"
-          signInUrl={window.location.pathname.startsWith("/signup") ? "/login" : "/client/login"}
+          routing="virtual"
+          signInUrl="/client/login"
           forceRedirectUrl="/client/onboarding"
         />
       </div>
     </div>
   );
 }
-
