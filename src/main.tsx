@@ -30,14 +30,7 @@ const isTalentDomain = hostname.includes("talent");
 const isClientDomain = hostname.includes("business") || hostname.includes("client");
 
 let PUBLISHABLE_KEY = DEV_KEY;
-if (isLocalhost) {
-  const path = typeof window !== "undefined" ? window.location.pathname : "";
-  if (path.startsWith("/talent")) {
-    PUBLISHABLE_KEY = TALENT_PROD_KEY;
-  } else if (path.startsWith("/client")) {
-    PUBLISHABLE_KEY = CLIENT_PROD_KEY;
-  }
-} else {
+if (!isLocalhost) {
   if (isTalentDomain) {
     PUBLISHABLE_KEY = TALENT_PROD_KEY;
   } else if (isClientDomain) {
